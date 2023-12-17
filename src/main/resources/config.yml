@@ -1,9 +1,45 @@
 database: ""
+item-sets:
+  lobby:
+    game-selector:
+      slot: 0
+      material: "RECOVERY_COMPASS"
+      name: "item.game_selector.name"
+      lore: "item.game_selector.lore"
+      command: "games"
+    profile-viewer:
+      slot: 1
+      material: FLOWER_BANNER_PATTERN
+      name: "item.profile_viewer.name"
+      lore: "item.profile_viewer.lore"
+      command: "profile"
+    cosmetics:
+      slot: 4
+      material: CHEST
+      name: "item.cosmetics.name"
+      lore: "item.cosmetics.lore"
+      command: "cosmetics"
+    ride-pearl:
+      slot: 5
+      material: ENDER_PEARL
+      name: "item.ride_pearl.name"
+      lore: "item.ride_pearl.lore"
+      command: "ridepearl"
+    settings:
+      slot: 8
+      material: COMPARATOR
+      name: "item.settings.name"
+      lore: "item.settings.lore"
+      command: "settings"
 fish-types:
   moss-fish:
-    name: "fishing.moss_fish.name"
+    name: fishing.moss_fish
+    rarity: legendary
+    weights:
+      pond-1: 0.3
+      pond-2: 0.5
     item:
       material: PHANTOM_MEMBRANE
       custom-model-data: 1
-      name: "fishing.moss_fish.item.name"
-      lore: "fishing.moss_fish.item.lore"
+      name: fishing.moss_fish.item.name
+      lore: fishing.moss_fish.item.lore

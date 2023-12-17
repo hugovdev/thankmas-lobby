@@ -6,7 +6,7 @@ import java.util.UUID
 
 public class LobbyPlayer(playerUUID: UUID) : ScoreboardPlayerData(playerUUID) {
 
-    private val unlockedNPCs: MutableList<EasterEggNPC> = mutableListOf()
+    // private val unlockedNPCs: MutableList<EasterEggNPC> = mutableListOf()
     private val capturedFishes: MutableList<CapturedFish> = mutableListOf()
 
     init {
