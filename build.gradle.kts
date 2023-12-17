@@ -10,10 +10,8 @@ version = "1.0-SNAPSHOT"
 repositories {
     mavenCentral()
 
-    maven {
-        name = "papermc-repo"
-        url = uri("https://repo.papermc.io/repository/maven-public/")
-    }
+    maven(url = "https://jitpack.io")
+    maven(url = "https://repo.papermc.io/repository/maven-public/")
 }
 
 dependencies {
@@ -37,9 +35,14 @@ kotlin {
     explicitApi()
 }
 
+tasks.withType<JavaCompile> { // Preserve parameter names in the bytecode
+    options.compilerArgs.add("-parameters")
+}
+
 tasks.compileKotlin {
     kotlinOptions.javaParameters = true
     compilerOptions {
         freeCompilerArgs.add("-Xcontext-receivers")
+        javaParameters = true
     }
 }

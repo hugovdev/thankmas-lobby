@@ -1,0 +1,5 @@
+menus:
+  unlocked-fishes:
+    title: "menu.fishes.title"
+    size: 27
+    format: one_row

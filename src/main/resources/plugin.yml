@@ -1,0 +1,4 @@
+name: ThankmasLobby
+main: me.hugo.thankmaslobby.ThankmasLobby
+version: 1.0
+api-version: 1.20
