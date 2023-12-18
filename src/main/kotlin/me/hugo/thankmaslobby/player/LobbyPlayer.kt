@@ -8,9 +8,11 @@ import me.hugo.thankmas.gui.paginated.ConfigurablePaginatedMenu
 import me.hugo.thankmas.gui.paginated.PaginatedMenu
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.player.ScoreboardPlayerData
-import me.hugo.thankmaslobby.fishing.CapturedFish
-import me.hugo.thankmaslobby.fishing.FishType
+import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
+import me.hugo.thankmaslobby.fishing.fish.CapturedFish
+import me.hugo.thankmaslobby.fishing.fish.FishType
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
+import org.bukkit.entity.Player
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 import java.util.Locale
@@ -19,14 +21,14 @@ import java.util.UUID
 public class LobbyPlayer(playerUUID: UUID) : ScoreboardPlayerData(playerUUID), KoinComponent {
 
     private val configProvider: ConfigurationProvider by inject()
-
+    private val profileMenuAccessor: ProfileMenuAccessor by inject()
 
     // private val unlockedNPCs: MutableList<EasterEggNPC> = mutableListOf()
     private val capturedFishes: MutableList<CapturedFish> = mutableListOf()
 
     /** Menu that displays all the fishes the viewer has caught. */
     public val fishBag: PaginatedMenu =
-        ConfigurablePaginatedMenu(configProvider.getOrLoad("menus"), "menus.fish-bag").apply {
+        ConfigurablePaginatedMenu(configProvider.getOrLoad("menus"), "menus.fish-bag", profileMenuAccessor.fishingMenu.firstPage()).apply {
             capturedFishes.forEach { addIcon(Icon { player -> it.buildItem(player) }) }
         }
 
@@ -35,21 +37,21 @@ public class LobbyPlayer(playerUUID: UUID) : ScoreboardPlayerData(playerUUID), K
     }
 
     context(MiniPhraseContext)
-    public fun reloadTranslations(newLocale: Locale) {
-        val player = onlinePlayer
+    public fun setTranslation(newLocale: Locale, player: Player? = null) {
+        val finalPlayer = player ?: onlinePlayerOrNull ?: return
 
         // If we're initializing the board it's because the player just joined,
         // so we can also send them the join message!
         if (getBoardOrNull() == null) {
-            initializeBoard("scoreboard.title", newLocale)
-            player.sendTranslated("welcome", newLocale)
+            initializeBoard("scoreboard.title", newLocale, player)
+            finalPlayer.sendTranslated("welcome", newLocale)
         }
 
         val scoreboardManager: LobbyScoreboardManager by inject()
         val itemSetManager: ItemSetRegistry by inject()
 
-        scoreboardManager.getTemplate("lobby").printBoard(player, newLocale)
-        itemSetManager.giveSet("lobby", player, newLocale)
+        scoreboardManager.getTemplate("lobby").printBoard(finalPlayer, newLocale)
+        itemSetManager.giveSet("lobby", finalPlayer, newLocale)
     }
 
     /** Captures [fish] on [pondId]. */

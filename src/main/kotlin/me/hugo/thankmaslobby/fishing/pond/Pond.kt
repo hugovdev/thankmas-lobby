@@ -5,7 +5,7 @@ import me.hugo.thankmas.extension.chooseWeighted
 import me.hugo.thankmas.items.TranslatableItem
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.region.Region
-import me.hugo.thankmaslobby.fishing.FishType
+import me.hugo.thankmaslobby.fishing.fish.FishType
 
 /**
  * Fishing site that gives a rod to the player when entering

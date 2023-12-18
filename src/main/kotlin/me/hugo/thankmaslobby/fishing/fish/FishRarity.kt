@@ -1,4 +1,4 @@
-package me.hugo.thankmaslobby.fishing
+package me.hugo.thankmaslobby.fishing.fish
 
 import dev.kezz.miniphrase.tag.TagResolverBuilder
 import me.hugo.thankmas.lang.Translated

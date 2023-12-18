@@ -1,11 +1,10 @@
-package me.hugo.thankmaslobby.fishing
+package me.hugo.thankmaslobby.fishing.fish
 
 import me.hugo.thankmas.items.addLoreTranslatable
 import me.hugo.thankmas.lang.Translated
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
 import java.text.SimpleDateFormat
-import java.time.format.DateTimeFormatter
 import java.util.*
 
 /**

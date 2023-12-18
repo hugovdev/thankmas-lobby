@@ -1,4 +1,4 @@
-package me.hugo.thankmaslobby.fishing
+package me.hugo.thankmaslobby.fishing.fish
 
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.config.string

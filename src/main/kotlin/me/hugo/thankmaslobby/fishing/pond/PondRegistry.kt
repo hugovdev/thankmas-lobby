@@ -1,15 +1,19 @@
 package me.hugo.thankmaslobby.fishing.pond
 
 import dev.kezz.miniphrase.audience.sendTranslated
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.items.TranslatableItem
 import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.region.Region
 import me.hugo.thankmas.registry.MapBasedRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
-import me.hugo.thankmaslobby.fishing.FishTypeRegistry
+import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
+import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
+import org.bukkit.entity.Item
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerFishEvent
@@ -60,13 +64,22 @@ public class PondRegistry(config: FileConfiguration, path: String, private val i
         event.expToDrop = 0
 
         val caughtFish = pond.catchFish()
-        event.caught?.remove()
+        val item = event.caught as? Item?
+
+        item?.apply {
+            pickupDelay = Int.MAX_VALUE
+            itemStack = caughtFish.getItem(miniPhrase.defaultLocale)
+
+            Bukkit.getScheduler().runTaskLater(ThankmasPlugin.instance(), Runnable {
+                remove()
+            }, 15L)
+        }
 
         val playerData = instance.playerManager.getPlayerData(player.uniqueId)
         playerData.captureFish(caughtFish, pond.pondId)
 
         player.sendTranslated(caughtFish.rarity.getCaughtMessage()) {
-            inserting("fish", caughtFish.getFishName(player.locale()))
+            inserting("fish", player.translate(caughtFish.name))
         }
 
         scoreboardManager.getTemplate("lobby").updateLinesForTag(player, "fishes")

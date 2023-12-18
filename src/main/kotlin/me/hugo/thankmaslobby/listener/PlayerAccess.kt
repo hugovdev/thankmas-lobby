@@ -44,6 +44,8 @@ public class PlayerAccess(private val instance: ThankmasLobby) : Listener, Trans
 
         player.isPersistent = false
         player.reset(GameMode.ADVENTURE)
+
+        instance.playerManager.getPlayerData(player.uniqueId).setTranslation(player.locale())
     }
 
     @EventHandler

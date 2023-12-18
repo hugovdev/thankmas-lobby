@@ -3,7 +3,7 @@ package me.hugo.thankmaslobby.commands
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmaslobby.ThankmasLobby
-import me.hugo.thankmaslobby.fishing.FishTypeRegistry
+import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -38,7 +38,7 @@ public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComp
         val scoreboardManager: LobbyScoreboardManager by inject()
         scoreboardManager.initialize()
 
-        instance.playerManager.getPlayerData(sender.uniqueId).reloadTranslations(sender.locale())
+        instance.playerManager.getPlayerData(sender.uniqueId).setTranslation(sender.locale())
 
         sender.sendMessage(Component.text("Reloaded messages in context $type!", NamedTextColor.GREEN))
     }

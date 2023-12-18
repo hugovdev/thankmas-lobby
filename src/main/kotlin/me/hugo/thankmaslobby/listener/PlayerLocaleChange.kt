@@ -14,9 +14,13 @@ public class PlayerLocaleChange(private val instance: ThankmasLobby) : Listener,
     @EventHandler
     private fun onLocaleChange(event: PlayerLocaleChangeEvent) {
         val player = event.player
-        val playerData = instance.playerManager.getPlayerData(player.uniqueId)
 
-        playerData.reloadTranslations(event.locale())
+        // Online run when the player has already logged in and locale
+        // is actually changing!
+        if (!player.isOnline || event.locale() == player.locale()) return
+
+        val playerData = instance.playerManager.getPlayerData(player.uniqueId)
+        playerData.setTranslation(event.locale(), player)
     }
 
 }
