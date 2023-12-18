@@ -1,6 +1,6 @@
 package me.hugo.thankmaslobby.fishing.pond
 
-import me.hugo.thankmas.config.getStringNotNull
+import me.hugo.thankmas.config.string
 import me.hugo.thankmas.items.TranslatableItem
 import me.hugo.thankmas.region.Region
 import me.hugo.thankmas.registry.MapBasedRegistry
@@ -23,8 +23,8 @@ public class PondRegistry(config: FileConfiguration, path: String) : MapBasedReg
             register(
                 pondId, Pond(
                     pondId,
-                    config.getStringNotNull("$path.$pondId.name"),
-                    config.getStringNotNull("$path.$pondId.description"),
+                    config.string("$path.$pondId.name"),
+                    config.string("$path.$pondId.description"),
                     config.getString("$path.$pondId.enter-message"),
                     TranslatableItem(config, "$path.$pondId.fishing-rod"),
                     Region(config, "$path.$pondId.region"),

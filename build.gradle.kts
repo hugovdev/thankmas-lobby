@@ -19,7 +19,7 @@ dependencies {
     ksp("io.insert-koin:koin-ksp-compiler:1.3.0")
 
     // Work on a paper specific library!
-    implementation(files("C:/Users/hugov/libs/ThankmasPaper-1.0-SNAPSHOT-all.jar"))
+    implementation(files("C:/Users/hugov/IdeaProjects/ThankmasPaper/build/libs/ThankmasPaper-1.0-SNAPSHOT-all.jar"))
 }
 
 tasks.shadowJar {

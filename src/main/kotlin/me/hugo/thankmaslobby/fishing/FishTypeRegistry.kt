@@ -1,7 +1,7 @@
 package me.hugo.thankmaslobby.fishing
 
 import me.hugo.thankmas.config.ConfigurationProvider
-import me.hugo.thankmas.config.getStringNotNull
+import me.hugo.thankmas.config.string
 import me.hugo.thankmas.gui.Icon
 import me.hugo.thankmas.gui.paginated.ConfigurablePaginatedMenu
 import me.hugo.thankmas.gui.paginated.PaginatedMenu
@@ -30,8 +30,8 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
             register(
                 fishKey,
                 FishType(
-                    config.getStringNotNull("fish-types.$fishKey.name"),
-                    FishRarity.valueOf(config.getStringNotNull("fish-types.$fishKey.rarity").uppercase()),
+                    config.string("fish-types.$fishKey.name"),
+                    FishRarity.valueOf(config.string("fish-types.$fishKey.rarity").uppercase()),
                     TranslatableItem(config, "fish-types.$fishKey.item")
                 )
             )

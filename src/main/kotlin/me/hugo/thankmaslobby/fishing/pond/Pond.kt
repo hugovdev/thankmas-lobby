@@ -1,18 +1,10 @@
 package me.hugo.thankmaslobby.fishing.pond
 
 import dev.kezz.miniphrase.audience.sendTranslated
-import me.hugo.thankmas.ThankmasPlugin
-import me.hugo.thankmas.config.getStringNotNull
 import me.hugo.thankmas.items.TranslatableItem
-import me.hugo.thankmas.lang.Translated
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.region.Region
 import me.hugo.thankmaslobby.fishing.FishType
-import me.hugo.thankmaslobby.fishing.FishTypeRegistry
-import org.bukkit.configuration.file.FileConfiguration
-import org.koin.core.component.inject
-import org.koin.core.parameter.parametersOf
-import java.io.File
 
 /**
  * Fishing site that gives a rod to the player when entering
