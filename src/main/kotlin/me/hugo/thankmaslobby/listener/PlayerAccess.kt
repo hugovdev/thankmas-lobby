@@ -1,7 +1,6 @@
 package me.hugo.thankmaslobby.listener
 
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
-import me.hugo.thankmas.lang.Translated
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.reset
 import me.hugo.thankmaslobby.ThankmasLobby
@@ -39,17 +38,12 @@ public class PlayerAccess(private val instance: ThankmasLobby) : Listener, Trans
 
     @EventHandler
     private fun onPlayerJoin(event: PlayerJoinEvent) {
+        event.joinMessage(null)
+
         val player = event.player
 
         player.isPersistent = false
-        val playerData = instance.playerManager.getPlayerData(player.uniqueId)
-
-        playerData.initializeBoard("scoreboard.title")
-        scoreboardManager.getTemplate("lobby").printBoard(player)
-
         player.reset(GameMode.ADVENTURE)
-        itemSetManager.giveSet("lobby", player)
-        event.joinMessage(null)
     }
 
     @EventHandler

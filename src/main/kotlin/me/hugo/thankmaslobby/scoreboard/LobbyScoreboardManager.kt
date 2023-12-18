@@ -24,7 +24,7 @@ public class LobbyScoreboardManager(instance: ThankmasLobby) :
 
         registerTag("fishes") { player ->
             Tag.selfClosingInserting {
-                Component.text(playerManager.getPlayerData(player.uniqueId).getCapturedFishes())
+                Component.text(playerManager.getPlayerData(player.uniqueId).fishAmount())
             }
         }
     }

@@ -5,7 +5,8 @@ import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.player.PlayerDataManager
 import me.hugo.thankmas.region.RegionRegistry
-import me.hugo.thankmaslobby.commands.FishesCommand
+import me.hugo.thankmaslobby.commands.LobbyCommands
+import me.hugo.thankmaslobby.commands.ProfileMenuCommand
 import me.hugo.thankmaslobby.dependencyinjection.LobbyModules
 import me.hugo.thankmaslobby.fishing.FishTypeRegistry
 import me.hugo.thankmaslobby.fishing.pond.PondRegistry
@@ -58,12 +59,13 @@ public class ThankmasLobby : ThankmasPlugin() {
 
         val pluginManager = Bukkit.getPluginManager()
         pluginManager.registerEvents(PlayerAccess(this), this)
-        pluginManager.registerEvents(PlayerLocaleChange(), this)
+        pluginManager.registerEvents(PlayerLocaleChange(this), this)
         pluginManager.registerEvents(PlayerCancelled(), this)
         pluginManager.registerEvents(pondRegistry, this)
 
         commandHandler = BukkitCommandHandler.create(this)
-        commandHandler.register(FishesCommand(this))
+        commandHandler.register(LobbyCommands(this))
+        commandHandler.register(ProfileMenuCommand(this))
         commandHandler.registerBrigadier()
     }
 

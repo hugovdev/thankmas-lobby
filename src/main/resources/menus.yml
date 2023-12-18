@@ -1,9 +1,27 @@
 menus:
+  profile:
+    title: menu.profile.title
+    size: 27
+    format: three_rows
+    fish-bag-icon:
+      material: PUFFERFISH
+      name: menu.profile.icon.fish_bag.name
+      lore: menu.profile.icon.fish_bag.lore
+    profile-icon:
+      material: FLOWER_BANNER_PATTERN
+      name: menu.profile.icon.profile.name
+      lore: menu.profile.icon.profile.lore
+      flags:
+        - HIDE_POTION_EFFECTS
+    npc-collector-icon:
+      material: SPYGLASS
+      name: menu.profile.icon.npc_collector.name
+      lore: menu.profile.icon.npc_collector.lore
   unlocked-fishes:
-    title: "menu.fishes.title"
+    title: menu.fishes.title
     size: 27
     format: one_row
   fish-bag:
-    title: "menu.fish-bag.title"
+    title: menu.fish-bag.title
     size: 45
     format: three_rows

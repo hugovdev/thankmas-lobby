@@ -12,6 +12,8 @@ item-sets:
       material: FLOWER_BANNER_PATTERN
       name: "item.profile_viewer.name"
       lore: "item.profile_viewer.lore"
+      flags:
+        - HIDE_POTION_EFFECTS
       command: "profile"
     cosmetics:
       slot: 4
