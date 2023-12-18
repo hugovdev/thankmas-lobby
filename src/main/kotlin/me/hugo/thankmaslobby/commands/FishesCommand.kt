@@ -1,7 +1,6 @@
 package me.hugo.thankmaslobby.commands
 
 import me.hugo.thankmas.ThankmasPlugin
-import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.fishing.FishTypeRegistry
 import org.bukkit.entity.Player
 import org.koin.core.component.KoinComponent
@@ -13,7 +12,7 @@ import revxrsal.commands.annotation.DefaultFor
 @Command("fishes")
 public class FishesCommand : KoinComponent {
 
-    private val fishRegistry: FishTypeRegistry by inject { parametersOf(ThankmasPlugin.instance().config) }
+    private val fishRegistry: FishTypeRegistry by inject()
 
     @DefaultFor("fishes")
     private fun openFishesMenu(sender: Player) {
