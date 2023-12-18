@@ -4,6 +4,7 @@ import me.hugo.thankmas.items.addLoreTranslatable
 import me.hugo.thankmas.lang.Translated
 import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemStack
+import java.text.SimpleDateFormat
 import java.time.format.DateTimeFormatter
 import java.util.*
 
@@ -18,9 +19,14 @@ public data class CapturedFish(
 ) : Translated {
 
     /** @returns the display item of this captured fish for [viewer]. */
-    public fun buildItem(viewer: Player): ItemStack = fishType.getItem(viewer.locale())
-        .addLoreTranslatable("fishing.captured_fish.date", viewer.locale()) {
-            parsed("date", DateTimeFormatter.ofPattern("dd/MM/yyyy").format(Date(timeCaptured).toInstant()))
-        }
+    public fun buildItem(viewer: Player): ItemStack {
+        val date = Date(timeCaptured)
+
+        return fishType.getItem(viewer.locale())
+            .addLoreTranslatable("fishing.captured_fish.date", viewer.locale()) {
+                parsed("date", SimpleDateFormat("dd/MM/yyyy").format(date))
+                parsed("time", SimpleDateFormat("HH:mm").format(date))
+            }
+    }
 
 }

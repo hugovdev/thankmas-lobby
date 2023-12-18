@@ -21,7 +21,7 @@ public class FishType(private val name: String, public val rarity: FishRarity, p
     public fun getItem(locale: Locale, tags: (TagResolverBuilder.() -> Unit)? = null): ItemStack {
         val fishItem = ItemStack(item.getBaseItem())
             .nameTranslatable(item.name, locale, tags)
-            .addLoreTranslatable(rarity.translationKey, locale, tags)
+            .addLoreTranslatable(rarity.getTag(), locale, tags)
             .addLoreTranslatable(item.lore, locale, tags)
 
         return fishItem

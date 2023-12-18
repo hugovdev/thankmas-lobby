@@ -1,6 +1,7 @@
 package me.hugo.thankmaslobby.fishing.pond
 
 import dev.kezz.miniphrase.audience.sendTranslated
+import me.hugo.thankmas.extension.chooseWeighted
 import me.hugo.thankmas.items.TranslatableItem
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.region.Region
@@ -11,12 +12,12 @@ import me.hugo.thankmaslobby.fishing.FishType
  * and sends them a message.
  */
 public class Pond(
-    private val pondId: String,
-    private val name: String,
-    private val description: String,
+    public val pondId: String,
+    public val name: String,
+    public val description: String,
     private val enterMessage: String? = null,
     private val fishingRod: TranslatableItem,
-    private var region: Region,
+    public var region: Region,
     private var fishWeights: Map<FishType, Double> = mapOf()
 ) : TranslatedComponent {
 
@@ -29,6 +30,11 @@ public class Pond(
             onLeave = { player ->
                 player.inventory.setItem(2, null)
             })
+    }
+
+    /** @returns a random fish based on the config weights. */
+    public fun catchFish(): FishType {
+        return fishWeights.toList().chooseWeighted { it.second }.first
     }
 
 }

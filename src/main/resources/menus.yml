@@ -3,3 +3,7 @@ menus:
     title: "menu.fishes.title"
     size: 27
     format: one_row
+  fish-bag:
+    title: "menu.fish-bag.title"
+    size: 45
+    format: three_rows

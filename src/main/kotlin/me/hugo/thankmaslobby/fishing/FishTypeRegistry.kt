@@ -37,7 +37,9 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
             )
         }
 
-        fishTypesMenu = ConfigurablePaginatedMenu(configProvider.getOrLoad("menus"), "menus.unlocked-fishes").apply {
+        val menuConfig = configProvider.getOrLoad("menus")
+
+        fishTypesMenu = ConfigurablePaginatedMenu(menuConfig, "menus.unlocked-fishes").apply {
             getValues().forEach { fishType -> addIcon(Icon { player -> fishType.getItem(player.locale()) }) }
         }
     }
