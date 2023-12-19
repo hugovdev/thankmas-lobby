@@ -26,13 +26,13 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
     init {
         val config = configProvider.getOrLoad("fishes")
 
-        config.getConfigurationSection("fish-types")?.getKeys(false)?.forEach { fishKey ->
+        config.getKeys(false).forEach { fishKey ->
             register(
                 fishKey,
                 FishType(
-                    config.string("fish-types.$fishKey.name"),
-                    FishRarity.valueOf(config.string("fish-types.$fishKey.rarity").uppercase()),
-                    TranslatableItem(config, "fish-types.$fishKey.item")
+                    config.string("$fishKey.name"),
+                    FishRarity.valueOf(config.string("$fishKey.rarity").uppercase()),
+                    TranslatableItem(config, "$fishKey.item")
                 )
             )
         }

@@ -5,6 +5,7 @@ import me.hugo.thankmas.extension.chooseWeighted
 import me.hugo.thankmas.items.TranslatableItem
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.region.Region
+import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.fishing.fish.FishType
 
 /**
@@ -22,9 +23,11 @@ public class Pond(
 ) : TranslatedComponent {
 
     init {
+        val playerManager = ThankmasLobby.instance().playerManager
+
         this.region = region.toTriggering(
             onEnter = { player ->
-                player.inventory.setItem(2, fishingRod.buildItem(player.locale()))
+                player.inventory.setItem(2, playerManager.getPlayerData(player.uniqueId).selectedRod.buildRod(player))
                 enterMessage?.let { player.sendTranslated(it) }
             },
             onLeave = { player ->

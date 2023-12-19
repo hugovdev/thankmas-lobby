@@ -1,17 +1,16 @@
-fish-types:
-  moss-fish:
-    name: fishing.moss_fish
-    rarity: legendary
-    item:
-      material: PHANTOM_MEMBRANE
-      custom-model-data: 1
-      name: fishing.moss_fish.item.name
-      lore: fishing.moss_fish.item.lore
-  kwee-fish:
-    name: fishing.kwee_fish
-    rarity: rare
-    item:
-      material: PHANTOM_MEMBRANE
-      custom-model-data: 2
-      name: fishing.kwee_fish.item.name
-      lore: fishing.kwee_fish.item.lore
+moss-fish:
+  name: fishing.moss_fish
+  rarity: legendary
+  item:
+    material: PHANTOM_MEMBRANE
+    custom-model-data: 1
+    name: fishing.moss_fish.item.name
+    lore: fishing.moss_fish.item.lore
+kwee-fish:
+  name: fishing.kwee_fish
+  rarity: rare
+  item:
+    material: PHANTOM_MEMBRANE
+    custom-model-data: 2
+    name: fishing.kwee_fish.item.name
+    lore: fishing.kwee_fish.item.lore

@@ -11,6 +11,8 @@ import me.hugo.thankmas.player.ScoreboardPlayerData
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
 import me.hugo.thankmaslobby.fishing.fish.CapturedFish
 import me.hugo.thankmaslobby.fishing.fish.FishType
+import me.hugo.thankmaslobby.fishing.rod.FishingRod
+import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
 import org.bukkit.entity.Player
 import org.koin.core.component.KoinComponent
@@ -23,12 +25,25 @@ public class LobbyPlayer(playerUUID: UUID) : ScoreboardPlayerData(playerUUID), K
     private val configProvider: ConfigurationProvider by inject()
     private val profileMenuAccessor: ProfileMenuAccessor by inject()
 
+    private val rodRegistry: FishingRodRegistry by inject()
+
     // private val unlockedNPCs: MutableList<EasterEggNPC> = mutableListOf()
     private val capturedFishes: MutableList<CapturedFish> = mutableListOf()
 
+    /** The fishing rod this player is using to fish. */
+    public var selectedRod: FishingRod = rodRegistry.get("rusty_wooden_rod")
+        private set
+
+    /** List of the rods this player has unlocked. */
+    public var unlockedRods: List<FishingRod> = listOf(selectedRod)
+
     /** Menu that displays all the fishes the viewer has caught. */
     public val fishBag: PaginatedMenu =
-        ConfigurablePaginatedMenu(configProvider.getOrLoad("menus"), "menus.fish-bag", profileMenuAccessor.fishingMenu.firstPage()).apply {
+        ConfigurablePaginatedMenu(
+            configProvider.getOrLoad("menus"),
+            "menus.fish-bag",
+            profileMenuAccessor.fishingMenu.firstPage()
+        ).apply {
             capturedFishes.forEach { addIcon(Icon { player -> it.buildItem(player) }) }
         }
 

@@ -1,0 +1,65 @@
+rusty-rod:
+  id: rusty_wooden_rod
+  tier: 1
+  particle: SMOKE_NORMAL
+  min-fish-time: 17.5
+  max-fish-time: 30.0
+  min-bite-time: 1.0
+  max-bite-time: 4.0
+  item:
+    material: FISHING_ROD
+    name: fishing.fishing_rods.rusty_wooden_rod.name
+    lore: fishing.fishing_rods.rusty_wooden_rod.lore
+    custom-model-data: 0
+sungwood-rod:
+  id: sungwood_rod
+  tier: 2
+  particle: SMOKE_NORMAL
+  min-fish-time: 17.5
+  max-fish-time: 28.5
+  min-bite-time: 1.0
+  max-bite-time: 3.8
+  item:
+    material: FISHING_ROD
+    name: fishing.fishing_rods.sungwood_rod.name
+    lore: fishing.fishing_rods.sungwood_rod.lore
+    custom-model-data: 1
+thorium-rod:
+  id: thorium_rod
+  tier: 3
+  particle: SMOKE_NORMAL
+  min-fish-time: 16.5
+  max-fish-time: 27.5
+  min-bite-time: 1.0
+  max-bite-time: 3.5
+  item:
+    material: FISHING_ROD
+    name: fishing.fishing_rods.thorium_rod.name
+    lore: fishing.fishing_rods.thorium_rod.lore
+    custom-model-data: 2
+cloudsteel-rod:
+  id: cloudsteel_rod
+  tier: 4
+  particle: SMOKE_NORMAL
+  min-fish-time: 15.0
+  max-fish-time: 26.0
+  min-bite-time: 1.0
+  max-bite-time: 3.5
+  item:
+    material: FISHING_ROD
+    name: fishing.fishing_rods.cloudsteel_rod.name
+    lore: fishing.fishing_rods.cloudsteel_rod.lore
+    custom-model-data: 3
+gaian-rod:
+  id: gaian_rod
+  tier: 5
+  particle: SMOKE_NORMAL
+  min-fish-time: 13.5
+  max-fish-time: 24.0
+  min-bite-time: 1.0
+  max-bite-time: 3.0
+  item:
+    material: FISHING_ROD
+    name: fishing.fishing_rods.gaian_rod.name
+    lore: fishing.fishing_rods.gaian_rod.lore
+    custom-model-data: 4

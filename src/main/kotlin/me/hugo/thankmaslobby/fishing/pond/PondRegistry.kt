@@ -24,7 +24,7 @@ import org.koin.core.component.inject
  * Registry of every pond in the lobby.
  */
 @Single
-public class PondRegistry(config: FileConfiguration, path: String, private val instance: ThankmasLobby) :
+public class PondRegistry(config: FileConfiguration, private val instance: ThankmasLobby) :
     MapBasedRegistry<String, Pond>(), TranslatedComponent, Listener {
 
     private val scoreboardManager: LobbyScoreboardManager by inject()
@@ -32,17 +32,17 @@ public class PondRegistry(config: FileConfiguration, path: String, private val i
     init {
         val fishRegistry: FishTypeRegistry by inject()
 
-        config.getConfigurationSection(path)?.getKeys(false)?.forEach { pondId ->
+        config.getKeys(false).forEach { pondId ->
             register(
                 pondId, Pond(
                     pondId,
-                    config.string("$path.$pondId.name"),
-                    config.string("$path.$pondId.description"),
-                    config.getString("$path.$pondId.enter-message"),
-                    TranslatableItem(config, "$path.$pondId.fishing-rod"),
-                    Region(config, "$path.$pondId.region"),
-                    config.getConfigurationSection("$path.$pondId.fish-weights")?.getKeys(false)?.associate { fishId ->
-                        Pair(fishRegistry.get(fishId), config.getDouble("$path.$pondId.fish-weights.$fishId"))
+                    config.string("$pondId.name"),
+                    config.string("$pondId.description"),
+                    config.getString("$pondId.enter-message"),
+                    TranslatableItem(config, "$pondId.fishing-rod"),
+                    Region(config, "$pondId.region"),
+                    config.getConfigurationSection("$pondId.fish-weights")?.getKeys(false)?.associate { fishId ->
+                        Pair(fishRegistry.get(fishId), config.getDouble("$pondId.fish-weights.$fishId"))
                     } ?: mapOf()
                 )
             )

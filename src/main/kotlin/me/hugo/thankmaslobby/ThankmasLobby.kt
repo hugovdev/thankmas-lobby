@@ -10,6 +10,7 @@ import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
 import me.hugo.thankmaslobby.dependencyinjection.LobbyModules
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.fishing.pond.PondRegistry
+import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
 import me.hugo.thankmaslobby.listener.PlayerAccess
 import me.hugo.thankmaslobby.listener.PlayerCancelled
 import me.hugo.thankmaslobby.listener.PlayerLocaleChange
@@ -24,7 +25,6 @@ import revxrsal.commands.bukkit.BukkitCommandHandler
 
 public class ThankmasLobby : ThankmasPlugin() {
 
-
     public val playerManager: PlayerDataManager<LobbyPlayer> = PlayerDataManager { LobbyPlayer(it) }
     private val configProvider: ConfigurationProvider by inject()
 
@@ -32,15 +32,30 @@ public class ThankmasLobby : ThankmasPlugin() {
 
     private val regionRegistry: RegionRegistry by inject { parametersOf(playerManager) }
     private val fishRegistry: FishTypeRegistry by inject()
-    private val pondRegistry: PondRegistry by inject { parametersOf(configProvider.getOrLoad("ponds"), "ponds", this) }
+    private val pondRegistry: PondRegistry by inject { parametersOf(configProvider.getOrLoad("ponds"), this) }
+    private val rodsRegistry: FishingRodRegistry by inject { parametersOf(configProvider.getOrLoad("fishing_rods")) }
+
     private val itemSetManager: ItemSetRegistry by inject { parametersOf(config) }
 
     private val profileMenuAccessor: ProfileMenuAccessor by inject { parametersOf(this) }
 
     private lateinit var commandHandler: BukkitCommandHandler
 
+    public companion object {
+        private var instance: ThankmasLobby? = null
+
+        public fun instance(): ThankmasLobby {
+            val instance = instance
+            requireNotNull(instance) { "Tried to fetch a ThankmasPlugin instance while it's null!" }
+
+            return instance
+        }
+    }
+
     override fun onEnable() {
         super.onEnable()
+
+        instance = this
         saveDefaultConfig()
 
         loadKoinModules(LobbyModules().module)
@@ -53,6 +68,9 @@ public class ThankmasLobby : ThankmasPlugin() {
 
         logger.info("Registering ponds...")
         logger.info("Registered ${pondRegistry.size()} ponds!")
+
+        logger.info("Registering fishing rods...")
+        logger.info("Registered ${rodsRegistry.size()} fishing rods!")
 
         logger.info("Registering item sets...")
         logger.info("Registered ${itemSetManager.size()} item sets!")

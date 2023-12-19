@@ -12,6 +12,7 @@ import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.playSound
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
+import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
 import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.koin.core.annotation.Single
@@ -26,42 +27,15 @@ import revxrsal.commands.annotation.Command
 public class ProfileMenuAccessor(private val instance: ThankmasLobby) : TranslatedComponent {
 
     private val configProvider: ConfigurationProvider by inject()
+    private val fishRegistry: FishTypeRegistry by inject()
 
     private val menusConfig = configProvider.getOrLoad("menus")
 
-    public val profileMenu: Menu = ConfiguredMenu(menusConfig, "menus.profile")
-
-    public val fishingMenu: PaginatedMenu =
-        ConfigurablePaginatedMenu(menusConfig, "menus.fishing", profileMenu).apply {
-            val fishBagItem = TranslatableItem(menusConfig, "menus.fishing.icons.fish-bag")
-
-            setIcon(12, 0, Icon({ context, _ ->
-                val clicker = context.clicker
-                val playerData = instance.playerManager.getPlayerData(clicker.uniqueId)
-
-                if (playerData.fishAmount() == 0) {
-                    clicker.sendTranslated("menu.fishing.no_fishes")
-                    return@Icon
-                }
-
-                playerData.fishBag.open(clicker)
-                clicker.playSound(Sound.BLOCK_WOODEN_BUTTON_CLICK_ON)
-            }) {
-                fishBagItem.buildItem(it.locale())
-            })
-
-            val fishCollectionItem = TranslatableItem(menusConfig, "menus.fishing.icons.fish-collection")
-            setIcon(14, 0, Icon {
-                fishCollectionItem.buildItem(it.locale())
-            })
-        }
-
-    private val fishRegistry: FishTypeRegistry by inject()
-
-    init {
+    /** Profile menu with fishing menu and npc collector menu. */
+    public val profileMenu: Menu = ConfiguredMenu(menusConfig, "menus.profile").apply {
         val fishingItem = TranslatableItem(menusConfig, "menus.profile.icons.fish-bag")
 
-        profileMenu.setIcon(11, Icon({ context, _ ->
+        setIcon(11, Icon({ context, _ ->
             val clicker = context.clicker
 
             fishingMenu.open(clicker)
@@ -76,7 +50,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
         })
 
         val profileItem = TranslatableItem(menusConfig, "menus.profile.icons.profile")
-        profileMenu.setIcon(13, Icon {
+        setIcon(13, Icon {
             val playerData = instance.playerManager.getPlayerData(it.uniqueId)
 
             profileItem.buildItem(it.locale()) {
@@ -90,7 +64,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
         })
 
         val npcItem = TranslatableItem(menusConfig, "menus.profile.icons.npc-collector")
-        profileMenu.setIcon(15, Icon {
+        setIcon(15, Icon {
             val playerData = instance.playerManager.getPlayerData(it.uniqueId)
 
             npcItem.buildItem(it.locale()) {
@@ -99,6 +73,61 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
             }
         })
     }
+
+    /** Fishing menu: Fish Collection or Fish Bag. */
+    public val fishingMenu: PaginatedMenu =
+        ConfigurablePaginatedMenu(menusConfig, "menus.fishing", profileMenu).apply {
+            val fishBagItem = TranslatableItem(menusConfig, "menus.fishing.icons.fish-bag")
+
+            setIcon(11, 0, Icon({ context, _ ->
+                val clicker = context.clicker
+                val playerData = instance.playerManager.getPlayerData(clicker.uniqueId)
+
+                if (playerData.fishAmount() == 0) {
+                    clicker.sendTranslated("menu.fishing.no_fishes")
+                    clicker.closeInventory()
+                    return@Icon
+                }
+
+                playerData.fishBag.open(clicker)
+                clicker.playSound(Sound.BLOCK_WOODEN_BUTTON_CLICK_ON)
+            }) {
+                fishBagItem.buildItem(it.locale())
+            })
+
+            val fishingRodSelector = TranslatableItem(menusConfig, "menus.fishing.icons.fishing-rod-selector")
+
+            setIcon(13, 0, Icon({ context, _ ->
+                val clicker = context.clicker
+
+                rodSelector.open(clicker)
+                clicker.playSound(Sound.BLOCK_WOODEN_BUTTON_CLICK_ON)
+            }) {
+                fishingRodSelector.buildItem(it.locale())
+            })
+
+            val fishCollectionItem = TranslatableItem(menusConfig, "menus.fishing.icons.fish-collection")
+            setIcon(15, 0, Icon {
+                fishCollectionItem.buildItem(it.locale())
+            })
+        }
+
+    private val rodRegistry: FishingRodRegistry by inject()
+
+    private val rodSelector: PaginatedMenu =
+        ConfigurablePaginatedMenu(menusConfig, "menus.fishing-rod-selector", fishingMenu.firstPage()).apply {
+            rodRegistry.getValues().sortedBy { it.tier }.forEach { rod ->
+                addIcon(Icon {
+                    val playerData = instance.playerManager.getPlayerData(it.uniqueId)
+
+                    rod.buildIcon(
+                        it,
+                        blocked = !playerData.unlockedRods.contains(rod),
+                        selected = (playerData.selectedRod == rod)
+                    )
+                })
+            }
+        }
 
     @Command("profile")
     private fun openProfileMenu(sender: Player) {

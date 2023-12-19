@@ -1,5 +1,6 @@
 package me.hugo.thankmaslobby.listener
 
+import dev.kezz.miniphrase.audience.sendTranslated
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmaslobby.ThankmasLobby
 import org.bukkit.event.EventHandler
@@ -14,13 +15,17 @@ public class PlayerLocaleChange(private val instance: ThankmasLobby) : Listener,
     @EventHandler
     private fun onLocaleChange(event: PlayerLocaleChangeEvent) {
         val player = event.player
+        val newLocale = event.locale()
 
-        // Online run when the player has already logged in and locale
+        // Only run when the player has already logged in and locale
         // is actually changing!
-        if (!player.isOnline || event.locale() == player.locale()) return
+        if (!player.isOnline || newLocale == player.locale()) return
 
         val playerData = instance.playerManager.getPlayerData(player.uniqueId)
-        playerData.setTranslation(event.locale(), player)
+        playerData.setTranslation(newLocale, player)
+        player.sendTranslated("locale_changed", newLocale) {
+            parsed("locale", newLocale.toLanguageTag())
+        }
     }
 
 }
