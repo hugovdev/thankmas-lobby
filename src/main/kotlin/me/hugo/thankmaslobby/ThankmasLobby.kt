@@ -3,11 +3,14 @@ package me.hugo.thankmaslobby
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
+import me.hugo.thankmas.listener.PlayerNameTagUpdater
 import me.hugo.thankmas.player.PlayerDataManager
+import me.hugo.thankmas.player.rank.PlayerGroupChange
 import me.hugo.thankmas.region.RegionRegistry
 import me.hugo.thankmaslobby.commands.LobbyCommands
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
 import me.hugo.thankmaslobby.dependencyinjection.LobbyModules
+import me.hugo.thankmaslobby.extension.updateBoardTags
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.fishing.pond.PondRegistry
 import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
@@ -28,9 +31,10 @@ public class ThankmasLobby : ThankmasPlugin() {
     public val playerManager: PlayerDataManager<LobbyPlayer> = PlayerDataManager { LobbyPlayer(it) }
     private val configProvider: ConfigurationProvider by inject()
 
-    private val scoreboardManager: LobbyScoreboardManager by inject { parametersOf(this) }
-
+    public val scoreboardManager: LobbyScoreboardManager by inject { parametersOf(this) }
     private val regionRegistry: RegionRegistry by inject { parametersOf(playerManager) }
+
+    // Fishing Stuff
     private val fishRegistry: FishTypeRegistry by inject()
     private val pondRegistry: PondRegistry by inject { parametersOf(configProvider.getOrLoad("ponds"), this) }
     private val rodsRegistry: FishingRodRegistry by inject { parametersOf(configProvider.getOrLoad("fishing_rods")) }
@@ -82,6 +86,10 @@ public class ThankmasLobby : ThankmasPlugin() {
         pluginManager.registerEvents(PlayerLocaleChange(this), this)
         pluginManager.registerEvents(PlayerCancelled(), this)
         pluginManager.registerEvents(pondRegistry, this)
+        pluginManager.registerEvents(PlayerNameTagUpdater(playerManager), this)
+
+        // Register luck perms events!
+        PlayerGroupChange(playerManager) { player -> player.updateBoardTags("rank") }
 
         commandHandler = BukkitCommandHandler.create(this)
         commandHandler.register(LobbyCommands(this))

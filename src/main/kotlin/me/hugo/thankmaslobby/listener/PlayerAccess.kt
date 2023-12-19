@@ -1,9 +1,11 @@
 package me.hugo.thankmaslobby.listener
 
+import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.reset
 import me.hugo.thankmaslobby.ThankmasLobby
+import me.hugo.thankmaslobby.extension.updateBoardTags
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
 import org.bukkit.GameMode
 import org.bukkit.event.EventHandler
@@ -40,6 +42,8 @@ public class PlayerAccess(private val instance: ThankmasLobby) : Listener, Trans
     private fun onPlayerJoin(event: PlayerJoinEvent) {
         event.joinMessage(null)
 
+        updateBoardTags("players")
+
         val player = event.player
 
         player.isPersistent = false
@@ -53,6 +57,11 @@ public class PlayerAccess(private val instance: ThankmasLobby) : Listener, Trans
         instance.playerManager.removePlayerData(event.player.uniqueId)
 
         event.quitMessage(null)
+    }
+
+    @EventHandler
+    private fun onPlayerConnectionClose(event: PlayerConnectionCloseEvent) {
+        updateBoardTags("players")
     }
 
 }

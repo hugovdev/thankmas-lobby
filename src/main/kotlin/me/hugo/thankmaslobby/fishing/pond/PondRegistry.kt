@@ -9,6 +9,7 @@ import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.region.Region
 import me.hugo.thankmas.registry.MapBasedRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
+import me.hugo.thankmaslobby.extension.updateBoardTags
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
 import org.bukkit.Bukkit
@@ -82,7 +83,7 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
             inserting("fish", player.translate(caughtFish.name))
         }
 
-        scoreboardManager.getTemplate("lobby").updateLinesForTag(player, "fishes")
+        player.updateBoardTags("fishes")
     }
 
 }

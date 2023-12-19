@@ -7,20 +7,21 @@ import me.hugo.thankmas.gui.Icon
 import me.hugo.thankmas.gui.paginated.ConfigurablePaginatedMenu
 import me.hugo.thankmas.gui.paginated.PaginatedMenu
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
-import me.hugo.thankmas.player.ScoreboardPlayerData
+import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.player.rank.RankedPlayerData
+import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
 import me.hugo.thankmaslobby.fishing.fish.CapturedFish
 import me.hugo.thankmaslobby.fishing.fish.FishType
 import me.hugo.thankmaslobby.fishing.rod.FishingRod
 import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
+import org.bukkit.Bukkit
 import org.bukkit.entity.Player
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import java.util.Locale
-import java.util.UUID
+import java.util.*
 
-public class LobbyPlayer(playerUUID: UUID) : ScoreboardPlayerData(playerUUID), KoinComponent {
+public class LobbyPlayer(playerUUID: UUID) : RankedPlayerData(playerUUID), TranslatedComponent {
 
     private val configProvider: ConfigurationProvider by inject()
     private val profileMenuAccessor: ProfileMenuAccessor by inject()
@@ -67,6 +68,12 @@ public class LobbyPlayer(playerUUID: UUID) : ScoreboardPlayerData(playerUUID), K
 
         scoreboardManager.getTemplate("lobby").printBoard(finalPlayer, newLocale)
         itemSetManager.giveSet("lobby", finalPlayer, newLocale)
+
+        val playerManager = ThankmasLobby.instance().playerManager
+
+        Bukkit.getOnlinePlayers().forEach {
+            playerManager.getPlayerDataOrNull(it.uniqueId)?.playerNameTag?.apply(finalPlayer, newLocale)
+        }
     }
 
     /** Captures [fish] on [pondId]. */

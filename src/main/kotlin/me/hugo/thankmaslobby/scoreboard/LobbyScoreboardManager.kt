@@ -1,10 +1,13 @@
 package me.hugo.thankmaslobby.scoreboard
 
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.scoreboard.ScoreboardTemplateManager
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.player.LobbyPlayer
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.tag.Tag
+import net.luckperms.api.LuckPermsProvider
+import org.bukkit.entity.Player
 import org.koin.core.annotation.Single
 
 /**
@@ -17,14 +20,28 @@ public class LobbyScoreboardManager(instance: ThankmasLobby) :
     override fun registerTags() {
         super.registerTags()
 
-        registerTag("global_players") { Tag.selfClosingInserting { Component.text(0) } }
+        val luckPerms = LuckPermsProvider.get()
+        val globalTranslations = ThankmasPlugin.instance().globalTranslations
 
-        registerTag("npcs") { Tag.selfClosingInserting { Component.text(0) } }
-        registerTag("total_npcs") { Tag.selfClosingInserting { Component.text(0) } }
-
-        registerTag("fishes") { player ->
+        registerTag("global_players") { _, _ -> Tag.selfClosingInserting { Component.text(0) } }
+        registerTag("npcs") { _, _ -> Tag.selfClosingInserting { Component.text(0) } }
+        registerTag("total_npcs") { _, _ -> Tag.selfClosingInserting { Component.text(0) } }
+        registerTag("fishes") { player, _ ->
             Tag.selfClosingInserting {
                 Component.text(playerManager.getPlayerData(player.uniqueId).fishAmount())
+            }
+        }
+
+        registerTag("rank") { player, preferredLocale ->
+            val user = luckPerms.getPlayerAdapter(Player::class.java).getUser(player)
+
+            Tag.selfClosingInserting {
+                val group = user.primaryGroup
+
+                globalTranslations.translate("rank.$group.name", preferredLocale ?: player.locale())
+                    .color(
+                        globalTranslations.translate("rank.$group.color", preferredLocale ?: player.locale()).color()
+                    )
             }
         }
     }
