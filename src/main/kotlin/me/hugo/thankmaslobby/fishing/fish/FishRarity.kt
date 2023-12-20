@@ -1,9 +1,6 @@
 package me.hugo.thankmaslobby.fishing.fish
 
-import dev.kezz.miniphrase.tag.TagResolverBuilder
 import me.hugo.thankmas.lang.Translated
-import net.kyori.adventure.text.Component
-import java.util.Locale
 
 /**
  * Different rarities a fish type can have.

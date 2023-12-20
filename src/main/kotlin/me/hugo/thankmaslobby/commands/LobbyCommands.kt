@@ -4,6 +4,7 @@ import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
+import me.hugo.thankmaslobby.game.GameRegistry
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -20,6 +21,12 @@ public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComp
     @Command("fishes")
     private fun openFishesMenu(sender: Player) {
         fishRegistry.fishTypesMenu.open(sender)
+    }
+
+    @Command("games")
+    private fun openGameSelector(sender: Player) {
+        val gameRegistry: GameRegistry by inject()
+        gameRegistry.gameSelector.open(sender)
     }
 
     @Command("fishbag", "capturedfishes")

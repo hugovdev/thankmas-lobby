@@ -14,6 +14,7 @@ import me.hugo.thankmaslobby.extension.updateBoardTags
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.fishing.pond.PondRegistry
 import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
+import me.hugo.thankmaslobby.game.GameRegistry
 import me.hugo.thankmaslobby.listener.PlayerAccess
 import me.hugo.thankmaslobby.listener.PlayerCancelled
 import me.hugo.thankmaslobby.listener.PlayerLocaleChange
@@ -38,6 +39,7 @@ public class ThankmasLobby : ThankmasPlugin() {
     private val fishRegistry: FishTypeRegistry by inject()
     private val pondRegistry: PondRegistry by inject { parametersOf(configProvider.getOrLoad("ponds"), this) }
     private val rodsRegistry: FishingRodRegistry by inject { parametersOf(configProvider.getOrLoad("fishing_rods")) }
+    private val gameRegistry: GameRegistry by inject { parametersOf(configProvider.getOrLoad("games")) }
 
     private val itemSetManager: ItemSetRegistry by inject { parametersOf(config) }
 
@@ -63,6 +65,9 @@ public class ThankmasLobby : ThankmasPlugin() {
         saveDefaultConfig()
 
         loadKoinModules(LobbyModules().module)
+
+        logger.info("Registering games...")
+        logger.info("Registered ${gameRegistry.size()} games!")
 
         logger.info("Registering regions...")
         logger.info("Registered ${regionRegistry.size()} regions and started task!")
@@ -90,6 +95,8 @@ public class ThankmasLobby : ThankmasPlugin() {
 
         // Register luck perms events!
         PlayerGroupChange(playerManager) { player -> player.updateBoardTags("rank") }
+
+        server.messenger.registerOutgoingPluginChannel(this, "BungeeCord");
 
         commandHandler = BukkitCommandHandler.create(this)
         commandHandler.register(LobbyCommands(this))

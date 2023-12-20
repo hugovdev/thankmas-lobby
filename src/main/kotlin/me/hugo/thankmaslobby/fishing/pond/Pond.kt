@@ -2,7 +2,6 @@ package me.hugo.thankmaslobby.fishing.pond
 
 import dev.kezz.miniphrase.audience.sendTranslated
 import me.hugo.thankmas.extension.chooseWeighted
-import me.hugo.thankmas.items.TranslatableItem
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.region.Region
 import me.hugo.thankmaslobby.ThankmasLobby
@@ -17,7 +16,6 @@ public class Pond(
     public val name: String,
     public val description: String,
     private val enterMessage: String? = null,
-    private val fishingRod: TranslatableItem,
     public var region: Region,
     private var fishWeights: Map<FishType, Double> = mapOf()
 ) : TranslatedComponent {

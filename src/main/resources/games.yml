@@ -1,0 +1,28 @@
+save-the-kweebecs:
+  name: games.save_the_kweebecs.name
+  server-name: minigames
+  slot: 11
+  icon:
+    material: CARVED_PUMPKIN
+    name: menu.game_selector.save_the_kweebecs.icon.name
+    lore: menu.game_selector.save_the_kweebecs.icon.lore
+    custom-model-data: 1
+dungeon-runner:
+  name: games.dungeon_runner.name
+  server-name: dungeon_runner
+  slot: 13
+  icon:
+    material: NETHERITE_SWORD
+    name: menu.game_selector.dungeon_runner.icon.name
+    lore: menu.game_selector.dungeon_runner.icon.lore
+    flags:
+      - HIDE_ATTRIBUTES
+      - HIDE_POTION_EFFECTS
+creative:
+  name: games.creative.name
+  server-name: creative
+  slot: 15
+  icon:
+    material: ARMOR_STAND
+    name: menu.game_selector.creative.icon.name
+    lore: menu.game_selector.creative.icon.lore

@@ -11,7 +11,6 @@ import org.bukkit.entity.Player
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.persistence.PersistentDataType
-import java.text.DecimalFormat
 import java.text.NumberFormat
 import java.util.*
 

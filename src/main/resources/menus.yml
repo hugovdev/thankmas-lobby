@@ -1,4 +1,8 @@
 menus:
+  game-selector:
+    title: menu.game_selector.title
+    size: 36
+    format: one_row
   profile:
     title: menu.profile.title
     size: 27

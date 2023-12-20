@@ -16,12 +16,20 @@ import me.hugo.thankmaslobby.fishing.fish.FishType
 import me.hugo.thankmaslobby.fishing.rod.FishingRod
 import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.koin.core.component.inject
 import java.util.*
 
-public class LobbyPlayer(playerUUID: UUID) : RankedPlayerData(playerUUID), TranslatedComponent {
+public class LobbyPlayer(playerUUID: UUID) :
+    RankedPlayerData(playerUUID, { player, locale ->
+        Component.space()
+            .append(Component.text("★", NamedTextColor.YELLOW))
+            .append(Component.text("☆☆", NamedTextColor.GRAY))
+    }),
+    TranslatedComponent {
 
     private val configProvider: ConfigurationProvider by inject()
     private val profileMenuAccessor: ProfileMenuAccessor by inject()
