@@ -2,6 +2,7 @@ package me.hugo.thankmaslobby
 
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.config.ConfigurationProvider
+import me.hugo.thankmas.database.DatasourceConnector
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.listener.PlayerNameTagUpdater
 import me.hugo.thankmas.player.PlayerDataManager
@@ -9,8 +10,8 @@ import me.hugo.thankmas.player.rank.PlayerGroupChange
 import me.hugo.thankmas.region.RegionRegistry
 import me.hugo.thankmaslobby.commands.LobbyCommands
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
+import me.hugo.thankmaslobby.database.LobbyDatabase
 import me.hugo.thankmaslobby.dependencyinjection.LobbyModules
-import me.hugo.thankmaslobby.player.updateBoardTags
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.fishing.pond.PondRegistry
 import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
@@ -19,6 +20,7 @@ import me.hugo.thankmaslobby.listener.PlayerAccess
 import me.hugo.thankmaslobby.listener.PlayerCancelled
 import me.hugo.thankmaslobby.listener.PlayerLocaleChange
 import me.hugo.thankmaslobby.player.LobbyPlayer
+import me.hugo.thankmaslobby.player.updateBoardTags
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
 import org.bukkit.Bukkit
 import org.koin.core.component.inject
@@ -29,7 +31,7 @@ import revxrsal.commands.bukkit.BukkitCommandHandler
 
 public class ThankmasLobby : ThankmasPlugin() {
 
-    public val playerManager: PlayerDataManager<LobbyPlayer> = PlayerDataManager { LobbyPlayer(it) }
+    public val playerManager: PlayerDataManager<LobbyPlayer> = PlayerDataManager { LobbyPlayer(it, this) }
     private val configProvider: ConfigurationProvider by inject()
 
     public val scoreboardManager: LobbyScoreboardManager by inject { parametersOf(this) }
@@ -37,14 +39,16 @@ public class ThankmasLobby : ThankmasPlugin() {
 
     // Fishing Stuff
     private val fishRegistry: FishTypeRegistry by inject()
-    private val pondRegistry: PondRegistry by inject { parametersOf(configProvider.getOrLoad("ponds"), this) }
-    private val rodsRegistry: FishingRodRegistry by inject { parametersOf(configProvider.getOrLoad("fishing_rods")) }
+    private val pondRegistry: PondRegistry by inject { parametersOf(configProvider.getOrLoad("ponds", "fishing/"), this) }
+    private val rodsRegistry: FishingRodRegistry by inject { parametersOf(configProvider.getOrLoad("fishing_rods", "fishing/")) }
+
     private val gameRegistry: GameRegistry by inject { parametersOf(configProvider.getOrLoad("games")) }
 
     private val itemSetManager: ItemSetRegistry by inject { parametersOf(config) }
 
     private val profileMenuAccessor: ProfileMenuAccessor by inject { parametersOf(this) }
 
+    public lateinit var databaseConnector: DatasourceConnector
     private lateinit var commandHandler: BukkitCommandHandler
 
     public companion object {
@@ -86,6 +90,10 @@ public class ThankmasLobby : ThankmasPlugin() {
 
         scoreboardManager.initialize()
 
+        logger.info("Creating Lobby Database connector and tables...")
+        databaseConnector = LobbyDatabase(configProvider.getOrLoad("database"))
+        logger.info("Connected and created correctly!")
+
         val pluginManager = Bukkit.getPluginManager()
         pluginManager.registerEvents(PlayerAccess(this), this)
         pluginManager.registerEvents(PlayerLocaleChange(this), this)
@@ -99,8 +107,11 @@ public class ThankmasLobby : ThankmasPlugin() {
         server.messenger.registerOutgoingPluginChannel(this, "BungeeCord");
 
         commandHandler = BukkitCommandHandler.create(this)
+        rodsRegistry.registerCompletions(commandHandler)
+
         commandHandler.register(LobbyCommands(this))
         commandHandler.register(profileMenuAccessor)
+
         commandHandler.registerBrigadier()
     }
 

@@ -24,17 +24,17 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
     public val fishTypesMenu: PaginatedMenu
 
     init {
-        val config = configProvider.getOrLoad("fishes")
+        val config = configProvider.getOrLoad("fishes", "fishing/")
 
         config.getKeys(false).forEach { fishKey ->
-            register(
-                fishKey,
-                FishType(
-                    config.string("$fishKey.name"),
-                    FishRarity.valueOf(config.string("$fishKey.rarity").uppercase()),
-                    TranslatableItem(config, "$fishKey.item")
-                )
+            val fishType = FishType(
+                config.string("$fishKey.id"),
+                config.string("$fishKey.name"),
+                FishRarity.valueOf(config.string("$fishKey.rarity").uppercase()),
+                TranslatableItem(config, "$fishKey.item")
             )
+
+            register(fishType.id, fishType)
         }
 
         val menuConfig = configProvider.getOrLoad("menus")

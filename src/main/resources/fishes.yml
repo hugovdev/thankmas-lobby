@@ -1,4 +1,5 @@
 moss-fish:
+  id: mosshorn_fish
   name: fishing.moss_fish
   rarity: legendary
   item:
@@ -7,6 +8,7 @@ moss-fish:
     name: fishing.moss_fish.item.name
     lore: fishing.moss_fish.item.lore
 kwee-fish:
+  id: kweebec_fish
   name: fishing.kwee_fish
   rarity: rare
   item:

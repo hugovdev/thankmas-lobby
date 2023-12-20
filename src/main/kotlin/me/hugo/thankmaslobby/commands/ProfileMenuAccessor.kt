@@ -130,7 +130,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                         return@Icon
                     }
 
-                    if(playerData.selectedRod.value == rod) {
+                    if (playerData.selectedRod.value == rod) {
                         clicker.sendTranslated("fishing.fishing_rods.already_selected") {
                             inserting("rod", clicker.translate(rod.getItemName()))
                         }
@@ -140,15 +140,16 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                     }
 
                     playerData.selectedRod.value = rod
-                    clicker.sendTranslated("fishing.fishing_rods.you_selected"){
+                    clicker.sendTranslated("fishing.fishing_rods.you_selected") {
                         inserting("rod", clicker.translate(rod.getItemName()))
                     }
+                    clicker.playSound(Sound.BLOCK_NOTE_BLOCK_HAT)
                 }) {
                     val playerData = instance.playerManager.getPlayerData(it.uniqueId)
 
                     rod.buildIcon(
                         it,
-                        blocked = !playerData.unlockedRods.contains(rod),
+                        blocked = !playerData.unlockedRods.containsKey(rod),
                         selected = (playerData.selectedRod.value == rod)
                     )
                 }.listen { instance.playerManager.getPlayerData(it.uniqueId).selectedRod })

@@ -8,7 +8,15 @@ import me.hugo.thankmas.lang.Translated
 import org.bukkit.inventory.ItemStack
 import java.util.*
 
-public class FishType(public val name: String, public val rarity: FishRarity, private val item: TranslatableItem) :
+/**
+ * Type of fish that can be caught.
+ */
+public class FishType(
+    public val id: String,
+    public val name: String,
+    public val rarity: FishRarity,
+    private val item: TranslatableItem
+) :
     Translated {
 
     /** @returns the cached item of this fish in [locale]. */

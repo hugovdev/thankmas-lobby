@@ -121,4 +121,5 @@ public class FishingRod(
         }
     }
 
+    public data class FishingRodData(public val unlockTime: Long, public val thisSession: Boolean = true)
 }

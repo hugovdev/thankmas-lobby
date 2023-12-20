@@ -8,8 +8,8 @@ import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.region.Region
 import me.hugo.thankmas.registry.MapBasedRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
-import me.hugo.thankmaslobby.player.updateBoardTags
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
+import me.hugo.thankmaslobby.player.updateBoardTags
 import org.bukkit.Bukkit
 import org.bukkit.Particle
 import org.bukkit.configuration.file.FileConfiguration

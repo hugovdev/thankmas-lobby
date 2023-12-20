@@ -47,7 +47,11 @@ public class PlayerAccess(private val instance: ThankmasLobby) : Listener, Trans
 
     @EventHandler
     private fun onPlayerQuit(event: PlayerQuitEvent) {
-        instance.playerManager.removePlayerData(event.player.uniqueId)
+        val playerId = event.player.uniqueId
+
+        instance.playerManager.getPlayerData(playerId).save {
+            instance.playerManager.removePlayerData(playerId)
+        }
 
         event.quitMessage(null)
     }
