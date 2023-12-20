@@ -25,7 +25,10 @@ public class Pond(
 
         this.region = region.toTriggering(
             onEnter = { player ->
-                player.inventory.setItem(2, playerManager.getPlayerData(player.uniqueId).selectedRod.buildRod(player))
+                player.inventory.setItem(
+                    2,
+                    playerManager.getPlayerData(player.uniqueId).selectedRod.value.buildRod(player)
+                )
                 enterMessage?.let { player.sendTranslated(it) }
             },
             onLeave = { player ->

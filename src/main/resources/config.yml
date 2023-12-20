@@ -1,4 +1,3 @@
-database: ""
 item-sets:
   lobby:
     game-selector:

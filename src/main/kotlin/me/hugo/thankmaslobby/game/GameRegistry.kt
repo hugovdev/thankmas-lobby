@@ -11,7 +11,7 @@ import me.hugo.thankmas.items.addLoreTranslatable
 import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.registry.MapBasedRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
-import me.hugo.thankmaslobby.extension.updateBoardTags
+import me.hugo.thankmaslobby.player.updateBoardTags
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.entity.Player
@@ -49,7 +49,7 @@ public class GameRegistry(config: FileConfiguration) : MapBasedRegistry<String, 
                     game.item.buildItem(it.locale()).addLoreTranslatable("game_selector.player_count", it.locale()) {
                         parsed("players", game.playerCount.value)
                     }
-                }.listen(game.playerCount))
+                }.listen { game.playerCount })
             }
         }
 

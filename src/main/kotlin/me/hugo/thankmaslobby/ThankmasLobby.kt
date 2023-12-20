@@ -10,7 +10,7 @@ import me.hugo.thankmas.region.RegionRegistry
 import me.hugo.thankmaslobby.commands.LobbyCommands
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
 import me.hugo.thankmaslobby.dependencyinjection.LobbyModules
-import me.hugo.thankmaslobby.extension.updateBoardTags
+import me.hugo.thankmaslobby.player.updateBoardTags
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.fishing.pond.PondRegistry
 import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry

@@ -10,6 +10,7 @@ import me.hugo.thankmas.gui.paginated.PaginatedMenu
 import me.hugo.thankmas.items.TranslatableItem
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.playSound
+import me.hugo.thankmas.player.translate
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
@@ -117,15 +118,40 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
     private val rodSelector: PaginatedMenu =
         ConfigurablePaginatedMenu(menusConfig, "menus.fishing-rod-selector", fishingMenu.firstPage()).apply {
             rodRegistry.getValues().sortedBy { it.tier }.forEach { rod ->
-                addIcon(Icon {
+                addIcon(Icon({ context, _ ->
+                    val clicker = context.clicker
+                    val playerData = instance.playerManager.getPlayerData(clicker.uniqueId)
+
+                    if (!playerData.unlockedRods.contains(rod)) {
+                        clicker.sendTranslated("fishing.fishing_rods.click_when_blocked") {
+                            inserting("rod", clicker.translate(rod.name))
+                        }
+                        clicker.playSound(Sound.ENTITY_ENDERMAN_TELEPORT)
+                        return@Icon
+                    }
+
+                    if(playerData.selectedRod.value == rod) {
+                        clicker.sendTranslated("fishing.fishing_rods.already_selected") {
+                            inserting("rod", clicker.translate(rod.getItemName()))
+                        }
+
+                        clicker.playSound(Sound.ENTITY_ENDERMAN_TELEPORT)
+                        return@Icon
+                    }
+
+                    playerData.selectedRod.value = rod
+                    clicker.sendTranslated("fishing.fishing_rods.you_selected"){
+                        inserting("rod", clicker.translate(rod.getItemName()))
+                    }
+                }) {
                     val playerData = instance.playerManager.getPlayerData(it.uniqueId)
 
                     rod.buildIcon(
                         it,
                         blocked = !playerData.unlockedRods.contains(rod),
-                        selected = (playerData.selectedRod == rod)
+                        selected = (playerData.selectedRod.value == rod)
                     )
-                })
+                }.listen { instance.playerManager.getPlayerData(it.uniqueId).selectedRod })
             }
         }
 

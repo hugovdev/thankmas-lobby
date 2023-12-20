@@ -1,25 +1,18 @@
 package me.hugo.thankmaslobby.listener
 
 import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent
-import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.reset
 import me.hugo.thankmaslobby.ThankmasLobby
-import me.hugo.thankmaslobby.extension.updateBoardTags
-import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
+import me.hugo.thankmaslobby.player.updateBoardTags
 import org.bukkit.GameMode
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
-import org.koin.core.component.inject
-import org.koin.core.parameter.parametersOf
 
 public class PlayerAccess(private val instance: ThankmasLobby) : Listener, TranslatedComponent {
-
-    private val scoreboardManager: LobbyScoreboardManager by inject { parametersOf(instance) }
-    private val itemSetManager: ItemSetRegistry by inject()
 
     @EventHandler
     private fun onPlayerPreLogin(event: AsyncPlayerPreLoginEvent) {

@@ -17,6 +17,7 @@ import java.util.*
 /** Custom fishing rod with custom times, particles and name. */
 public class FishingRod(
     public val id: String,
+    public val name: String,
     private val item: TranslatableItem,
     public val particle: Particle?,
     public val tier: Int,
@@ -36,6 +37,7 @@ public class FishingRod(
      */
     public constructor(config: FileConfiguration, path: String) : this(
         config.string("$path.id"),
+        config.string("$path.name"),
         TranslatableItem(config, "$path.item"),
         Particle.valueOf(config.string("$path.particle")),
         config.getInt("$path.tier"),
@@ -100,6 +102,11 @@ public class FishingRod(
                 },
                 finalLocale
             )
+    }
+
+    /** @returns the item name translation key. */
+    public fun getItemName(): String {
+        return item.name
     }
 
     /**

@@ -8,7 +8,7 @@ import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.region.Region
 import me.hugo.thankmas.registry.MapBasedRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
-import me.hugo.thankmaslobby.extension.updateBoardTags
+import me.hugo.thankmaslobby.player.updateBoardTags
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import org.bukkit.Bukkit
 import org.bukkit.Particle
@@ -70,7 +70,7 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
         val hook = event.entity as? FishHook ?: return
         val player = hook.shooter as? Player ?: return
 
-        val selectedRod = instance.playerManager.getPlayerData(player.uniqueId).selectedRod
+        val selectedRod = instance.playerManager.getPlayerData(player.uniqueId).selectedRod.value
 
         // Apply rod fish and bite times!
         selectedRod.apply(hook)

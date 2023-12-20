@@ -1,4 +1,4 @@
-package me.hugo.thankmaslobby.extension
+package me.hugo.thankmaslobby.player
 
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
@@ -14,7 +14,11 @@ public fun playersWithBoard(): List<Player> {
 /** Updates this player's board lines that contains [tags]. */
 public fun Player.updateBoardTags(vararg tags: String) {
     val scoreboardManager: LobbyScoreboardManager = ThankmasLobby.instance().scoreboardManager
-    scoreboardManager.getTemplate("lobby").updateLinesForTag(this, *tags)
+    val playerData = ThankmasLobby.instance().playerManager.getPlayerData(uniqueId)
+
+    playerData.getBoardOrNull() ?: return
+
+    scoreboardManager.getTemplate(playerData.lastBoardId ?: "lobby").updateLinesForTag(this, *tags)
 }
 
 /** Updates this player's board lines that contains [tags]. */
