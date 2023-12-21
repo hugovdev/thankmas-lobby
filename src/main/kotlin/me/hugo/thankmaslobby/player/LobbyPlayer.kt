@@ -99,17 +99,20 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
                 )
             }
 
+            // Load every rod this player has unlocked!
             Rods.selectAll().adjustWhere { Rods.owner eq playerId }.forEach { result ->
                 unlockedRods[rodRegistry.get(result[Rods.rodId])] =
                     FishingRod.FishingRodData(result[Rods.time].toEpochMilliseconds(), false)
             }
 
+            // If the player has no rods then we give them the default one!
             if (unlockedRods.isEmpty()) {
                 unlockedRods[rodRegistry.getValues().first { it.tier == 1 }] =
                     FishingRod.FishingRodData(System.currentTimeMillis())
             }
         }
 
+        // Add caught fishes to the fish bag menu. Max at 150 for caution!
         caughtFishes.take(150).forEach { fishBag.addIcon(Icon { player -> it.buildItem(player) }) }
         instance.logger.info("Player data for $playerUUID loaded in ${System.currentTimeMillis() - startTime}ms.")
     }
@@ -180,7 +183,7 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
 
             transaction {
                 // Update or insert this player's selected stuff!
-                PlayerData.upsert() {
+                PlayerData.upsert {
                     it[uuid] = playerId
                     it[selectedRod] = this@LobbyPlayer.selectedRod.value.id
                     it[selectedHat] = 0
