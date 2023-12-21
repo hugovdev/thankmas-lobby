@@ -1,28 +1,55 @@
 package me.hugo.thankmaslobby.database
 
+import kotlinx.datetime.Instant
 import me.hugo.thankmas.database.ConfigurableDatasource
-import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
 import org.bukkit.configuration.file.FileConfiguration
+import org.jetbrains.exposed.sql.Column
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SchemaUtils
+import org.jetbrains.exposed.sql.Table
+import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 
+/** SQL Table that saves the selected rod, hat and settings. */
+public object PlayerData : Table("player_data") {
+    public val uuid: Column<String> = varchar("uuid", 36)
+    public val selectedRod: Column<String> = varchar("selected_rod", 30)
+    public val selectedHat: Column<Int> = integer("selected_hat")
+
+    override val primaryKey: PrimaryKey = PrimaryKey(uuid)
+}
+
+/** Table that saves all the fishes every player has caught. */
+public object Fishes : Table("fish_caught") {
+    public val whoCaught: Column<String> = varchar("uuid", 36)
+    public val fishType: Column<String> = varchar("fish_type", 30)
+    public val pondId: Column<String> = varchar("pond_id", 30)
+    public val time: Column<Instant> = timestamp("time")
+
+    override val primaryKey: PrimaryKey = PrimaryKey(whoCaught, time)
+}
+
+/** Table that saves all the fishing rods every player has unlocked and when. */
+public object Rods : Table("unlocked_rods") {
+    public val owner: Column<String> = varchar("uuid", 36)
+    public val rodId: Column<String> = varchar("rod_id", 30)
+    public val time: Column<Instant> = timestamp("time")
+
+    override val primaryKey: PrimaryKey = PrimaryKey(owner, rodId)
+}
+
+/**
+ * Creates the main tables for the lobby plugin and
+ * provides a data source for connections.
+ */
 public class LobbyDatabase(config: FileConfiguration) : ConfigurableDatasource(config), KoinComponent {
 
-    private val rodRegistry: FishingRodRegistry by inject()
+    public val database: Database = Database.connect(dataSource)
 
     init {
-        getConnection().use {
-            it.createStatement().use { statement ->
-                statement.executeUpdate(
-                    "CREATE TABLE IF NOT EXISTS `player_data` (`uuid` VARCHAR(36) PRIMARY KEY, `selected_rod` VARCHAR(30) NOT NULL DEFAULT '${
-                        rodRegistry.getValues().first { it.tier == 1 }.id
-                    }' , `selected_hat` INTEGER NOT NULL DEFAULT 0)"
-                )
-
-                statement.executeUpdate("CREATE TABLE IF NOT EXISTS `fish_caught` (`uuid` VARCHAR(36), `fish_type` VARCHAR(30) NOT NULL, `pond_id` VARCHAR(30) NOT NULL, `time` DATETIME, PRIMARY KEY (`uuid`, `time`))")
-                statement.executeUpdate("CREATE TABLE IF NOT EXISTS `unlocked_rods` (`uuid` VARCHAR(36), `rod_id` VARCHAR(30) NOT NULL, `time` DATETIME, PRIMARY KEY (`uuid`, `rod_id`))")
-                statement.executeUpdate("CREATE TABLE IF NOT EXISTS `unlocked_npcs` (`uuid` VARCHAR(36), `npc_id` INTEGER, `time` DATETIME NOT NULL, PRIMARY KEY (`uuid`, `npc_id`))")
-            }
+        transaction {
+            SchemaUtils.create(PlayerData, Fishes, Rods)
         }
     }
 

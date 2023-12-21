@@ -2,6 +2,7 @@ package me.hugo.thankmaslobby.player
 
 import dev.kezz.miniphrase.MiniPhraseContext
 import dev.kezz.miniphrase.audience.sendTranslated
+import kotlinx.datetime.Instant
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.gui.Icon
 import me.hugo.thankmas.gui.paginated.ConfigurablePaginatedMenu
@@ -14,6 +15,9 @@ import me.hugo.thankmas.player.rank.RankedPlayerData
 import me.hugo.thankmas.state.StatefulValue
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
+import me.hugo.thankmaslobby.database.Fishes
+import me.hugo.thankmaslobby.database.PlayerData
+import me.hugo.thankmaslobby.database.Rods
 import me.hugo.thankmaslobby.fishing.fish.CaughtFish
 import me.hugo.thankmaslobby.fishing.fish.FishType
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
@@ -25,8 +29,13 @@ import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.bukkit.persistence.PersistentDataType
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.upsert
 import org.koin.core.component.inject
-import java.sql.Timestamp
 import java.util.*
 
 
@@ -48,7 +57,8 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
     private val caughtFishes: MutableList<CaughtFish> = mutableListOf()
 
     /** The fishing rod this player is using to fish. */
-    public val selectedRod: StatefulValue<FishingRod>
+    public lateinit var selectedRod: StatefulValue<FishingRod>
+        private set
 
     /** List of the rods this player has unlocked. */
     public val unlockedRods: MutableMap<FishingRod, FishingRod.FishingRodData> = mutableMapOf()
@@ -64,59 +74,38 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
     // Constructor is always run asynchronously, so we can load stuff from the database!
     init {
         val startTime = System.currentTimeMillis()
+        val playerId = playerUUID.toString()
 
-        instance.databaseConnector.getConnection().use {
-            // Load base player data like selected rod and hat.
-            it.prepareStatement("SELECT * FROM player_data WHERE uuid = ?").use { query ->
-                val playerId = playerUUID.toString()
-                query.setString(1, playerId)
+        transaction {
+            val player = PlayerData.select { PlayerData.uuid eq playerId }.singleOrNull()
 
-                val results = query.executeQuery()
+            val rod: FishingRod
 
-                val rod: FishingRod
+            if (player != null) {
+                rod = rodRegistry.get(player[PlayerData.selectedRod])
+            } else rod = rodRegistry.getValues().first { it.tier == 1 }
 
-                if (results.next()) {
-                    rod = rodRegistry.get(results.getString("selected_rod"))
-                    // TODO: hat stuff
-                } else rod = rodRegistry.getValues().first { it.tier == 1 }
+            selectedRod = StatefulValue(rod).apply { subscribe { _, _, _ -> rebuildRod() } }
 
-                selectedRod = StatefulValue(rod).apply { subscribe { _, _, _ -> rebuildRod() } }
-            }
-
-            // Load all the past fish caught.
-            it.prepareStatement("SELECT * FROM fish_caught WHERE uuid = ?").use { query ->
-                val playerId = playerUUID.toString()
-                query.setString(1, playerId)
-
-                val results = query.executeQuery()
-
-                while (results.next()) {
-                    caughtFishes.add(
-                        CaughtFish(
-                            fishRegistry.get(results.getString("fish_type")),
-                            playerUUID,
-                            results.getString("pond_id"),
-                            results.getTimestamp("time").time,
-                            false
-                        )
+            // Load all the fishes this player has caught!
+            Fishes.selectAll().adjustWhere { Fishes.whoCaught eq playerId }.forEach { result ->
+                caughtFishes.add(
+                    CaughtFish(
+                        fishRegistry.get(result[Fishes.fishType]), playerUUID,
+                        result[Fishes.pondId],
+                        result[Fishes.time].toEpochMilliseconds(),
+                        false
                     )
-                }
+                )
             }
 
-            it.prepareStatement("SELECT * FROM unlocked_rods WHERE uuid = ?").use { query ->
-                val playerId = playerUUID.toString()
-                query.setString(1, playerId)
+            Rods.selectAll().adjustWhere { Rods.owner eq playerId }.forEach { result ->
+                unlockedRods[rodRegistry.get(result[Rods.rodId])] =
+                    FishingRod.FishingRodData(result[Rods.time].toEpochMilliseconds(), false)
+            }
 
-                val results = query.executeQuery()
-                var hasRods = false
-
-                while (results.next()) {
-                    hasRods = true
-                    unlockedRods[rodRegistry.get(results.getString("rod_id"))] =
-                        FishingRod.FishingRodData(results.getTimestamp("time").time, false)
-                }
-
-                if (!hasRods) unlockedRods[rodRegistry.getValues().first { it.tier == 1 }] =
+            if (unlockedRods.isEmpty()) {
+                unlockedRods[rodRegistry.getValues().first { it.tier == 1 }] =
                     FishingRod.FishingRodData(System.currentTimeMillis())
             }
         }
@@ -189,56 +178,27 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
         Bukkit.getScheduler().runTaskAsynchronously(instance, Runnable {
             val playerId = playerUUID.toString()
 
-            instance.databaseConnector.getConnection().use { connection ->
-                connection.prepareStatement("INSERT INTO player_data (`uuid`, `selected_rod`, `selected_hat`) VALUES(?, ?, ?) ON DUPLICATE KEY UPDATE `selected_rod` = ?, `selected_hat` = ?")
-                    .use {
-                        it.setString(1, playerId)
-                        it.setString(2, selectedRod.value.id)
-                        it.setInt(3, 0)
-
-                        it.setString(4, selectedRod.value.id)
-                        it.setInt(5, 0)
-
-                        it.execute()
-                    }
-
-                val newFishes = caughtFishes.filter { it.thisSession }
-
-                if (newFishes.isNotEmpty()) {
-                    connection.prepareStatement("INSERT INTO fish_caught VALUES(?, ?, ?, ?)").use { statement ->
-                        newFishes.forEachIndexed { index, fish ->
-
-                            statement.setString(1, playerId)
-                            statement.setString(2, fish.fishType.id)
-                            statement.setString(3, fish.pondId)
-                            statement.setTimestamp(4, Timestamp(fish.timeCaptured))
-
-                            statement.addBatch()
-
-                            if (index % 1000 == 0) statement.executeBatch()
-                        }
-
-                        statement.executeBatch()
-                    }
+            transaction {
+                // Update or insert this player's selected stuff!
+                PlayerData.upsert() {
+                    it[uuid] = playerId
+                    it[selectedRod] = this@LobbyPlayer.selectedRod.value.id
+                    it[selectedHat] = 0
                 }
 
-                val newRods = unlockedRods.filter { it.value.thisSession }
+                // Insert the new fishes into the database!
+                Fishes.batchInsert(caughtFishes.filter { it.thisSession }) {
+                    this[Fishes.whoCaught] = playerId
+                    this[Fishes.fishType] = it.fishType.id
+                    this[Fishes.pondId] = it.pondId
+                    this[Fishes.time] = Instant.fromEpochMilliseconds(it.timeCaptured)
+                }
 
-                if (newRods.isNotEmpty()) {
-                    connection.prepareStatement("INSERT INTO unlocked_rods VALUES(?, ?, ?)").use { statement ->
-                        newRods.toList().forEachIndexed { index, rod ->
-
-                            statement.setString(1, playerId)
-                            statement.setString(2, rod.first.id)
-                            statement.setTimestamp(3, Timestamp(rod.second.unlockTime))
-
-                            statement.addBatch()
-
-                            if (index % 1000 == 0) statement.executeBatch()
-                        }
-
-                        statement.executeBatch()
-                    }
+                // Insert the new unlocked rods into the database!
+                Rods.batchInsert(unlockedRods.filter { it.value.thisSession }.toList()) {
+                    this[Rods.owner] = playerId
+                    this[Rods.rodId] = it.first.id
+                    this[Rods.time] = Instant.fromEpochMilliseconds(it.second.unlockTime)
                 }
             }
 

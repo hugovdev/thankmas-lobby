@@ -14,6 +14,7 @@ repositories {
     maven(url = "https://repo.papermc.io/repository/maven-public/")
 }
 
+val exposedVersion: String by project
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.2-R0.1-SNAPSHOT")
     compileOnly("net.luckperms:api:5.4")
@@ -22,6 +23,9 @@ dependencies {
 
     // Work on a paper specific library!
     implementation(files("C:/Users/hugov/IdeaProjects/ThankmasPaper/build/libs/ThankmasPaper-1.0-SNAPSHOT-all.jar"))
+    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
+    api("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
 }
 
 tasks.shadowJar {

@@ -2,7 +2,6 @@ package me.hugo.thankmaslobby
 
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.config.ConfigurationProvider
-import me.hugo.thankmas.database.DatasourceConnector
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.listener.PlayerNameTagUpdater
 import me.hugo.thankmas.player.PlayerDataManager
@@ -48,7 +47,7 @@ public class ThankmasLobby : ThankmasPlugin() {
 
     private val profileMenuAccessor: ProfileMenuAccessor by inject { parametersOf(this) }
 
-    public lateinit var databaseConnector: DatasourceConnector
+    public lateinit var databaseConnector: LobbyDatabase
     private lateinit var commandHandler: BukkitCommandHandler
 
     public companion object {
@@ -117,6 +116,8 @@ public class ThankmasLobby : ThankmasPlugin() {
 
     override fun onDisable() {
         super.onDisable()
+
+        databaseConnector.dataSource.close()
         commandHandler.unregisterAllCommands()
     }
 

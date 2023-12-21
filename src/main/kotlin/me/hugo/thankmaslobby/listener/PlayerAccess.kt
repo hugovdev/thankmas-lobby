@@ -5,12 +5,15 @@ import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.reset
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.player.updateBoardTags
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.GameMode
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import java.sql.SQLException
 
 public class PlayerAccess(private val instance: ThankmasLobby) : Listener, TranslatedComponent {
 
@@ -28,7 +31,14 @@ public class PlayerAccess(private val instance: ThankmasLobby) : Listener, Trans
             return
         }
 
-        playerManager.createPlayerData(playerUUID)
+        try {
+            playerManager.createPlayerData(playerUUID)
+        } catch (exception: SQLException) {
+            exception.printStackTrace()
+
+            event.loginResult = AsyncPlayerPreLoginEvent.Result.KICK_OTHER
+            event.kickMessage(Component.text("Your data could not be loaded!", NamedTextColor.RED))
+        }
     }
 
     @EventHandler
