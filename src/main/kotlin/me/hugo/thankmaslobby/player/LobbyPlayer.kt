@@ -88,7 +88,7 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
             selectedRod = StatefulValue(rod).apply { subscribe { _, _, _ -> rebuildRod() } }
 
             // Load all the fishes this player has caught!
-            Fishes.selectAll().adjustWhere { Fishes.whoCaught eq playerId }.forEach { result ->
+            Fishes.select { Fishes.whoCaught eq playerId }.forEach { result ->
                 caughtFishes.add(
                     CaughtFish(
                         fishRegistry.get(result[Fishes.fishType]), playerUUID,
@@ -100,7 +100,7 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
             }
 
             // Load every rod this player has unlocked!
-            Rods.selectAll().adjustWhere { Rods.owner eq playerId }.forEach { result ->
+            Rods.select { Rods.owner eq playerId }.forEach { result ->
                 unlockedRods[rodRegistry.get(result[Rods.rodId])] =
                     FishingRod.FishingRodData(result[Rods.time].toEpochMilliseconds(), false)
             }
@@ -145,6 +145,7 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
 
         // If they are fishing also give them the new translated rod!
         rebuildRod(newLocale)
+        updateHolograms(newLocale)
     }
 
     /** Captures [fish] on [pondId]. */

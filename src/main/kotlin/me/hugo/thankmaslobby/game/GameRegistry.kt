@@ -11,6 +11,7 @@ import me.hugo.thankmas.items.addLoreTranslatable
 import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.registry.MapBasedRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
+import me.hugo.thankmaslobby.player.isDonor
 import me.hugo.thankmaslobby.player.updateBoardTags
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
@@ -42,9 +43,16 @@ public class GameRegistry(config: FileConfiguration) : MapBasedRegistry<String, 
                     val clicker = context.clicker
 
                     clicker.closeInventory()
-                    clicker.sendTranslated("game_selector.sending") { inserting("game", clicker.translate(game.name)) }
 
-                    game.send(clicker)
+                    if (clicker.isDonor("perk.play_games", "verb.play")) {
+                        clicker.sendTranslated("game_selector.sending") {
+                            inserting(
+                                "game",
+                                clicker.translate(game.name)
+                            )
+                        }
+                        game.send(clicker)
+                    }
                 }) {
                     game.item.buildItem(it.locale()).addLoreTranslatable("game_selector.player_count", it.locale()) {
                         parsed("players", game.playerCount.value)

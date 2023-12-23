@@ -1,13 +1,19 @@
 package me.hugo.thankmaslobby.listener
 
 import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent
+import me.hugo.thankmas.entity.Hologram
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.reset
+import me.hugo.thankmas.player.translate
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.player.updateBoardTags
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import org.bukkit.Bukkit
 import org.bukkit.GameMode
+import org.bukkit.Location
+import org.bukkit.entity.Display
+import org.bukkit.entity.TextDisplay
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
@@ -53,13 +59,27 @@ public class PlayerAccess(private val instance: ThankmasLobby) : Listener, Trans
         player.reset(GameMode.ADVENTURE)
 
         instance.playerManager.getPlayerData(player.uniqueId).setTranslation(player.locale())
+
+        Hologram(
+            Location(Bukkit.getWorld("world"), -235.5, 65.5, 52.5),
+            { _, _ ->
+                Hologram.HologramProperties(
+                    Display.Billboard.VERTICAL,
+                    Display.Brightness(15, 15),
+                    TextDisplay.TextAlignment.LEFT
+                )
+            },
+            { viewer, locale -> viewer.translate("hologram_test", locale) }, instance.playerManager
+        ).spawnOrUpdate(player)
     }
 
     @EventHandler
     private fun onPlayerQuit(event: PlayerQuitEvent) {
         val playerId = event.player.uniqueId
+        val playerData = instance.playerManager.getPlayerData(playerId)
 
-        instance.playerManager.getPlayerData(playerId).save {
+        playerData.removeAllHolograms()
+        playerData.save {
             instance.playerManager.removePlayerData(playerId)
         }
 

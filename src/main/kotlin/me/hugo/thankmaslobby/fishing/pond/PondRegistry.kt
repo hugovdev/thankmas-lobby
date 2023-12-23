@@ -6,7 +6,7 @@ import me.hugo.thankmas.config.string
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.region.Region
-import me.hugo.thankmas.registry.MapBasedRegistry
+import me.hugo.thankmas.registry.AutoCompletableMapRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.player.updateBoardTags
@@ -30,7 +30,7 @@ import java.util.concurrent.ConcurrentMap
  */
 @Single
 public class PondRegistry(config: FileConfiguration, private val instance: ThankmasLobby) :
-    MapBasedRegistry<String, Pond>(), TranslatedComponent, Listener {
+    AutoCompletableMapRegistry<Pond>(Pond::class.java), TranslatedComponent, Listener {
 
     private val flyingHooks: ConcurrentMap<FishHook, Particle> = ConcurrentHashMap()
 

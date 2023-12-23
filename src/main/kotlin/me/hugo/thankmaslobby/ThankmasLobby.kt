@@ -107,6 +107,7 @@ public class ThankmasLobby : ThankmasPlugin() {
 
         commandHandler = BukkitCommandHandler.create(this)
         rodsRegistry.registerCompletions(commandHandler)
+        pondRegistry.registerCompletions(commandHandler)
 
         commandHandler.register(LobbyCommands(this))
         commandHandler.register(profileMenuAccessor)
