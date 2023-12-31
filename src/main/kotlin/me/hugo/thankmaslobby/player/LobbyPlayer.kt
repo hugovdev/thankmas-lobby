@@ -1,6 +1,5 @@
 package me.hugo.thankmaslobby.player
 
-import dev.kezz.miniphrase.MiniPhraseContext
 import dev.kezz.miniphrase.audience.sendTranslated
 import kotlinx.datetime.Instant
 import me.hugo.thankmas.config.ConfigurationProvider
@@ -24,15 +23,10 @@ import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.fishing.rod.FishingRod
 import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
-import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
-import org.bukkit.entity.Player
 import org.bukkit.persistence.PersistentDataType
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.upsert
 import org.koin.core.component.inject
@@ -40,10 +34,8 @@ import java.util.*
 
 
 public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) :
-    RankedPlayerData(playerUUID, { player, locale ->
-        Component.space()
-            .append(Component.text("★", NamedTextColor.YELLOW))
-            .append(Component.text("☆☆", NamedTextColor.GRAY))
+    RankedPlayerData(playerUUID, belowNameSupplier = { _, locale ->
+        ThankmasLobby.instance().translations.translations.translate("below_name_test", locale)
     }),
     TranslatedComponent {
 
@@ -117,14 +109,15 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
         instance.logger.info("Player data for $playerUUID loaded in ${System.currentTimeMillis() - startTime}ms.")
     }
 
-    context(MiniPhraseContext)
-    public fun setTranslation(newLocale: Locale, player: Player? = null) {
-        val finalPlayer = player ?: onlinePlayerOrNull ?: return
+    override fun setTranslation(newLocale: Locale) {
+        super.setTranslation(newLocale)
+
+        val finalPlayer = onlinePlayerOrNull ?: return
 
         // If we're initializing the board it's because the player just joined,
         // so we can also send them the join message!
         if (getBoardOrNull() == null) {
-            initializeBoard("scoreboard.title", newLocale, player)
+            initializeBoard("scoreboard.title", newLocale, finalPlayer)
             finalPlayer.sendTranslated("welcome", newLocale)
         }
 

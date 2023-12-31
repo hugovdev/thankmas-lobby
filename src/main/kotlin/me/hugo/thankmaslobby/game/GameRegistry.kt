@@ -44,7 +44,7 @@ public class GameRegistry(config: FileConfiguration) : MapBasedRegistry<String, 
 
                     clicker.closeInventory()
 
-                    if (clicker.isDonor("perk.play_games", "verb.play")) {
+                    if (clicker.isDonor("perk.play_games")) {
                         clicker.sendTranslated("game_selector.sending") {
                             inserting(
                                 "game",

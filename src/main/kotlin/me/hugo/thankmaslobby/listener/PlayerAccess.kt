@@ -30,6 +30,8 @@ public class PlayerAccess(private val instance: ThankmasLobby) : Listener, Trans
         val playerManager = instance.playerManager
         val playerData = playerManager.getPlayerDataOrNull(playerUUID)
 
+        if (event.loginResult == AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST) return
+
         if (playerData != null) {
             event.loginResult = AsyncPlayerPreLoginEvent.Result.KICK_OTHER
             event.kickMessage(instance.globalTranslations.translate("general.kick.player_data_loaded"))

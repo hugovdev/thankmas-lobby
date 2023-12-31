@@ -1,6 +1,5 @@
 package me.hugo.thankmaslobby.commands
 
-import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.translate
 import me.hugo.thankmaslobby.ThankmasLobby
@@ -9,7 +8,6 @@ import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.fishing.pond.Pond
 import me.hugo.thankmaslobby.fishing.rod.FishingRod
 import me.hugo.thankmaslobby.game.GameRegistry
-import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Bukkit
@@ -44,22 +42,6 @@ public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComp
         instance.playerManager.getPlayerData(sender.uniqueId).fishBag.open(sender)
     }
 
-    @Command("reloadtranslations")
-    @CommandPermission("thankmas.admin")
-    private fun reloadLang(sender: Player, @Optional type: TranslationType = TranslationType.LOCAL) {
-        when (type) {
-            TranslationType.LOCAL -> miniPhrase.translationRegistry.reload()
-            TranslationType.GLOBAL -> ThankmasPlugin.instance().globalTranslations.translationRegistry.reload()
-        }
-
-        val scoreboardManager: LobbyScoreboardManager by inject()
-        scoreboardManager.initialize()
-
-        instance.playerManager.getPlayerData(sender.uniqueId).setTranslation(sender.locale())
-
-        sender.sendMessage(Component.text("Reloaded messages in context $type!", NamedTextColor.GREEN))
-    }
-
     @Command("unlockrod")
     @CommandPermission("thankmas.admin")
     private fun unlockRod(
@@ -86,8 +68,6 @@ public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComp
     @Command("leaderboard")
     @CommandPermission("thankmas.admin")
     private fun viewLeaderboard(sender: Player, pond: Pond) {
-        val playerData = instance.playerManager.getPlayerData(sender.uniqueId)
-
         sender.sendMessage(Component.text("Asking the database for a leaderboard...", NamedTextColor.GREEN))
 
         Bukkit.getScheduler().runTaskAsynchronously(instance, Runnable {
@@ -103,9 +83,5 @@ public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComp
                     }
             }
         })
-    }
-
-    private enum class TranslationType {
-        GLOBAL, LOCAL
     }
 }

@@ -1,9 +1,12 @@
 package me.hugo.thankmaslobby
 
 import me.hugo.thankmas.ThankmasPlugin
+import me.hugo.thankmas.commands.TranslationsCommands
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
+import me.hugo.thankmas.listener.PlayerLocaleChange
 import me.hugo.thankmas.listener.PlayerNameTagUpdater
+import me.hugo.thankmas.listener.RankedPlayerChat
 import me.hugo.thankmas.player.PlayerDataManager
 import me.hugo.thankmas.player.rank.PlayerGroupChange
 import me.hugo.thankmas.region.RegionRegistry
@@ -17,7 +20,6 @@ import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
 import me.hugo.thankmaslobby.game.GameRegistry
 import me.hugo.thankmaslobby.listener.PlayerAccess
 import me.hugo.thankmaslobby.listener.PlayerCancelled
-import me.hugo.thankmaslobby.listener.PlayerLocaleChange
 import me.hugo.thankmaslobby.player.LobbyPlayer
 import me.hugo.thankmaslobby.player.updateBoardTags
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
@@ -38,8 +40,20 @@ public class ThankmasLobby : ThankmasPlugin() {
 
     // Fishing Stuff
     private val fishRegistry: FishTypeRegistry by inject()
-    private val pondRegistry: PondRegistry by inject { parametersOf(configProvider.getOrLoad("ponds", "fishing/"), this) }
-    private val rodsRegistry: FishingRodRegistry by inject { parametersOf(configProvider.getOrLoad("fishing_rods", "fishing/")) }
+    private val pondRegistry: PondRegistry by inject {
+        parametersOf(
+            configProvider.getOrLoad("ponds", "fishing/"),
+            this
+        )
+    }
+    private val rodsRegistry: FishingRodRegistry by inject {
+        parametersOf(
+            configProvider.getOrLoad(
+                "fishing_rods",
+                "fishing/"
+            )
+        )
+    }
 
     private val gameRegistry: GameRegistry by inject { parametersOf(configProvider.getOrLoad("games")) }
 
@@ -95,10 +109,13 @@ public class ThankmasLobby : ThankmasPlugin() {
 
         val pluginManager = Bukkit.getPluginManager()
         pluginManager.registerEvents(PlayerAccess(this), this)
-        pluginManager.registerEvents(PlayerLocaleChange(this), this)
+        pluginManager.registerEvents(PlayerLocaleChange(playerManager), this)
         pluginManager.registerEvents(PlayerCancelled(), this)
         pluginManager.registerEvents(pondRegistry, this)
         pluginManager.registerEvents(PlayerNameTagUpdater(playerManager), this)
+
+        // Check settings and ignored people etc.
+        pluginManager.registerEvents(RankedPlayerChat(playerManager) { _, _ -> true }, this)
 
         // Register luck perms events!
         PlayerGroupChange(playerManager) { player -> player.updateBoardTags("rank") }
@@ -110,6 +127,7 @@ public class ThankmasLobby : ThankmasPlugin() {
         pondRegistry.registerCompletions(commandHandler)
 
         commandHandler.register(LobbyCommands(this))
+        commandHandler.register(TranslationsCommands(playerManager))
         commandHandler.register(profileMenuAccessor)
 
         commandHandler.registerBrigadier()
