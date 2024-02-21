@@ -19,6 +19,7 @@ public class FishingRod(
     public val id: String,
     public val name: String,
     private val item: TranslatableItem,
+    private val icon: TranslatableItem,
     public val particle: Particle?,
     public val tier: Int,
     maxFishTime: Double,
@@ -39,6 +40,7 @@ public class FishingRod(
         config.string("$path.id"),
         config.string("$path.name"),
         TranslatableItem(config, "$path.item"),
+        TranslatableItem(config, "$path.icon"),
         Particle.valueOf(config.string("$path.particle")),
         config.getInt("$path.tier"),
         config.getDouble("$path.max-fish-time"),
@@ -92,7 +94,7 @@ public class FishingRod(
     ): ItemStack {
         val finalLocale = locale ?: player.locale()
 
-        return item.buildItem(finalLocale)
+        return icon.buildItem(finalLocale)
             .addStats(finalLocale)
             .selectedEffect(selected)
             .addLoreTranslatable(

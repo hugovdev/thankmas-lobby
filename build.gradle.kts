@@ -16,7 +16,7 @@ repositories {
 
 val exposedVersion: String by project
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.20.2-R0.1-SNAPSHOT")
+    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     compileOnly("net.luckperms:api:5.4")
 
     ksp("io.insert-koin:koin-ksp-compiler:1.3.0")

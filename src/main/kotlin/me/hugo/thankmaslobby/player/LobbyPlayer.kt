@@ -26,7 +26,7 @@ import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
 import org.bukkit.Bukkit
 import org.bukkit.persistence.PersistentDataType
 import org.jetbrains.exposed.sql.batchInsert
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.upsert
 import org.koin.core.component.inject
@@ -69,7 +69,7 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
         val playerId = playerUUID.toString()
 
         transaction {
-            val player = PlayerData.select { PlayerData.uuid eq playerId }.singleOrNull()
+            val player = PlayerData.selectAll().where { PlayerData.uuid eq playerId }.singleOrNull()
 
             val rod: FishingRod
 
@@ -80,7 +80,7 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
             selectedRod = StatefulValue(rod).apply { subscribe { _, _, _ -> rebuildRod() } }
 
             // Load all the fishes this player has caught!
-            Fishes.select { Fishes.whoCaught eq playerId }.forEach { result ->
+            Fishes.selectAll().where { Fishes.whoCaught eq playerId }.forEach { result ->
                 caughtFishes.add(
                     CaughtFish(
                         fishRegistry.get(result[Fishes.fishType]), playerUUID,
@@ -92,7 +92,7 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
             }
 
             // Load every rod this player has unlocked!
-            Rods.select { Rods.owner eq playerId }.forEach { result ->
+            Rods.selectAll().where { Rods.owner eq playerId }.forEach { result ->
                 unlockedRods[rodRegistry.get(result[Rods.rodId])] =
                     FishingRod.FishingRodData(result[Rods.time].toEpochMilliseconds(), false)
             }

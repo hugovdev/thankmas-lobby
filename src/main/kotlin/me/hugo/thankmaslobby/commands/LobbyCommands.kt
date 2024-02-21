@@ -73,8 +73,8 @@ public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComp
         Bukkit.getScheduler().runTaskAsynchronously(instance, Runnable {
             transaction {
                 Fishes
-                    .slice(Fishes.whoCaught, Fishes.whoCaught.count())
-                    .select { Fishes.pondId eq pond.pondId }
+                    .select(Fishes.whoCaught, Fishes.whoCaught.count())
+                    .where { Fishes.pondId eq pond.pondId }
                     .groupBy(Fishes.whoCaught)
                     .orderBy(Fishes.whoCaught.count(), SortOrder.DESC)
                     .limit(10)

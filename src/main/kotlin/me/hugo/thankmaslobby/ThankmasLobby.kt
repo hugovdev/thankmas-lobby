@@ -61,7 +61,7 @@ public class ThankmasLobby : ThankmasPlugin() {
 
     private val profileMenuAccessor: ProfileMenuAccessor by inject { parametersOf(this) }
 
-    public lateinit var databaseConnector: LobbyDatabase
+    private lateinit var databaseConnector: LobbyDatabase
     private lateinit var commandHandler: BukkitCommandHandler
 
     public companion object {

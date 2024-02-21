@@ -11,7 +11,12 @@ rusty-rod:
     material: FISHING_ROD
     name: fishing_rods.rusty_wooden_rod.item.name
     lore: fishing_rods.rusty_wooden_rod.item.lore
-    custom-model-data: 0
+    custom-model-data: 1
+  icon:
+    material: PHANTOM_MEMBRANE
+    custom-model-data: 101
+    name: fishing_rods.rusty_wooden_rod.item.name
+    lore: fishing_rods.rusty_wooden_rod.item.lore
 sungwood-rod:
   id: sungwood_rod
   name: fishing_rods.sungwood_rod.name
@@ -25,7 +30,12 @@ sungwood-rod:
     material: FISHING_ROD
     name: fishing_rods.sungwood_rod.item.name
     lore: fishing_rods.sungwood_rod.item.lore
-    custom-model-data: 1
+    custom-model-data: 2
+  icon:
+    material: PHANTOM_MEMBRANE
+    custom-model-data: 102
+    name: fishing_rods.sungwood_rod.item.name
+    lore: fishing_rods.sungwood_rod.item.lore
 thorium-rod:
   id: thorium_rod
   name: fishing_rods.thorium_rod.name
@@ -39,7 +49,12 @@ thorium-rod:
     material: FISHING_ROD
     name: fishing_rods.thorium_rod.item.name
     lore: fishing_rods.thorium_rod.item.lore
-    custom-model-data: 2
+    custom-model-data: 3
+  icon:
+    material: PHANTOM_MEMBRANE
+    custom-model-data: 103
+    name: fishing_rods.thorium_rod.item.name
+    lore: fishing_rods.thorium_rod.item.lore
 cloudsteel-rod:
   id: cloudsteel_rod
   name: fishing_rods.cloudsteel_rod.name
@@ -53,7 +68,12 @@ cloudsteel-rod:
     material: FISHING_ROD
     name: fishing_rods.cloudsteel_rod.item.name
     lore: fishing_rods.cloudsteel_rod.item.lore
-    custom-model-data: 3
+    custom-model-data: 4
+  icon:
+    material: PHANTOM_MEMBRANE
+    custom-model-data: 104
+    name: fishing_rods.cloudsteel_rod.item.name
+    lore: fishing_rods.cloudsteel_rod.item.lore
 gaian-rod:
   id: gaian_rod
   name: fishing_rods.gaian_rod.name
@@ -67,4 +87,9 @@ gaian-rod:
     material: FISHING_ROD
     name: fishing_rods.gaian_rod.item.name
     lore: fishing_rods.gaian_rod.item.lore
-    custom-model-data: 4
+    custom-model-data: 5
+  icon:
+    material: PHANTOM_MEMBRANE
+    custom-model-data: 105
+    name: fishing_rods.gaian_rod.item.name
+    lore: fishing_rods.gaian_rod.item.lore
