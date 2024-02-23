@@ -14,7 +14,6 @@ import org.bukkit.Bukkit
 import org.bukkit.entity.Player
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.count
-import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.inject
 import revxrsal.commands.annotation.Command
