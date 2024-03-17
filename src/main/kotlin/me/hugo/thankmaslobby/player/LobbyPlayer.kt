@@ -52,6 +52,8 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
     public lateinit var selectedRod: StatefulValue<FishingRod>
         private set
 
+    public var lastHookShoot: Long = 0L
+
     /** List of the rods this player has unlocked. */
     public val unlockedRods: MutableMap<FishingRod, FishingRod.FishingRodData> = mutableMapOf()
 

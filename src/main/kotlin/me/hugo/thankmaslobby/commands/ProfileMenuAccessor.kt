@@ -132,7 +132,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
 
                     if (playerData.selectedRod.value == rod) {
                         clicker.sendTranslated("fishing.fishing_rods.already_selected") {
-                            inserting("rod", clicker.translate(rod.getItemName()))
+                            inserting("rod", clicker.translate(rod.name))
                         }
 
                         clicker.playSound(Sound.ENTITY_ENDERMAN_TELEPORT)
@@ -141,7 +141,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
 
                     playerData.selectedRod.value = rod
                     clicker.sendTranslated("fishing.fishing_rods.you_selected") {
-                        inserting("rod", clicker.translate(rod.getItemName()))
+                        inserting("rod", clicker.translate(rod.name))
                     }
                     clicker.playSound(Sound.BLOCK_NOTE_BLOCK_HAT)
                 }) {

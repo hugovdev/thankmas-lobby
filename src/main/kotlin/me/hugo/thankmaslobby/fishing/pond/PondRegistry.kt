@@ -4,6 +4,8 @@ import dev.kezz.miniphrase.audience.sendTranslated
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.math.formatToTime
+import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.region.Region
 import me.hugo.thankmas.registry.AutoCompletableMapRegistry
@@ -12,6 +14,7 @@ import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.player.updateBoardTags
 import org.bukkit.Bukkit
 import org.bukkit.Particle
+import org.bukkit.Sound
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.entity.FishHook
 import org.bukkit.entity.Item
@@ -90,7 +93,20 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
             return
         }
 
+        if (event.state == PlayerFishEvent.State.BITE) {
+            player.playSound(Sound.BLOCK_NOTE_BLOCK_PLING)
+            return
+        }
+
+        val playerData = instance.playerManager.getPlayerData(player.uniqueId)
+
+        if (event.state == PlayerFishEvent.State.FISHING) {
+            playerData.lastHookShoot = System.currentTimeMillis()
+            return
+        }
+
         if (event.state != PlayerFishEvent.State.CAUGHT_FISH) return
+
         event.expToDrop = 0
 
         val caughtFish = pond.catchFish()
@@ -105,11 +121,11 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
             }, 15L)
         }
 
-        val playerData = instance.playerManager.getPlayerData(player.uniqueId)
         playerData.captureFish(caughtFish, pond.pondId)
 
         player.sendTranslated(caughtFish.rarity.getCaughtMessage()) {
             inserting("fish", player.translate(caughtFish.name))
+            inserting("time", (System.currentTimeMillis() - playerData.lastHookShoot).formatToTime(player))
         }
 
         player.updateBoardTags("fishes")
