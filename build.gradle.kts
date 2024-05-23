@@ -19,7 +19,7 @@ dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     compileOnly("net.luckperms:api:5.4")
 
-    ksp("io.insert-koin:koin-ksp-compiler:1.3.0")
+    ksp("io.insert-koin:koin-ksp-compiler:1.3.1")
 
     // Work on a paper specific library!
     implementation(files("C:/Users/hugov/IdeaProjects/ThankmasPaper/build/libs/ThankmasPaper-1.0-SNAPSHOT.jar"))

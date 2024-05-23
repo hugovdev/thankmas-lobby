@@ -1,27 +1,30 @@
 package me.hugo.thankmaslobby.listener
 
 import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent
-import me.hugo.thankmas.entity.Hologram
 import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.markers.MarkerRegistry
 import me.hugo.thankmas.player.reset
-import me.hugo.thankmas.player.translate
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.player.updateBoardTags
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.Location
-import org.bukkit.entity.Display
-import org.bukkit.entity.TextDisplay
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
+import org.koin.core.component.inject
 import java.sql.SQLException
 
 public class PlayerAccess(private val instance: ThankmasLobby) : Listener, TranslatedComponent {
+
+    private val markerRegistry: MarkerRegistry by inject()
+
+    private val spawnpoint: Location?
+        get() = markerRegistry.getMarkerForType("hub_spawnpoint").firstOrNull()
+            ?.location?.toLocation(ThankmasLobby.instance().hubWorld)
 
     @EventHandler
     private fun onPlayerPreLogin(event: AsyncPlayerPreLoginEvent) {
@@ -62,17 +65,8 @@ public class PlayerAccess(private val instance: ThankmasLobby) : Listener, Trans
 
         instance.playerManager.getPlayerData(player.uniqueId).setTranslation(player.locale())
 
-        Hologram(
-            Location(Bukkit.getWorld("world"), -235.5, 65.5, 52.5),
-            { _, _ ->
-                Hologram.HologramProperties(
-                    Display.Billboard.VERTICAL,
-                    Display.Brightness(15, 15),
-                    TextDisplay.TextAlignment.LEFT
-                )
-            },
-            { viewer, locale -> viewer.translate("hologram_test", locale) }, instance.playerManager
-        ).spawnOrUpdate(player)
+        // Try to teleport the player to the hub_spawnpoint marker.
+        spawnpoint?.let { player.teleport(it) }
     }
 
     @EventHandler

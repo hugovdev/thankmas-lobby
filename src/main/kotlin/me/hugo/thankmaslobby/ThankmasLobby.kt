@@ -3,10 +3,12 @@ package me.hugo.thankmaslobby
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.commands.TranslationsCommands
 import me.hugo.thankmas.config.ConfigurationProvider
+import me.hugo.thankmas.config.string
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.listener.PlayerLocaleChange
 import me.hugo.thankmas.listener.PlayerNameTagUpdater
 import me.hugo.thankmas.listener.RankedPlayerChat
+import me.hugo.thankmas.markers.MarkerRegistry
 import me.hugo.thankmas.player.PlayerDataManager
 import me.hugo.thankmas.player.rank.PlayerGroupChange
 import me.hugo.thankmas.region.RegionRegistry
@@ -24,6 +26,7 @@ import me.hugo.thankmaslobby.player.LobbyPlayer
 import me.hugo.thankmaslobby.player.updateBoardTags
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
 import org.bukkit.Bukkit
+import org.bukkit.World
 import org.koin.core.component.inject
 import org.koin.core.context.loadKoinModules
 import org.koin.core.parameter.parametersOf
@@ -46,6 +49,7 @@ public class ThankmasLobby : ThankmasPlugin() {
             this
         )
     }
+
     private val rodsRegistry: FishingRodRegistry by inject {
         parametersOf(
             configProvider.getOrLoad(
@@ -55,10 +59,11 @@ public class ThankmasLobby : ThankmasPlugin() {
         )
     }
 
+    private var worldName: String = "world"
+
+    private val markerRegistry: MarkerRegistry by inject()
     private val gameRegistry: GameRegistry by inject { parametersOf(configProvider.getOrLoad("games")) }
-
     private val itemSetManager: ItemSetRegistry by inject { parametersOf(config) }
-
     private val profileMenuAccessor: ProfileMenuAccessor by inject { parametersOf(this) }
 
     private lateinit var databaseConnector: LobbyDatabase
@@ -82,6 +87,9 @@ public class ThankmasLobby : ThankmasPlugin() {
         saveDefaultConfig()
 
         loadKoinModules(LobbyModules().module)
+
+        worldName = config.string("world")
+        markerRegistry.loadWorldMarkers(worldName)
 
         logger.info("Registering games...")
         logger.info("Registered ${gameRegistry.size()} games!")
@@ -139,5 +147,8 @@ public class ThankmasLobby : ThankmasPlugin() {
         databaseConnector.dataSource.close()
         commandHandler.unregisterAllCommands()
     }
+
+    public val hubWorld: World
+        get() = requireNotNull(Bukkit.getWorld(worldName)) { "Tried to use the main world before it was ready." }
 
 }

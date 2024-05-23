@@ -1,9 +1,11 @@
 package me.hugo.thankmaslobby.fishing.pond
 
+import com.google.common.collect.HashMultimap
 import dev.kezz.miniphrase.audience.sendTranslated
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.markers.MarkerRegistry
 import me.hugo.thankmas.math.formatToTime
 import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.player.translate
@@ -35,7 +37,9 @@ import java.util.concurrent.ConcurrentMap
 public class PondRegistry(config: FileConfiguration, private val instance: ThankmasLobby) :
     AutoCompletableMapRegistry<Pond>(Pond::class.java), TranslatedComponent, Listener {
 
+    private val playerManager = ThankmasLobby.instance().playerManager
     private val flyingHooks: ConcurrentMap<FishHook, Particle> = ConcurrentHashMap()
+    private val pondAreas: HashMultimap<Pond, Region> = HashMultimap.create()
 
     init {
         val fishRegistry: FishTypeRegistry by inject()
@@ -47,11 +51,34 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
                     config.string("$pondId.name"),
                     config.string("$pondId.description"),
                     config.getString("$pondId.enter-message"),
-                    Region(config, "$pondId.region"),
                     config.getConfigurationSection("$pondId.fish-weights")?.getKeys(false)?.associate { fishId ->
                         Pair(fishRegistry.get(fishId), config.getDouble("$pondId.fish-weights.$fishId"))
                     } ?: mapOf()
                 )
+            )
+        }
+
+        val markerRegistry: MarkerRegistry by inject()
+
+        // Load all pond area markers.
+        markerRegistry.getMarkerForType("pond_area").forEach { marker ->
+            val pondId = requireNotNull(marker.data.getString("pond_id"))
+            { "No pond id has been specified for pond area in ${marker.location}." }
+
+            val pond = get(pondId)
+
+            pondAreas.get(pond).add(
+                marker.toRegion(ThankmasLobby.instance().hubWorld).toTriggering(
+                    onEnter = { player ->
+                        player.inventory.setItem(
+                            2,
+                            playerManager.getPlayerData(player.uniqueId).selectedRod.value.buildRod(player)
+                        )
+                        pond.enterMessage?.let { player.sendTranslated(it) }
+                    },
+                    onLeave = { player ->
+                        player.inventory.setItem(2, null)
+                    })
             )
         }
 
@@ -83,7 +110,9 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
     @EventHandler
     private fun onPlayerFish(event: PlayerFishEvent) {
         val player = event.player
-        val pond = getValues().firstOrNull { it.region.contains(event.hook.location) }
+        val pond = pondAreas.keys().firstOrNull {
+            pondAreas.get(it).firstOrNull { region -> event.hook.location in region } != null
+        }
 
         if (pond == null) {
             player.sendTranslated("fishing.pond.out_of_bounds")
