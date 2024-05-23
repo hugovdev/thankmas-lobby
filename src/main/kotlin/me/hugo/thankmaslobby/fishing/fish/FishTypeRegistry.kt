@@ -24,7 +24,7 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
     public val fishTypesMenu: PaginatedMenu
 
     init {
-        val config = configProvider.getOrLoad("fishes", "fishing/")
+        val config = configProvider.getOrLoad("hub/fishing/fishes.yml")
 
         config.getKeys(false).forEach { fishKey ->
             val fishType = FishType(
@@ -37,7 +37,7 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
             register(fishType.id, fishType)
         }
 
-        val menuConfig = configProvider.getOrLoad("menus")
+        val menuConfig = configProvider.getOrLoad("hub/menus.yml")
 
         fishTypesMenu = ConfigurablePaginatedMenu(menuConfig, "menus.unlocked-fishes").apply {
             getValues().forEach { fishType -> addIcon(Icon { player -> fishType.getItem(player.locale()) }) }

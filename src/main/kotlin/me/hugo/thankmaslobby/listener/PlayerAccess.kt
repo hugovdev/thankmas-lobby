@@ -16,6 +16,7 @@ import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.koin.core.component.inject
+import org.spigotmc.event.player.PlayerSpawnLocationEvent
 import java.sql.SQLException
 
 public class PlayerAccess(private val instance: ThankmasLobby) : Listener, TranslatedComponent {
@@ -53,6 +54,12 @@ public class PlayerAccess(private val instance: ThankmasLobby) : Listener, Trans
     }
 
     @EventHandler
+    private fun onPlayerJoin(event: PlayerSpawnLocationEvent) {
+        // Try to teleport the player to the hub_spawnpoint marker.
+        spawnpoint?.let { event.spawnLocation = it }
+    }
+
+    @EventHandler
     private fun onPlayerJoin(event: PlayerJoinEvent) {
         event.joinMessage(null)
 
@@ -64,9 +71,6 @@ public class PlayerAccess(private val instance: ThankmasLobby) : Listener, Trans
         player.reset(GameMode.ADVENTURE)
 
         instance.playerManager.getPlayerData(player.uniqueId).setTranslation(player.locale())
-
-        // Try to teleport the player to the hub_spawnpoint marker.
-        spawnpoint?.let { player.teleport(it) }
     }
 
     @EventHandler

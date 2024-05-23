@@ -32,8 +32,13 @@ import org.koin.core.context.loadKoinModules
 import org.koin.core.parameter.parametersOf
 import org.koin.ksp.generated.module
 import revxrsal.commands.bukkit.BukkitCommandHandler
+import java.io.IOException
+import java.nio.file.Files
+import java.nio.file.Path
+import java.nio.file.StandardCopyOption
 
-public class ThankmasLobby : ThankmasPlugin() {
+
+public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
 
     public val playerManager: PlayerDataManager<LobbyPlayer> = PlayerDataManager { LobbyPlayer(it, this) }
     private val configProvider: ConfigurationProvider by inject()
@@ -45,25 +50,20 @@ public class ThankmasLobby : ThankmasPlugin() {
     private val fishRegistry: FishTypeRegistry by inject()
     private val pondRegistry: PondRegistry by inject {
         parametersOf(
-            configProvider.getOrLoad("ponds", "fishing/"),
+            configProvider.getOrLoad("hub/fishing/ponds.yml"),
             this
         )
     }
 
     private val rodsRegistry: FishingRodRegistry by inject {
-        parametersOf(
-            configProvider.getOrLoad(
-                "fishing_rods",
-                "fishing/"
-            )
-        )
+        parametersOf(configProvider.getOrLoad("hub/fishing/fishing_rods.yml"))
     }
 
     private var worldName: String = "world"
 
     private val markerRegistry: MarkerRegistry by inject()
-    private val gameRegistry: GameRegistry by inject { parametersOf(configProvider.getOrLoad("games")) }
-    private val itemSetManager: ItemSetRegistry by inject { parametersOf(config) }
+    private val gameRegistry: GameRegistry by inject { parametersOf(configProvider.getOrLoad("hub/games.yml")) }
+    private val itemSetManager: ItemSetRegistry by inject { parametersOf(configProvider.getOrLoad("hub/config.yml")) }
     private val profileMenuAccessor: ProfileMenuAccessor by inject { parametersOf(this) }
 
     private lateinit var databaseConnector: LobbyDatabase
@@ -80,16 +80,30 @@ public class ThankmasLobby : ThankmasPlugin() {
         }
     }
 
+    override fun onLoad() {
+        super.onLoad()
+
+        instance = this
+        loadKoinModules(LobbyModules().module)
+
+        val scopeWorld = configProvider.getOrLoad("hub/config.yml").string("world")
+
+        Bukkit.unloadWorld(worldName, false)
+
+        // Remove the old world.
+        val worldFile = Bukkit.getWorldContainer().resolve(worldName)
+        worldFile.deleteRecursively()
+
+        copyFolder(
+            Bukkit.getPluginsFolder().resolve(scopeWorld).toPath(),
+            Bukkit.getWorldContainer().resolve(worldName).toPath()
+        )
+    }
+
     override fun onEnable() {
         super.onEnable()
 
-        instance = this
-        saveDefaultConfig()
-
-        loadKoinModules(LobbyModules().module)
-
-        worldName = config.string("world")
-        markerRegistry.loadWorldMarkers(worldName)
+        markerRegistry.loadWorldMarkers(this.worldName)
 
         logger.info("Registering games...")
         logger.info("Registered ${gameRegistry.size()} games!")
@@ -112,7 +126,7 @@ public class ThankmasLobby : ThankmasPlugin() {
         scoreboardManager.initialize()
 
         logger.info("Creating Lobby Database connector and tables...")
-        databaseConnector = LobbyDatabase(configProvider.getOrLoad("database"))
+        databaseConnector = LobbyDatabase(configProvider.getOrLoad("hub/database.yml"))
         logger.info("Connected and created correctly!")
 
         val pluginManager = Bukkit.getPluginManager()
@@ -146,6 +160,15 @@ public class ThankmasLobby : ThankmasPlugin() {
 
         databaseConnector.dataSource.close()
         commandHandler.unregisterAllCommands()
+    }
+
+    @Throws(IOException::class)
+    public fun copyFolder(src: Path, dest: Path) {
+        Files.walk(src).use { stream ->
+            stream.forEach { source: Path ->
+                Files.copy(source, dest.resolve(src.relativize(source)), StandardCopyOption.REPLACE_EXISTING)
+            }
+        }
     }
 
     public val hubWorld: World

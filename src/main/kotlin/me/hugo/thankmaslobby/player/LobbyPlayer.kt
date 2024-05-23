@@ -60,7 +60,7 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
     /** Menu that displays all the fishes the viewer has caught. */
     public val fishBag: PaginatedMenu =
         ConfigurablePaginatedMenu(
-            configProvider.getOrLoad("menus"),
+            configProvider.getOrLoad("hub/menus.yml"),
             "menus.fish-bag",
             profileMenuAccessor.fishingMenu.firstPage()
         )

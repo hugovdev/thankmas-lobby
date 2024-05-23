@@ -30,7 +30,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
     private val configProvider: ConfigurationProvider by inject()
     private val fishRegistry: FishTypeRegistry by inject()
 
-    private val menusConfig = configProvider.getOrLoad("menus")
+    private val menusConfig = configProvider.getOrLoad("hub/menus.yml")
 
     /** Profile menu with fishing menu and npc collector menu. */
     public val profileMenu: Menu = ConfiguredMenu(menusConfig, "menus.profile").apply {

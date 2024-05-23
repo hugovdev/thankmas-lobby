@@ -37,7 +37,7 @@ public class GameRegistry(config: FileConfiguration) : MapBasedRegistry<String, 
 
         val configProvider: ConfigurationProvider by inject()
 
-        gameSelector = ConfiguredMenu(configProvider.getOrLoad("menus"), "menus.game-selector").apply {
+        gameSelector = ConfiguredMenu(configProvider.getOrLoad("hub/menus.yml"), "menus.game-selector").apply {
             getValues().forEach { game ->
                 setIcon(game.slot, Icon({ context, _ ->
                     val clicker = context.clicker
