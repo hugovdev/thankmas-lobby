@@ -11,6 +11,7 @@ import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.GameMode
 import org.bukkit.Location
 import org.bukkit.event.EventHandler
+import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
@@ -73,7 +74,7 @@ public class PlayerAccess(private val instance: ThankmasLobby) : Listener, Trans
         instance.playerManager.getPlayerData(player.uniqueId).setTranslation(player.locale())
     }
 
-    @EventHandler
+    @EventHandler(priority = EventPriority.NORMAL)
     private fun onPlayerQuit(event: PlayerQuitEvent) {
         val playerId = event.player.uniqueId
         val playerData = instance.playerManager.getPlayerData(playerId)

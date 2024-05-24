@@ -2,9 +2,9 @@ package me.hugo.thankmaslobby
 
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.commands.TranslationsCommands
-import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
+import me.hugo.thankmas.listener.HologramMarkerRegistry
 import me.hugo.thankmas.listener.PlayerLocaleChange
 import me.hugo.thankmas.listener.PlayerNameTagUpdater
 import me.hugo.thankmas.listener.RankedPlayerChat
@@ -32,16 +32,11 @@ import org.koin.core.context.loadKoinModules
 import org.koin.core.parameter.parametersOf
 import org.koin.ksp.generated.module
 import revxrsal.commands.bukkit.BukkitCommandHandler
-import java.io.IOException
-import java.nio.file.Files
-import java.nio.file.Path
-import java.nio.file.StandardCopyOption
 
 
 public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
 
     public val playerManager: PlayerDataManager<LobbyPlayer> = PlayerDataManager { LobbyPlayer(it, this) }
-    private val configProvider: ConfigurationProvider by inject()
 
     public val scoreboardManager: LobbyScoreboardManager by inject { parametersOf(this) }
     private val regionRegistry: RegionRegistry by inject { parametersOf(playerManager) }
@@ -94,7 +89,7 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         val worldFile = Bukkit.getWorldContainer().resolve(worldName)
         worldFile.deleteRecursively()
 
-        copyFolder(
+        gitHubHelper.copyFolder(
             Bukkit.getPluginsFolder().resolve(scopeWorld).toPath(),
             Bukkit.getWorldContainer().resolve(worldName).toPath()
         )
@@ -135,6 +130,7 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         pluginManager.registerEvents(PlayerCancelled(), this)
         pluginManager.registerEvents(pondRegistry, this)
         pluginManager.registerEvents(PlayerNameTagUpdater(playerManager), this)
+        pluginManager.registerEvents(HologramMarkerRegistry(worldName, playerManager), this)
 
         // Check settings and ignored people etc.
         pluginManager.registerEvents(RankedPlayerChat(playerManager) { _, _ -> true }, this)
@@ -160,15 +156,6 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
 
         databaseConnector.dataSource.close()
         commandHandler.unregisterAllCommands()
-    }
-
-    @Throws(IOException::class)
-    public fun copyFolder(src: Path, dest: Path) {
-        Files.walk(src).use { stream ->
-            stream.forEach { source: Path ->
-                Files.copy(source, dest.resolve(src.relativize(source)), StandardCopyOption.REPLACE_EXISTING)
-            }
-        }
     }
 
     public val hubWorld: World
