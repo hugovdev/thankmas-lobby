@@ -2,7 +2,7 @@ package me.hugo.thankmaslobby.listener
 
 import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent
 import me.hugo.thankmas.lang.TranslatedComponent
-import me.hugo.thankmas.markers.MarkerRegistry
+import me.hugo.thankmas.markers.registry.MarkerRegistry
 import me.hugo.thankmas.player.reset
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.player.updateBoardTags

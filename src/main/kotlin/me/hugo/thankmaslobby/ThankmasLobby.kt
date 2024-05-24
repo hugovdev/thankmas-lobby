@@ -8,7 +8,7 @@ import me.hugo.thankmas.listener.HologramMarkerRegistry
 import me.hugo.thankmas.listener.PlayerLocaleChange
 import me.hugo.thankmas.listener.PlayerNameTagUpdater
 import me.hugo.thankmas.listener.RankedPlayerChat
-import me.hugo.thankmas.markers.MarkerRegistry
+import me.hugo.thankmas.markers.registry.MarkerRegistry
 import me.hugo.thankmas.player.PlayerDataManager
 import me.hugo.thankmas.player.rank.PlayerGroupChange
 import me.hugo.thankmas.region.RegionRegistry

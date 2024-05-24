@@ -5,7 +5,7 @@ import dev.kezz.miniphrase.audience.sendTranslated
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.lang.TranslatedComponent
-import me.hugo.thankmas.markers.MarkerRegistry
+import me.hugo.thankmas.markers.registry.MarkerRegistry
 import me.hugo.thankmas.math.formatToTime
 import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.player.translate
@@ -62,7 +62,7 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
 
         // Load all pond area markers.
         markerRegistry.getMarkerForType("pond_area").forEach { marker ->
-            val pondId = requireNotNull(marker.data.getString("pond_id"))
+            val pondId = requireNotNull(marker.getString("pond_id"))
             { "No pond id has been specified for pond area in ${marker.location}." }
 
             val pond = get(pondId)
