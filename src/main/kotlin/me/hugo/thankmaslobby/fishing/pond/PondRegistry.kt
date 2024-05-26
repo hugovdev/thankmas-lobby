@@ -2,6 +2,7 @@ package me.hugo.thankmaslobby.fishing.pond
 
 import com.google.common.collect.HashMultimap
 import dev.kezz.miniphrase.audience.sendTranslated
+import dev.kezz.miniphrase.audience.sendTranslatedIfPresent
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.lang.TranslatedComponent
@@ -14,6 +15,8 @@ import me.hugo.thankmas.registry.AutoCompletableMapRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.player.updateBoardTags
+import net.kyori.adventure.text.Component
+import net.kyori.adventure.title.Title
 import org.bukkit.Bukkit
 import org.bukkit.Particle
 import org.bukkit.Sound
@@ -27,6 +30,7 @@ import org.bukkit.event.entity.ProjectileLaunchEvent
 import org.bukkit.event.player.PlayerFishEvent
 import org.koin.core.annotation.Single
 import org.koin.core.component.inject
+import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
@@ -48,9 +52,7 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
             register(
                 pondId, Pond(
                     pondId,
-                    config.string("$pondId.name"),
-                    config.string("$pondId.description"),
-                    config.getString("$pondId.enter-message"),
+                    Sound.valueOf(config.string("$pondId.enter-sound").uppercase()),
                     config.getConfigurationSection("$pondId.fish-weights")?.getKeys(false)?.associate { fishId ->
                         Pair(fishRegistry.get(fishId), config.getDouble("$pondId.fish-weights.$fishId"))
                     } ?: mapOf()
@@ -74,7 +76,27 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
                             2,
                             playerManager.getPlayerData(player.uniqueId).selectedRod.value.buildRod(player)
                         )
-                        pond.enterMessage?.let { player.sendTranslated(it) }
+
+                        player.playSound(pond.enterSound)
+                        player.sendTranslatedIfPresent("fishing.pond.${pond.pondId}.enter_chat")
+
+                        val title =
+                            miniPhrase.translateOrNull("fishing.pong.${pond.pondId}.enter_title", player.locale())
+                        val subtitle =
+                            miniPhrase.translateOrNull("fishing.pong.${pond.pondId}.enter_subtitle", player.locale())
+
+                        if (title != null || subtitle != null) {
+                            player.showTitle(
+                                Title.title(
+                                    title ?: Component.empty(), subtitle ?: Component.empty(),
+                                    Title.Times.times(
+                                        Duration.ofMillis(500),
+                                        Duration.ofSeconds(2),
+                                        Duration.ofMillis(500)
+                                    )
+                                )
+                            )
+                        }
                     },
                     onLeave = { player ->
                         player.inventory.setItem(2, null)
