@@ -22,7 +22,9 @@ dependencies {
     ksp("io.insert-koin:koin-ksp-compiler:1.3.1")
 
     // Work on a paper specific library!
+    api("com.github.ben-manes.caffeine:caffeine:3.1.8")
     implementation(files("C:/Users/hugov/IdeaProjects/ThankmasPaper/build/libs/ThankmasPaper-1.0-SNAPSHOT.jar"))
+
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
     api("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")

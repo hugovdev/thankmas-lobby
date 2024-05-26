@@ -2,23 +2,21 @@ package me.hugo.thankmaslobby.game
 
 import com.google.common.io.ByteArrayDataInput
 import com.google.common.io.ByteStreams
-import dev.kezz.miniphrase.audience.sendTranslated
+import com.noxcrew.interfaces.drawable.Drawable.Companion.drawable
+import com.noxcrew.interfaces.element.StaticElement
+import com.noxcrew.interfaces.interfaces.ChestInterface
 import me.hugo.thankmas.config.ConfigurationProvider
-import me.hugo.thankmas.gui.ConfiguredMenu
-import me.hugo.thankmas.gui.Icon
-import me.hugo.thankmas.gui.Menu
+import me.hugo.thankmas.gui.buildConfiguredChestInterface
 import me.hugo.thankmas.items.addLoreTranslatable
-import me.hugo.thankmas.player.translate
+import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.registry.MapBasedRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
-import me.hugo.thankmaslobby.player.isDonor
 import me.hugo.thankmaslobby.player.updateBoardTags
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.entity.Player
 import org.bukkit.plugin.messaging.PluginMessageListener
 import org.koin.core.annotation.Single
-import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
 /**
@@ -26,38 +24,29 @@ import org.koin.core.component.inject
  * or selected in the Game Selector.
  */
 @Single
-public class GameRegistry(config: FileConfiguration) : MapBasedRegistry<String, Game>(), KoinComponent,
+public class GameRegistry(config: FileConfiguration) : MapBasedRegistry<String, Game>(), TranslatedComponent,
     PluginMessageListener {
 
     public var globalPlayerCount: Int = 0
-    public val gameSelector: Menu
+    public val gameSelector: ChestInterface
 
     init {
         config.getKeys(false).forEach { register(it, Game(config, it)) }
 
         val configProvider: ConfigurationProvider by inject()
 
-        gameSelector = ConfiguredMenu(configProvider.getOrLoad("hub/menus.yml"), "menus.game-selector").apply {
+        gameSelector = buildConfiguredChestInterface(configProvider.getOrLoad("hub/menus.yml"), "menus.game-selector") {
             getValues().forEach { game ->
-                setIcon(game.slot, Icon({ context, _ ->
-                    val clicker = context.clicker
+                withTransform(game.playerCount) { pane, a ->
+                    val playerCount by game.playerCount
 
-                    clicker.closeInventory()
-
-                    if (clicker.isDonor("perk.play_games")) {
-                        clicker.sendTranslated("game_selector.sending") {
-                            inserting(
-                                "game",
-                                clicker.translate(game.name)
-                            )
-                        }
-                        game.send(clicker)
-                    }
-                }) {
-                    game.item.buildItem(it.locale()).addLoreTranslatable("game_selector.player_count", it.locale()) {
-                        parsed("players", game.playerCount.value)
-                    }
-                }.listen { game.playerCount })
+                    pane[game.gridPoint] = StaticElement(
+                        drawable(game.item.buildItem(a.player.locale())
+                            .addLoreTranslatable("game_selector.player_count", a.player.locale()) {
+                                parsed("players", playerCount)
+                            })
+                    )
+                }
             }
         }
 
@@ -80,7 +69,8 @@ public class GameRegistry(config: FileConfiguration) : MapBasedRegistry<String, 
 
         if (!inputs.equals("PlayerCount", ignoreCase = true)) return
 
-        getValues().firstOrNull { it.serverName == serverName }?.playerCount?.value = serverCount
+        var count by getValues().firstOrNull { it.serverName == serverName }?.playerCount ?: return
+        count = serverCount
 
         if (serverName.equals("all", ignoreCase = true)) {
             if (globalPlayerCount != serverCount) {

@@ -31,7 +31,7 @@ public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComp
     }
 
     @Command("games")
-    private fun openGameSelector(sender: Player) {
+    private suspend fun openGameSelector(sender: Player) {
         val gameRegistry: GameRegistry by inject()
         gameRegistry.gameSelector.open(sender)
     }

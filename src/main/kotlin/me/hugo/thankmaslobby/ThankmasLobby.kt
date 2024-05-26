@@ -1,5 +1,7 @@
 package me.hugo.thankmaslobby
 
+import com.noxcrew.interfaces.InterfacesListeners
+import kotlinx.coroutines.runBlocking
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.commands.TranslationsCommands
 import me.hugo.thankmas.config.string
@@ -12,6 +14,7 @@ import me.hugo.thankmas.markers.registry.MarkerRegistry
 import me.hugo.thankmas.player.PlayerDataManager
 import me.hugo.thankmas.player.rank.PlayerGroupChange
 import me.hugo.thankmas.region.RegionRegistry
+import me.hugo.thankmas.world.s3.S3WorldSynchronizer
 import me.hugo.thankmaslobby.commands.LobbyCommands
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
 import me.hugo.thankmaslobby.database.LobbyDatabase
@@ -32,6 +35,7 @@ import org.koin.core.context.loadKoinModules
 import org.koin.core.parameter.parametersOf
 import org.koin.ksp.generated.module
 import revxrsal.commands.bukkit.BukkitCommandHandler
+import revxrsal.commands.ktx.SuspendFunctionsSupport
 
 
 public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
@@ -55,6 +59,8 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
     }
 
     private var worldName: String = "world"
+
+    private val s3WorldSynchronizer: S3WorldSynchronizer by inject()
 
     private val markerRegistry: MarkerRegistry by inject()
     private val gameRegistry: GameRegistry by inject { parametersOf(configProvider.getOrLoad("hub/games.yml")) }
@@ -85,14 +91,11 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
 
         Bukkit.unloadWorld(worldName, false)
 
-        // Remove the old world.
-        val worldFile = Bukkit.getWorldContainer().resolve(worldName)
-        worldFile.deleteRecursively()
-
-        gitHubHelper.copyFolder(
-            Bukkit.getPluginsFolder().resolve(scopeWorld).toPath(),
-            Bukkit.getWorldContainer().resolve(worldName).toPath()
-        )
+        runBlocking {
+            s3WorldSynchronizer.downloadWorld(
+                scopeWorld,
+                Bukkit.getWorldContainer().resolve(worldName).also { it.mkdirs() })
+        }
     }
 
     override fun onEnable() {
@@ -125,12 +128,15 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         logger.info("Connected and created correctly!")
 
         val pluginManager = Bukkit.getPluginManager()
+
         pluginManager.registerEvents(PlayerAccess(this), this)
         pluginManager.registerEvents(PlayerLocaleChange(playerManager), this)
         pluginManager.registerEvents(PlayerCancelled(), this)
         pluginManager.registerEvents(pondRegistry, this)
         pluginManager.registerEvents(PlayerNameTagUpdater(playerManager), this)
         pluginManager.registerEvents(HologramMarkerRegistry(worldName, playerManager), this)
+
+        InterfacesListeners.install(this)
 
         // Check settings and ignored people etc.
         pluginManager.registerEvents(RankedPlayerChat(playerManager) { _, _ -> true }, this)
@@ -141,6 +147,8 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         server.messenger.registerOutgoingPluginChannel(this, "BungeeCord");
 
         commandHandler = BukkitCommandHandler.create(this)
+        commandHandler.accept(SuspendFunctionsSupport)
+
         rodsRegistry.registerCompletions(commandHandler)
         pondRegistry.registerCompletions(commandHandler)
 
