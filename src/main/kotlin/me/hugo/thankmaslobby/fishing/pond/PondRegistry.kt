@@ -81,9 +81,9 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
                         player.sendTranslatedIfPresent("fishing.pond.${pond.pondId}.enter_chat")
 
                         val title =
-                            miniPhrase.translateOrNull("fishing.pong.${pond.pondId}.enter_title", player.locale())
+                            miniPhrase.translateOrNull("fishing.pond.${pond.pondId}.enter_title", player.locale())
                         val subtitle =
-                            miniPhrase.translateOrNull("fishing.pong.${pond.pondId}.enter_subtitle", player.locale())
+                            miniPhrase.translateOrNull("fishing.pond.${pond.pondId}.enter_subtitle", player.locale())
 
                         if (title != null || subtitle != null) {
                             player.showTitle(

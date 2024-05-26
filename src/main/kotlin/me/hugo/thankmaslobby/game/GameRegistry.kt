@@ -5,12 +5,15 @@ import com.google.common.io.ByteStreams
 import com.noxcrew.interfaces.drawable.Drawable.Companion.drawable
 import com.noxcrew.interfaces.element.StaticElement
 import com.noxcrew.interfaces.interfaces.ChestInterface
+import dev.kezz.miniphrase.audience.sendTranslated
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.gui.buildConfiguredChestInterface
 import me.hugo.thankmas.items.addLoreTranslatable
 import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.registry.MapBasedRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
+import me.hugo.thankmaslobby.player.isDonor
 import me.hugo.thankmaslobby.player.updateBoardTags
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
@@ -45,7 +48,19 @@ public class GameRegistry(config: FileConfiguration) : MapBasedRegistry<String, 
                             .addLoreTranslatable("game_selector.player_count", a.player.locale()) {
                                 parsed("players", playerCount)
                             })
-                    )
+                    ) {
+                        val clicker = it.player
+
+                        clicker.closeInventory()
+
+                        if (clicker.isDonor("perk.play_games")) {
+                            clicker.sendTranslated("game_selector.sending") {
+                                inserting("game", clicker.translate(game.name))
+                            }
+
+                            game.send(clicker)
+                        }
+                    }
                 }
             }
         }

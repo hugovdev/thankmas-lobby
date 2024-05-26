@@ -49,7 +49,7 @@ public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComp
         @Optional receiver: Player = sender,
         @Switch("save", defaultValue = false) save: Boolean = false
     ) {
-        val playerData = instance.playerManager.getPlayerData(sender.uniqueId)
+        val playerData = instance.playerManager.getPlayerData(receiver.uniqueId)
 
         if (playerData.unlockedRods.containsKey(fishingRod)) {
             sender.sendMessage(Component.text("You already have this rod unlocked!", NamedTextColor.RED))

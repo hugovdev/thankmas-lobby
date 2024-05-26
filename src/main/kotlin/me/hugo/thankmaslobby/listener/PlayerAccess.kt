@@ -30,12 +30,12 @@ public class PlayerAccess(private val instance: ThankmasLobby) : Listener, Trans
 
     @EventHandler
     private fun onPlayerPreLogin(event: AsyncPlayerPreLoginEvent) {
+        if (event.loginResult == AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST) return
+
         val playerUUID = event.uniqueId
 
         val playerManager = instance.playerManager
         val playerData = playerManager.getPlayerDataOrNull(playerUUID)
-
-        if (event.loginResult == AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST) return
 
         if (playerData != null) {
             event.loginResult = AsyncPlayerPreLoginEvent.Result.KICK_OTHER
