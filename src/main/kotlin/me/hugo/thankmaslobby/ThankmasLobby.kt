@@ -1,12 +1,13 @@
 package me.hugo.thankmaslobby
 
 import com.noxcrew.interfaces.InterfacesListeners
-import kotlinx.coroutines.runBlocking
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.commands.TranslationsCommands
 import me.hugo.thankmas.config.string
+import me.hugo.thankmas.coroutines.runBlockingMine
+import me.hugo.thankmas.entity.HologramMarkerRegistry
+import me.hugo.thankmas.entity.npc.PlayerNPCMarkerRegistry
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
-import me.hugo.thankmas.listener.HologramMarkerRegistry
 import me.hugo.thankmas.listener.PlayerLocaleChange
 import me.hugo.thankmas.listener.PlayerNameTagUpdater
 import me.hugo.thankmas.listener.RankedPlayerChat
@@ -25,6 +26,7 @@ import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
 import me.hugo.thankmaslobby.game.GameRegistry
 import me.hugo.thankmaslobby.listener.PlayerAccess
 import me.hugo.thankmaslobby.listener.PlayerCancelled
+import me.hugo.thankmaslobby.npchunt.NPCHuntListener
 import me.hugo.thankmaslobby.player.LobbyPlayer
 import me.hugo.thankmaslobby.player.updateBoardTags
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
@@ -36,7 +38,6 @@ import org.koin.core.parameter.parametersOf
 import org.koin.ksp.generated.module
 import revxrsal.commands.bukkit.BukkitCommandHandler
 import revxrsal.commands.ktx.SuspendFunctionsSupport
-
 
 public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
 
@@ -67,6 +68,9 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
     private val itemSetManager: ItemSetRegistry by inject { parametersOf(configProvider.getOrLoad("hub/config.yml")) }
     private val profileMenuAccessor: ProfileMenuAccessor by inject { parametersOf(this) }
 
+    public lateinit var playerNPCRegistry: PlayerNPCMarkerRegistry<LobbyPlayer>
+        private set
+
     private lateinit var databaseConnector: LobbyDatabase
     private lateinit var commandHandler: BukkitCommandHandler
 
@@ -91,7 +95,7 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
 
         Bukkit.unloadWorld(worldName, false)
 
-        runBlocking {
+        runBlockingMine {
             s3WorldSynchronizer.downloadWorld(
                 scopeWorld,
                 Bukkit.getWorldContainer().resolve(worldName).also { it.mkdirs() })
@@ -135,6 +139,11 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         pluginManager.registerEvents(pondRegistry, this)
         pluginManager.registerEvents(PlayerNameTagUpdater(playerManager), this)
         pluginManager.registerEvents(HologramMarkerRegistry(worldName, playerManager), this)
+
+        playerNPCRegistry = PlayerNPCMarkerRegistry(worldName, playerManager)
+
+        pluginManager.registerEvents(playerNPCRegistry, this)
+        pluginManager.registerEvents(NPCHuntListener(playerNPCRegistry), this)
 
         InterfacesListeners.install(this)
 

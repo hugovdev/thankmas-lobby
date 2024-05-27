@@ -17,7 +17,7 @@ import org.koin.core.component.inject
  * Loads and manages the lobby scoreboard.
  */
 @Single
-public class LobbyScoreboardManager(instance: ThankmasLobby) :
+public class LobbyScoreboardManager(private val instance: ThankmasLobby) :
     ScoreboardTemplateManager<LobbyPlayer>(instance.playerManager), KoinComponent {
 
     private val gameRegistry: GameRegistry by inject()
@@ -26,11 +26,27 @@ public class LobbyScoreboardManager(instance: ThankmasLobby) :
         super.registerTags()
 
         val luckPerms = LuckPermsProvider.get()
-        val globalTranslations = ThankmasPlugin.instance().globalTranslations
+        val globalTranslations = instance.globalTranslations
 
-        registerTag("global_players") { _, _ -> Tag.selfClosingInserting { Component.text(gameRegistry.globalPlayerCount) } }
-        registerTag("npcs") { _, _ -> Tag.selfClosingInserting { Component.text(0) } }
-        registerTag("total_npcs") { _, _ -> Tag.selfClosingInserting { Component.text(0) } }
+        registerTag("global_players") { _, _ ->
+            Tag.selfClosingInserting { Component.text(gameRegistry.globalPlayerCount) }
+        }
+
+        registerTag("npcs") { player, _ ->
+            Tag.selfClosingInserting {
+                Component.text(playerManager.getPlayerData(player.uniqueId).foundNPCs().size)
+            }
+        }
+
+        registerTag("total_npcs") { _, _ ->
+            Tag.selfClosingInserting {
+                Component.text(
+                    instance.playerNPCRegistry.getValues()
+                        .filter { it.second.getString("use") == "npc_hunt" }.size
+                )
+            }
+        }
+
         registerTag("fishes") { player, _ ->
             Tag.selfClosingInserting {
                 Component.text(playerManager.getPlayerData(player.uniqueId).fishAmount())

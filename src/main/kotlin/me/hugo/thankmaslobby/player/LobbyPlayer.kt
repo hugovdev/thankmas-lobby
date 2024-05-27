@@ -15,6 +15,7 @@ import me.hugo.thankmas.state.StatefulValue
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
 import me.hugo.thankmaslobby.database.Fishes
+import me.hugo.thankmaslobby.database.FoundNPCs
 import me.hugo.thankmaslobby.database.PlayerData
 import me.hugo.thankmaslobby.database.Rods
 import me.hugo.thankmaslobby.fishing.fish.CaughtFish
@@ -22,6 +23,7 @@ import me.hugo.thankmaslobby.fishing.fish.FishType
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.fishing.rod.FishingRod
 import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
+import me.hugo.thankmaslobby.npchunt.FoundNPC
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
 import org.bukkit.Bukkit
 import org.bukkit.persistence.PersistentDataType
@@ -45,7 +47,7 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
     private val fishRegistry: FishTypeRegistry by inject()
     private val rodRegistry: FishingRodRegistry by inject()
 
-    // private val unlockedNPCs: MutableList<EasterEggNPC> = mutableListOf()
+    private val foundNPCs: MutableMap<String, FoundNPC> = mutableMapOf()
     private val caughtFishes: MutableList<CaughtFish> = mutableListOf()
 
     /** The fishing rod this player is using to fish. */
@@ -73,19 +75,24 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
         transaction {
             val player = PlayerData.selectAll().where { PlayerData.uuid eq playerId }.singleOrNull()
 
-            val rod: FishingRod
-
-            if (player != null) {
-                rod = rodRegistry.get(player[PlayerData.selectedRod])
-            } else rod = rodRegistry.getValues().first { it.tier == 1 }
+            val rod: FishingRod = if (player != null) {
+                rodRegistry.get(player[PlayerData.selectedRod])
+            } else rodRegistry.getValues().first { it.tier == 1 }
 
             selectedRod = StatefulValue(rod).apply { subscribe { _, _, _ -> rebuildRod() } }
+
+            // Load all the fishes this player has caught!
+            FoundNPCs.selectAll().where { FoundNPCs.whoFound eq playerId }.forEach { result ->
+                val npcId = result[FoundNPCs.npcId]
+                foundNPCs[npcId] = FoundNPC(npcId, playerUUID, result[FoundNPCs.time].toEpochMilliseconds(), false)
+            }
 
             // Load all the fishes this player has caught!
             Fishes.selectAll().where { Fishes.whoCaught eq playerId }.forEach { result ->
                 caughtFishes.add(
                     CaughtFish(
-                        fishRegistry.get(result[Fishes.fishType]), playerUUID,
+                        fishRegistry.get(result[Fishes.fishType]),
+                        playerUUID,
                         result[Fishes.pondId],
                         result[Fishes.time].toEpochMilliseconds(),
                         false
@@ -143,6 +150,17 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
         updateHolograms(newLocale)
     }
 
+    /** @returns whether this player found the NPC with id [npcId]. */
+    public fun hasFound(npcId: String): Boolean = foundNPCs.containsKey(npcId)
+
+    /** @returns the ids of every NPC found by this player. */
+    public fun foundNPCs(): Set<String> = foundNPCs.keys
+
+    /** Registers the finding of [npcId] for this player. */
+    public fun find(npcId: String) {
+        foundNPCs[npcId] = FoundNPC(npcId, playerUUID)
+    }
+
     /** Captures [fish] on [pondId]. */
     public fun captureFish(fish: FishType, pondId: String) {
         val caughtFish = CaughtFish(fish, playerUUID, pondId)
@@ -183,6 +201,13 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
                     it[uuid] = playerId
                     it[selectedRod] = this@LobbyPlayer.selectedRod.value.id
                     it[selectedHat] = 0
+                }
+
+                // Insert all the recently unlocked NPCs!
+                FoundNPCs.batchInsert(foundNPCs.values.filter { it.thisSession }) {
+                    this[FoundNPCs.whoFound] = playerId
+                    this[FoundNPCs.npcId] = it.npcId
+                    this[FoundNPCs.time] = Instant.fromEpochMilliseconds(it.timeFound)
                 }
 
                 // Insert the new fishes into the database!

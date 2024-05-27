@@ -30,6 +30,15 @@ public object Fishes : Table("fish_caught") {
     override val primaryKey: PrimaryKey = PrimaryKey(whoCaught, time)
 }
 
+/** Table that saves all the npcs every player has caught. */
+public object FoundNPCs : Table("npcs_found") {
+    public val whoFound: Column<String> = varchar("uuid", 36)
+    public val npcId: Column<String> = varchar("npc_id", 30)
+    public val time: Column<Instant> = timestamp("time")
+
+    override val primaryKey: PrimaryKey = PrimaryKey(whoFound, npcId)
+}
+
 /** Table that saves all the fishing rods every player has unlocked and when. */
 public object Rods : Table("unlocked_rods") {
     public val owner: Column<String> = varchar("uuid", 36)
@@ -49,7 +58,7 @@ public class LobbyDatabase(config: FileConfiguration) : ConfigurableDatasource(c
 
     init {
         transaction {
-            SchemaUtils.create(PlayerData, Fishes, Rods)
+            SchemaUtils.create(PlayerData, Fishes, Rods, FoundNPCs)
         }
     }
 

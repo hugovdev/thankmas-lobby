@@ -12,12 +12,18 @@ repositories {
 
     maven(url = "https://jitpack.io")
     maven(url = "https://repo.papermc.io/repository/maven-public/")
+    maven(url = "https://maven.citizensnpcs.co/repo")
 }
 
 val exposedVersion: String by project
 dependencies {
     compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
     compileOnly("net.luckperms:api:5.4")
+
+    // Citizens API
+    compileOnly("net.citizensnpcs:citizens-main:2.0.33-SNAPSHOT") {
+        exclude(mutableMapOf("group" to "*", "module" to "*"))
+    }
 
     ksp("io.insert-koin:koin-ksp-compiler:1.3.1")
 
