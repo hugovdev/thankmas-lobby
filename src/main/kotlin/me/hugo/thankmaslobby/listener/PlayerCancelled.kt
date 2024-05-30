@@ -2,11 +2,13 @@ package me.hugo.thankmaslobby.listener
 
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent
 import org.bukkit.GameMode
+import org.bukkit.Material
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPlaceEvent
+import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
@@ -34,6 +36,15 @@ public class PlayerCancelled : Listener {
         if (event.action != Action.PHYSICAL) return
         if (event.player.gameMode == GameMode.CREATIVE && event.player.hasPermission("thankmaslobby.mapchange")) return
         event.isCancelled = true
+    }
+
+    @EventHandler
+    private fun onEntityTriggerLeaf(event: EntityChangeBlockEvent) {
+        val block = event.block
+
+        if (block.type == Material.BIG_DRIPLEAF) {
+            event.isCancelled = true
+        }
     }
 
     @EventHandler
