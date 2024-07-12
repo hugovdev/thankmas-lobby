@@ -37,7 +37,7 @@ dependencies {
 }
 
 tasks.shadowJar {
-    minimize()
+    //minimize()
 }
 
 tasks.test {

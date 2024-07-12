@@ -61,8 +61,6 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
 
     private var worldName: String = "world"
 
-    private val s3WorldSynchronizer: S3WorldSynchronizer by inject()
-
     private val markerRegistry: MarkerRegistry by inject()
     private val gameRegistry: GameRegistry by inject { parametersOf(configProvider.getOrLoad("hub/games.yml")) }
     private val itemSetManager: ItemSetRegistry by inject { parametersOf(configProvider.getOrLoad("hub/config.yml")) }
@@ -95,11 +93,9 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
 
         Bukkit.unloadWorld(worldName, false)
 
-        runBlockingMine {
-            s3WorldSynchronizer.downloadWorld(
-                scopeWorld,
-                Bukkit.getWorldContainer().resolve(worldName).also { it.mkdirs() })
-        }
+        s3WorldSynchronizer.downloadWorld(
+            scopeWorld,
+            Bukkit.getWorldContainer().resolve(worldName).also { it.mkdirs() })
     }
 
     override fun onEnable() {
