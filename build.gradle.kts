@@ -25,24 +25,3 @@ dependencies {
     implementation(libs.bundles.exposed.runtime)
     api(libs.exposed.jbdc)
 }
-
-tasks.test {
-    useJUnitPlatform()
-}
-
-kotlin {
-    jvmToolchain(17)
-    explicitApi()
-}
-
-tasks.withType<JavaCompile> { // Preserve parameter names in the bytecode
-    options.compilerArgs.add("-parameters")
-}
-
-tasks.compileKotlin {
-    kotlinOptions.javaParameters = true
-    compilerOptions {
-        freeCompilerArgs.add("-Xcontext-receivers")
-        javaParameters = true
-    }
-}
