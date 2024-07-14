@@ -76,10 +76,8 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         private var instance: ThankmasLobby? = null
 
         public fun instance(): ThankmasLobby {
-            val instance = instance
-            requireNotNull(instance) { "Tried to fetch a ThankmasPlugin instance while it's null!" }
-
-            return instance
+            return requireNotNull(instance)
+            { "Tried to fetch a ThankmasPlugin instance while it's null!" }
         }
     }
 
