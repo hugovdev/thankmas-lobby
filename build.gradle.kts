@@ -1,43 +1,29 @@
 plugins {
-    kotlin("jvm") version "1.9.21"
-    id("com.google.devtools.ksp") version "1.9.21-1.0.15"
-    id("com.github.johnrengelman.shadow") version "8.1.1"
+    kotlin("jvm")
+    id("com.google.devtools.ksp")
+    id("com.github.johnrengelman.shadow")
+    id("io.papermc.paperweight.userdev")
 }
 
 group = "me.hugo.thankmaslobby"
 version = "1.0-SNAPSHOT"
 
-repositories {
-    mavenCentral()
-
-    maven(url = "https://jitpack.io")
-    maven(url = "https://repo.papermc.io/repository/maven-public/")
-    maven(url = "https://maven.citizensnpcs.co/repo")
-}
-
-val exposedVersion: String by project
 dependencies {
-    compileOnly("io.papermc.paper:paper-api:1.20.4-R0.1-SNAPSHOT")
-    compileOnly("net.luckperms:api:5.4")
+    paperweight.paperDevBundle(libs.versions.paper)
+    compileOnly(libs.luck.perms)
 
     // Citizens API
-    compileOnly("net.citizensnpcs:citizens-main:2.0.33-SNAPSHOT") {
+    compileOnly(libs.citizens) {
         exclude(mutableMapOf("group" to "*", "module" to "*"))
     }
 
-    ksp("io.insert-koin:koin-ksp-compiler:1.3.1")
+    ksp(libs.koin.ksp.compiler)
 
     // Work on a paper specific library!
-    api("com.github.ben-manes.caffeine:caffeine:3.1.8")
-    implementation(files("C:/Users/hugov/IdeaProjects/ThankmasPaper/build/libs/ThankmasPaper-1.0-SNAPSHOT.jar"))
+    implementation(project(":common-paper"))
 
-    implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-kotlin-datetime:$exposedVersion")
-    api("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
-}
-
-tasks.shadowJar {
-    //minimize()
+    implementation(libs.bundles.exposed.runtime)
+    api(libs.exposed.jbdc)
 }
 
 tasks.test {
