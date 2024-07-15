@@ -28,10 +28,11 @@ public class NPCHuntListener(private val playerNPCRegistry: PlayerNPCMarkerRegis
         val clicker = event.clicker
         val playerProfile = ThankmasLobby.instance().playerManager.getPlayerData(clicker.uniqueId)
 
-        val npcUse: String = npc.data().get("use")
-        if (npcUse != "npc_hunt") return
+        val npcUse: String? = npc.data().get("use") as? String?
+        if (npcUse != NPC_HUNT_USE_KEY) return
 
-        val npcId: String = npc.data().get("id")
+        val npcId: String? = npc.data().get("id") as? String?
+        requireNotNull(npcId) { "Tried to find Hunt NPC without an id!" }
 
         val markerData = playerNPCRegistry.get(npcId).second
         val phrase = (markerData.getStringList("phrases") ?: emptyList()).randomOrNull()
