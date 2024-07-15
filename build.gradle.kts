@@ -1,12 +1,11 @@
 plugins {
-    kotlin("jvm")
-    id("com.google.devtools.ksp")
-    id("com.github.johnrengelman.shadow")
-    id("io.papermc.paperweight.userdev")
+    alias(libs.plugins.paperweight)
 }
 
 group = "me.hugo.thankmaslobby"
 version = "1.0-SNAPSHOT"
+
+paperweight.reobfArtifactConfiguration = io.papermc.paperweight.userdev.ReobfArtifactConfiguration.MOJANG_PRODUCTION
 
 dependencies {
     paperweight.paperDevBundle(libs.versions.paper)
