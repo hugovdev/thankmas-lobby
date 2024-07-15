@@ -15,6 +15,7 @@ import org.bukkit.event.EventPriority
 import org.bukkit.event.Listener
 import org.bukkit.event.player.AsyncPlayerPreLoginEvent
 import org.bukkit.event.player.PlayerJoinEvent
+import org.bukkit.event.player.PlayerLoginEvent
 import org.bukkit.event.player.PlayerQuitEvent
 import org.koin.core.component.inject
 import org.spigotmc.event.player.PlayerSpawnLocationEvent
@@ -30,7 +31,7 @@ public class PlayerAccess(private val instance: ThankmasLobby) : Listener, Trans
 
     @EventHandler
     private fun onPlayerPreLogin(event: AsyncPlayerPreLoginEvent) {
-        if (event.loginResult == AsyncPlayerPreLoginEvent.Result.KICK_WHITELIST) return
+        if (event.loginResult != AsyncPlayerPreLoginEvent.Result.ALLOWED) return
 
         val playerUUID = event.uniqueId
 
@@ -38,8 +39,13 @@ public class PlayerAccess(private val instance: ThankmasLobby) : Listener, Trans
         val playerData = playerManager.getPlayerDataOrNull(playerUUID)
 
         if (playerData != null) {
-            event.loginResult = AsyncPlayerPreLoginEvent.Result.KICK_OTHER
-            event.kickMessage(instance.globalTranslations.translate("general.kick.player_data_loaded"))
+            event.disallow(
+                AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
+                instance.globalTranslations.translate("general.kick.player_data_loaded")
+            )
+
+            // Save their old data to let them join.
+            playerData.save { instance.playerManager.removePlayerData(playerUUID) }
 
             return
         }
@@ -49,13 +55,42 @@ public class PlayerAccess(private val instance: ThankmasLobby) : Listener, Trans
         } catch (exception: SQLException) {
             exception.printStackTrace()
 
-            event.loginResult = AsyncPlayerPreLoginEvent.Result.KICK_OTHER
-            event.kickMessage(Component.text("Your data could not be loaded!", NamedTextColor.RED))
+            event.disallow(
+                AsyncPlayerPreLoginEvent.Result.KICK_OTHER,
+                Component.text("Your data could not be loaded!", NamedTextColor.RED)
+            )
         }
     }
 
+    @EventHandler(priority = EventPriority.MONITOR)
+    private fun onPlayerKicked(event: PlayerLoginEvent) {
+        if (event.result == PlayerLoginEvent.Result.ALLOWED) return
+
+        val playerManager = instance.playerManager
+
+        if (playerManager.getPlayerDataOrNull(event.player.uniqueId) == null) return
+
+        // Player got kicked while login. Whitelist? Full Server? Forget their data.
+        playerManager.removePlayerData(event.player.uniqueId)
+    }
+
     @EventHandler
-    private fun onPlayerJoin(event: PlayerSpawnLocationEvent) {
+    private fun onPlayerAllowed(event: PlayerLoginEvent) {
+        if (event.result != PlayerLoginEvent.Result.ALLOWED) return
+
+        val playerManager = instance.playerManager
+
+        if (playerManager.getPlayerDataOrNull(event.player.uniqueId) != null) return
+
+        // If the player went through pre-login but has no data, wtf? Kick them.
+        event.disallow(
+            PlayerLoginEvent.Result.KICK_OTHER,
+            Component.text("Your data could not be loaded, please try again!", NamedTextColor.RED)
+        )
+    }
+
+    @EventHandler
+    private fun onSpawnDeciding(event: PlayerSpawnLocationEvent) {
         // Try to teleport the player to the hub_spawnpoint marker.
         spawnpoint?.let { event.spawnLocation = it }
     }
@@ -80,9 +115,7 @@ public class PlayerAccess(private val instance: ThankmasLobby) : Listener, Trans
         val playerData = instance.playerManager.getPlayerData(playerId)
 
         playerData.removeAllHolograms()
-        playerData.save {
-            instance.playerManager.removePlayerData(playerId)
-        }
+        playerData.save { instance.playerManager.removePlayerData(playerId) }
 
         event.quitMessage(null)
     }
