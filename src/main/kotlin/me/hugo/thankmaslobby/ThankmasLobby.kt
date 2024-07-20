@@ -4,7 +4,6 @@ import com.noxcrew.interfaces.InterfacesListeners
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.commands.TranslationsCommands
 import me.hugo.thankmas.config.string
-import me.hugo.thankmas.coroutines.runBlockingMine
 import me.hugo.thankmas.entity.HologramMarkerRegistry
 import me.hugo.thankmas.entity.npc.PlayerNPCMarkerRegistry
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
@@ -15,7 +14,6 @@ import me.hugo.thankmas.markers.registry.MarkerRegistry
 import me.hugo.thankmas.player.PlayerDataManager
 import me.hugo.thankmas.player.rank.PlayerGroupChange
 import me.hugo.thankmas.region.RegionRegistry
-import me.hugo.thankmas.world.s3.S3WorldSynchronizer
 import me.hugo.thankmaslobby.commands.LobbyCommands
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
 import me.hugo.thankmaslobby.database.LobbyDatabase

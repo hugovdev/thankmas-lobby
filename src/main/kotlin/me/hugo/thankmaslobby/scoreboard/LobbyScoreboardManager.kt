@@ -1,6 +1,5 @@
 package me.hugo.thankmaslobby.scoreboard
 
-import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.scoreboard.ScoreboardTemplateManager
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.game.GameRegistry
