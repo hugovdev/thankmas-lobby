@@ -1,5 +1,6 @@
 package me.hugo.thankmaslobby.fishing.rod
 
+import me.hugo.thankmas.config.enum
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.items.*
 import me.hugo.thankmas.lang.Translated
@@ -41,7 +42,7 @@ public class FishingRod(
         config.string("$path.name"),
         TranslatableItem(config, "$path.item"),
         TranslatableItem(config, "$path.icon"),
-        Particle.valueOf(config.string("$path.particle")),
+        config.enum<Particle>("$path.particle"),
         config.getInt("$path.tier"),
         config.getDouble("$path.max-fish-time"),
         config.getDouble("$path.min-fish-time"),

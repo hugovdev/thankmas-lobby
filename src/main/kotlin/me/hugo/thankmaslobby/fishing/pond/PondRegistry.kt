@@ -4,7 +4,7 @@ import com.google.common.collect.HashMultimap
 import dev.kezz.miniphrase.audience.sendTranslated
 import dev.kezz.miniphrase.audience.sendTranslatedIfPresent
 import me.hugo.thankmas.ThankmasPlugin
-import me.hugo.thankmas.config.string
+import me.hugo.thankmas.config.enum
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.markers.registry.MarkerRegistry
 import me.hugo.thankmas.math.formatToTime
@@ -52,7 +52,7 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
             register(
                 pondId, Pond(
                     pondId,
-                    Sound.valueOf(config.string("$pondId.enter-sound").uppercase()),
+                    config.enum<Sound>("$pondId.enter-sound"),
                     config.getConfigurationSection("$pondId.fish-weights")?.getKeys(false)?.associate { fishId ->
                         Pair(fishRegistry.get(fishId), config.getDouble("$pondId.fish-weights.$fishId"))
                     } ?: mapOf()

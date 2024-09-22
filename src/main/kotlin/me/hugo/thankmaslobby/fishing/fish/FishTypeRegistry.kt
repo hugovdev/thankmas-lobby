@@ -1,6 +1,7 @@
 package me.hugo.thankmaslobby.fishing.fish
 
 import me.hugo.thankmas.config.ConfigurationProvider
+import me.hugo.thankmas.config.enum
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.gui.Icon
 import me.hugo.thankmas.gui.paginated.ConfigurablePaginatedMenu
@@ -30,7 +31,7 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
             val fishType = FishType(
                 config.string("$fishKey.id"),
                 config.string("$fishKey.name"),
-                FishRarity.valueOf(config.string("$fishKey.rarity").uppercase()),
+                config.enum<FishRarity>("$fishKey.rarity"),
                 TranslatableItem(config, "$fishKey.item")
             )
 
