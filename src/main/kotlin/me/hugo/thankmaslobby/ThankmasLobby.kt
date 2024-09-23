@@ -132,7 +132,7 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         pluginManager.registerEvents(pondRegistry, this)
         pluginManager.registerEvents(PlayerNameTagUpdater(playerManager), this)
         pluginManager.registerEvents(HologramMarkerRegistry(worldName, playerManager), this)
-        pluginManager.registerEvents(PlayerAttributes(), this)
+        pluginManager.registerEvents(PlayerAttributes("hub"), this)
 
         playerNPCRegistry = PlayerNPCMarkerRegistry(worldName, playerManager)
 
