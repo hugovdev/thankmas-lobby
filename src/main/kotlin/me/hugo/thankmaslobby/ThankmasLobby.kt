@@ -7,6 +7,7 @@ import me.hugo.thankmas.config.string
 import me.hugo.thankmas.entity.HologramMarkerRegistry
 import me.hugo.thankmas.entity.npc.PlayerNPCMarkerRegistry
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
+import me.hugo.thankmas.listener.PlayerAttributes
 import me.hugo.thankmas.listener.PlayerLocaleChange
 import me.hugo.thankmas.listener.PlayerNameTagUpdater
 import me.hugo.thankmas.listener.RankedPlayerChat
@@ -131,6 +132,7 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         pluginManager.registerEvents(pondRegistry, this)
         pluginManager.registerEvents(PlayerNameTagUpdater(playerManager), this)
         pluginManager.registerEvents(HologramMarkerRegistry(worldName, playerManager), this)
+        pluginManager.registerEvents(PlayerAttributes(), this)
 
         playerNPCRegistry = PlayerNPCMarkerRegistry(worldName, playerManager)
 
