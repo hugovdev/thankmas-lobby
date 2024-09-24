@@ -128,7 +128,6 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         pluginManager.registerEvents(PlayerSpawnpointOnJoin(worldName, "hub_spawnpoint"), this)
 
         pluginManager.registerEvents(PlayerLocaleDetector(playerManager), this)
-        pluginManager.registerEvents(PlayerNameTagUpdater(playerManager), this)
         pluginManager.registerEvents(PlayerAttributes("hub"), this)
 
         pluginManager.registerEvents(PlayerLobbyAccess(), this)
@@ -171,7 +170,9 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         logger.info("Saving all player data...")
 
         // Save all player data before disabling!
-        playerManager.getAllPlayerData().forEach { it.save() }
+        playerManager.getAllPlayerData().forEach {
+            it.forceSave()
+        }
 
         logger.info("Saved!")
 

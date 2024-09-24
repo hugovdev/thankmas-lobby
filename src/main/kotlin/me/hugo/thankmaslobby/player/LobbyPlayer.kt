@@ -11,6 +11,7 @@ import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.firstIf
 import me.hugo.thankmas.player.rank.RankedPlayerData
+import me.hugo.thankmas.player.reset
 import me.hugo.thankmas.state.StatefulValue
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
@@ -25,7 +26,8 @@ import me.hugo.thankmaslobby.fishing.rod.FishingRod
 import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
 import me.hugo.thankmaslobby.npchunt.FoundNPC
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
-import org.bukkit.Bukkit
+import org.bukkit.GameMode
+import org.bukkit.entity.Player
 import org.bukkit.persistence.PersistentDataType
 import org.jetbrains.exposed.sql.batchInsert
 import org.jetbrains.exposed.sql.selectAll
@@ -118,17 +120,10 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
         instance.logger.info("Player data for $playerUUID loaded in ${System.currentTimeMillis() - startTime}ms.")
     }
 
-    override fun setTranslation(newLocale: Locale) {
-        super.setTranslation(newLocale)
+    override fun setLocale(newLocale: Locale) {
+        super.setLocale(newLocale)
 
         val finalPlayer = onlinePlayerOrNull ?: return
-
-        // If we're initializing the board it's because the player just joined,
-        // so we can also send them the join message!
-        if (getBoardOrNull() == null) {
-            initializeBoard("scoreboard.title", newLocale, finalPlayer)
-            finalPlayer.sendTranslated("welcome", newLocale)
-        }
 
         val itemSetManager: ItemSetRegistry by inject()
         itemSetManager.giveSet("lobby", finalPlayer, newLocale)
@@ -138,12 +133,7 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
         val scoreboardManager: LobbyScoreboardManager by inject()
         scoreboardManager.getTemplate(currentBoard).printBoard(finalPlayer, newLocale)
 
-        val playerManager = instance.playerManager
-
-        Bukkit.getOnlinePlayers().forEach {
-            // Update everyone's tags to the new language.
-            playerManager.getPlayerDataOrNull(it.uniqueId)?.playerNameTag?.apply(finalPlayer, newLocale)
-        }
+        instance.playerManager.getAllPlayerData().forEach { it.playerNameTag?.apply(finalPlayer, newLocale) }
 
         // If they are fishing also give them the new translated rod!
         rebuildRod(newLocale)
@@ -189,7 +179,7 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
         player.inventory.setItem(inventoryRod.first, selectedRod.value.buildRod(player, locale))
     }
 
-    public override fun save() {
+    protected override fun save() {
         val playerId = playerUUID.toString()
 
         transaction {
@@ -224,4 +214,32 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
         }
     }
 
+    override fun onPrepared(player: Player) {
+        player.isPersistent = false
+        player.reset(GameMode.ADVENTURE)
+
+        // Initialize the scoreboard and send welcome message!
+        initializeBoard("scoreboard.title")
+
+        val scoreboardManager: LobbyScoreboardManager by inject()
+        scoreboardManager.getTemplate("lobby").printBoard(player)
+
+        player.sendTranslated("welcome")
+
+        // Give lobby item-set!
+        val itemSetManager: ItemSetRegistry by inject()
+        itemSetManager.giveSet("lobby", player)
+
+        // Apply player nametags!
+        instance.playerManager.getAllPlayerData().forEach {
+            val onlinePlayer = it.onlinePlayerOrNull ?: return@forEach
+            playerNameTag?.apply(onlinePlayer)
+
+            if (onlinePlayer == player) return@forEach
+            it.playerNameTag?.apply(player)
+        }
+
+        // Spawn holograms!
+        updateHolograms(player.locale())
+    }
 }
