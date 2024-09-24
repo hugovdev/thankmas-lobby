@@ -189,48 +189,39 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
         player.inventory.setItem(inventoryRod.first, selectedRod.value.buildRod(player, locale))
     }
 
-    public fun save(onSuccess: () -> Unit) {
-        val startTime = System.currentTimeMillis()
+    public override fun save() {
+        val playerId = playerUUID.toString()
 
-        Bukkit.getScheduler().runTaskAsynchronously(instance, Runnable {
-            val playerId = playerUUID.toString()
-
-            transaction {
-                // Update or insert this player's selected stuff!
-                PlayerData.upsert {
-                    it[uuid] = playerId
-                    it[selectedRod] = this@LobbyPlayer.selectedRod.value.id
-                    it[selectedHat] = 0
-                }
-
-                // Insert all the recently unlocked NPCs!
-                FoundNPCs.batchInsert(foundNPCs.values.filter { it.thisSession }) {
-                    this[FoundNPCs.whoFound] = playerId
-                    this[FoundNPCs.npcId] = it.npcId
-                    this[FoundNPCs.time] = Instant.fromEpochMilliseconds(it.timeFound)
-                }
-
-                // Insert the new fishes into the database!
-                Fishes.batchInsert(caughtFishes.filter { it.thisSession }) {
-                    this[Fishes.whoCaught] = playerId
-                    this[Fishes.fishType] = it.fishType.id
-                    this[Fishes.pondId] = it.pondId
-                    this[Fishes.time] = Instant.fromEpochMilliseconds(it.timeCaptured)
-                }
-
-                // Insert the new unlocked rods into the database!
-                Rods.batchInsert(unlockedRods.filter { it.value.thisSession }.toList()) {
-                    this[Rods.owner] = playerId
-                    this[Rods.rodId] = it.first.id
-                    this[Rods.time] = Instant.fromEpochMilliseconds(it.second.unlockTime)
-                }
+        transaction {
+            // Update or insert this player's selected stuff!
+            PlayerData.upsert {
+                it[uuid] = playerId
+                it[selectedRod] = this@LobbyPlayer.selectedRod.value.id
+                it[selectedHat] = 0
             }
 
-            Bukkit.getScheduler().runTask(instance, Runnable {
-                onSuccess()
-                instance.logger.info("Player info for $playerId saved and cleaned in ${System.currentTimeMillis() - startTime}ms.")
-            })
-        })
+            // Insert all the recently unlocked NPCs!
+            FoundNPCs.batchInsert(foundNPCs.values.filter { it.thisSession }) {
+                this[FoundNPCs.whoFound] = playerId
+                this[FoundNPCs.npcId] = it.npcId
+                this[FoundNPCs.time] = Instant.fromEpochMilliseconds(it.timeFound)
+            }
+
+            // Insert the new fishes into the database!
+            Fishes.batchInsert(caughtFishes.filter { it.thisSession }) {
+                this[Fishes.whoCaught] = playerId
+                this[Fishes.fishType] = it.fishType.id
+                this[Fishes.pondId] = it.pondId
+                this[Fishes.time] = Instant.fromEpochMilliseconds(it.timeCaptured)
+            }
+
+            // Insert the new unlocked rods into the database!
+            Rods.batchInsert(unlockedRods.filter { it.value.thisSession }.toList()) {
+                this[Rods.owner] = playerId
+                this[Rods.rodId] = it.first.id
+                this[Rods.time] = Instant.fromEpochMilliseconds(it.second.unlockTime)
+            }
+        }
     }
 
 }

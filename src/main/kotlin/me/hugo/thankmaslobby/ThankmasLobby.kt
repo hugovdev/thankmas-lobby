@@ -7,10 +7,7 @@ import me.hugo.thankmas.config.string
 import me.hugo.thankmas.entity.HologramMarkerRegistry
 import me.hugo.thankmas.entity.npc.PlayerNPCMarkerRegistry
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
-import me.hugo.thankmas.listener.PlayerAttributes
-import me.hugo.thankmas.listener.PlayerLocaleChange
-import me.hugo.thankmas.listener.PlayerNameTagUpdater
-import me.hugo.thankmas.listener.RankedPlayerChat
+import me.hugo.thankmas.listener.*
 import me.hugo.thankmas.markers.registry.MarkerRegistry
 import me.hugo.thankmas.player.PlayerDataManager
 import me.hugo.thankmas.player.rank.PlayerGroupChange
@@ -23,8 +20,8 @@ import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.fishing.pond.PondRegistry
 import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
 import me.hugo.thankmaslobby.game.GameRegistry
-import me.hugo.thankmaslobby.listener.PlayerAccess
-import me.hugo.thankmaslobby.listener.PlayerCancelled
+import me.hugo.thankmaslobby.listener.PlayerLobbyAccess
+import me.hugo.thankmaslobby.listener.PlayerLobbyProtection
 import me.hugo.thankmaslobby.npchunt.NPCHuntListener
 import me.hugo.thankmaslobby.player.LobbyPlayer
 import me.hugo.thankmaslobby.player.updateBoardTags
@@ -126,13 +123,19 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
 
         val pluginManager = Bukkit.getPluginManager()
 
-        pluginManager.registerEvents(PlayerAccess(this), this)
-        pluginManager.registerEvents(PlayerLocaleChange(playerManager), this)
-        pluginManager.registerEvents(PlayerCancelled(), this)
-        pluginManager.registerEvents(pondRegistry, this)
+        // Player data loaders and spawnpoints
+        pluginManager.registerEvents(PlayerDataLoader(this, playerManager), this)
+        pluginManager.registerEvents(PlayerSpawnpointOnJoin(worldName, "hub_spawnpoint"), this)
+
+        pluginManager.registerEvents(PlayerLocaleDetector(playerManager), this)
         pluginManager.registerEvents(PlayerNameTagUpdater(playerManager), this)
-        pluginManager.registerEvents(HologramMarkerRegistry(worldName, playerManager), this)
         pluginManager.registerEvents(PlayerAttributes("hub"), this)
+
+        pluginManager.registerEvents(PlayerLobbyAccess(), this)
+        pluginManager.registerEvents(PlayerLobbyProtection(), this)
+
+        pluginManager.registerEvents(pondRegistry, this)
+        pluginManager.registerEvents(HologramMarkerRegistry(worldName, playerManager), this)
 
         playerNPCRegistry = PlayerNPCMarkerRegistry(worldName, playerManager)
 
@@ -164,6 +167,13 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
 
     override fun onDisable() {
         super.onDisable()
+
+        logger.info("Saving all player data...")
+
+        // Save all player data before disabling!
+        playerManager.getAllPlayerData().forEach { it.save() }
+
+        logger.info("Saved!")
 
         databaseConnector.dataSource.close()
         commandHandler.unregisterAllCommands()

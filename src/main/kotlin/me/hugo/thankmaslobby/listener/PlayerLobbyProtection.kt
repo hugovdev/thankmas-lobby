@@ -17,7 +17,8 @@ import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerSwapHandItemsEvent
 
-public class PlayerCancelled : Listener {
+/** Protects the lobby from block changes, damage and environmental changes. */
+public class PlayerLobbyProtection : Listener {
 
     @EventHandler
     private fun onBlockPlace(event: BlockPlaceEvent) {
