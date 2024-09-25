@@ -7,7 +7,6 @@ import me.hugo.thankmaslobby.player.LobbyPlayer
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.tag.Tag
 import net.luckperms.api.LuckPermsProvider
-import org.bukkit.entity.Player
 import org.koin.core.annotation.Single
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
@@ -53,15 +52,8 @@ public class LobbyScoreboardManager(private val instance: ThankmasLobby) :
         }
 
         registerTag("rank") { player, preferredLocale ->
-            val user = luckPerms.getPlayerAdapter(Player::class.java).getUser(player)
-
             Tag.selfClosingInserting {
-                val group = user.primaryGroup
-
-                globalTranslations.translate("rank.$group.name", preferredLocale ?: player.locale())
-                    .color(
-                        globalTranslations.translate("rank.$group.color", preferredLocale ?: player.locale()).color()
-                    )
+                playerManager.getPlayerData(player.uniqueId).getDecoratedRankName(preferredLocale ?: player.locale())
             }
         }
     }
