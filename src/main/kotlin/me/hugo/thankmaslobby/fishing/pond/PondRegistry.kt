@@ -100,7 +100,8 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
                     },
                     onLeave = { player ->
                         player.inventory.setItem(2, null)
-                    })
+                    }, registry = instance.regionRegistry
+                )
             )
         }
 

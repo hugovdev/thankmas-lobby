@@ -40,7 +40,9 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
     public val playerManager: PlayerDataManager<LobbyPlayer> = PlayerDataManager { LobbyPlayer(it, this) }
 
     public val scoreboardManager: LobbyScoreboardManager by inject { parametersOf(this) }
-    private val regionRegistry: RegionRegistry by inject { parametersOf(playerManager) }
+
+    public lateinit var regionRegistry: RegionRegistry<LobbyPlayer>
+        private set
 
     // Fishing Stuff
     private val fishRegistry: FishTypeRegistry by inject()
@@ -96,6 +98,7 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         super.onEnable()
 
         markerRegistry.loadWorldMarkers(this.worldName)
+        regionRegistry = RegionRegistry(playerManager)
 
         logger.info("Registering games...")
         logger.info("Registered ${gameRegistry.size()} games!")

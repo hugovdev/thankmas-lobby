@@ -1,5 +1,6 @@
 package me.hugo.thankmaslobby.player
 
+import dev.kezz.miniphrase.MiniPhraseContext
 import dev.kezz.miniphrase.audience.sendTranslated
 import kotlinx.datetime.Instant
 import me.hugo.thankmas.config.ConfigurationProvider
@@ -37,11 +38,10 @@ import org.koin.core.component.inject
 import java.util.*
 
 
-public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) :
-    RankedPlayerData(playerUUID, belowNameSupplier = { _, locale ->
+public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
+    RankedPlayerData<LobbyPlayer>(playerUUID, instance.playerManager, belowNameSupplier = { _, locale ->
         ThankmasLobby.instance().translations.translations.translate("below_name_test", locale)
-    }),
-    TranslatedComponent {
+    }), TranslatedComponent {
 
     private val configProvider: ConfigurationProvider by inject()
     private val profileMenuAccessor: ProfileMenuAccessor by inject()
@@ -133,11 +133,8 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
         val scoreboardManager: LobbyScoreboardManager by inject()
         scoreboardManager.getTemplate(currentBoard).printBoard(finalPlayer, newLocale)
 
-        instance.playerManager.getAllPlayerData().forEach { it.playerNameTag?.apply(finalPlayer, newLocale) }
-
         // If they are fishing also give them the new translated rod!
         rebuildRod(newLocale)
-        updateHolograms(newLocale)
     }
 
     /** @returns whether this player found the NPC with id [npcId]. */
@@ -214,12 +211,12 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
         }
     }
 
+    context(MiniPhraseContext)
     override fun onPrepared(player: Player) {
+        super.onPrepared(player)
+
         player.isPersistent = false
         player.reset(GameMode.ADVENTURE)
-
-        // Initialize the scoreboard and send welcome message!
-        initializeBoard("scoreboard.title")
 
         val scoreboardManager: LobbyScoreboardManager by inject()
         scoreboardManager.getTemplate("lobby").printBoard(player)
@@ -229,17 +226,5 @@ public class LobbyPlayer(playerUUID: UUID, private val instance: ThankmasLobby) 
         // Give lobby item-set!
         val itemSetManager: ItemSetRegistry by inject()
         itemSetManager.giveSet("lobby", player)
-
-        // Apply player nametags!
-        instance.playerManager.getAllPlayerData().forEach {
-            val onlinePlayer = it.onlinePlayerOrNull ?: return@forEach
-            playerNameTag?.apply(onlinePlayer)
-
-            if (onlinePlayer == player) return@forEach
-            it.playerNameTag?.apply(player)
-        }
-
-        // Spawn holograms!
-        updateHolograms(player.locale())
     }
 }
