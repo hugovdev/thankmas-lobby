@@ -84,7 +84,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                 parsed("npcs", playerData.foundNPCs().size)
                 parsed(
                     "total_npcs", instance.playerNPCRegistry.getValues()
-                        .filter { it.second.getString("use") == "npc_hunt" }.size
+                        .filter { it.marker.getString("use") == "npc_hunt" }.size
                 )
                 inserting("rank", playerData.getDecoratedRankName())
             }.also {
@@ -109,7 +109,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                 parsed("npcs", playerData.foundNPCs().size)
                 parsed(
                     "total_npcs", instance.playerNPCRegistry.getValues()
-                        .filter { it.second.getString("use") == "npc_hunt" }.size
+                        .filter { it.marker.getString("use") == "npc_hunt" }.size
                 )
             }
         })
@@ -198,17 +198,17 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
 
     private val npcJournal: PaginatedMenu =
         ConfigurablePaginatedMenu(menusConfig, "menus.npc-journal", profileMenu).apply {
-            instance.playerNPCRegistry.getValues().filter { it.second.getString("use") == "npc_hunt" }
+            instance.playerNPCRegistry.getValues().filter { it.marker.getString("use") == "npc_hunt" }
                 .forEach { npcData ->
                     addIcon(Icon({ context, _ ->
                         val clicker = context.clicker
                         val playerData = instance.playerManager.getPlayerData(clicker.uniqueId)
 
-                        val markerData = npcData.second
+                        val markerData = npcData.marker
                         val unlocked = playerData.foundNPCs().contains(markerData.getString("id"))
 
                         if (unlocked) {
-                            clicker.teleportAsync(npcData.first.storedLocation).thenAccept {
+                            clicker.teleportAsync(npcData.npc.storedLocation).thenAccept {
                                 clicker.playSound(Sound.ENTITY_ENDERMAN_TELEPORT)
                                 clicker.sendTranslated("npc_hunt.teleported") {
                                     parsed("display_name", markerData.getString("display_name"))
@@ -218,7 +218,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                     }) {
                         val playerData = instance.playerManager.getPlayerData(it.uniqueId)
 
-                        val markerData = npcData.second
+                        val markerData = npcData.marker
                         val unlocked = playerData.foundNPCs().contains(markerData.getString("id"))
 
                         val tags: TagResolverBuilder.() -> Unit = {
@@ -239,7 +239,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                             .customModelData(1)
                             .also { item ->
                                 item.editMeta(SkullMeta::class.java) {
-                                    val npc = npcData.first
+                                    val npc = npcData.npc
                                     it.playerProfile = Bukkit.createProfile(npc.uniqueId, npc.name).also {
                                         val skinTrait = npc.getOrAddTrait(SkinTrait::class.java)
                                         it.setProperty(
