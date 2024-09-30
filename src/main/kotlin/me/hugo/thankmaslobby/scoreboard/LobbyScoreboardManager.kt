@@ -40,7 +40,7 @@ public class LobbyScoreboardManager(private val instance: ThankmasLobby) :
             Tag.selfClosingInserting {
                 Component.text(
                     instance.playerNPCRegistry.getValues()
-                        .filter { it.second.getString("use") == "npc_hunt" }.size
+                        .filter { it.marker.getString("use") == "npc_hunt" }.size
                 )
             }
         }

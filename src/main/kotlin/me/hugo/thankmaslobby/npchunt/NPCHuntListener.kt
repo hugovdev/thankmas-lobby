@@ -34,7 +34,7 @@ public class NPCHuntListener(private val playerNPCRegistry: PlayerNPCMarkerRegis
         val npcId: String? = npc.data().get("id") as? String?
         requireNotNull(npcId) { "Tried to find Hunt NPC without an id!" }
 
-        val markerData = playerNPCRegistry.get(npcId).second
+        val markerData = playerNPCRegistry.get(npcId).marker
         val phrase = (markerData.getStringList("phrases") ?: emptyList()).randomOrNull()
 
         val displayName = markerData.getString("display_name")

@@ -73,7 +73,7 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
                 marker.toRegion(ThankmasLobby.instance().hubWorld).toTriggering(
                     onEnter = { player ->
                         player.inventory.setItem(
-                            2,
+                            3,
                             playerManager.getPlayerData(player.uniqueId).selectedRod.value.buildRod(player)
                         )
 
@@ -99,7 +99,7 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
                         }
                     },
                     onLeave = { player ->
-                        player.inventory.setItem(2, null)
+                        player.inventory.setItem(3, null)
                     }, registry = instance.regionRegistry
                 )
             )

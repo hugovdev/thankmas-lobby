@@ -1,6 +1,5 @@
 package me.hugo.thankmaslobby.commands
 
-import com.destroystokyo.paper.profile.ProfileProperty
 import dev.kezz.miniphrase.audience.sendTranslated
 import dev.kezz.miniphrase.tag.TagResolverBuilder
 import me.hugo.thankmas.config.ConfigurationProvider
@@ -19,7 +18,6 @@ import me.hugo.thankmas.player.translate
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
-import net.citizensnpcs.trait.SkinTrait
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.Sound
@@ -239,17 +237,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                             .customModelData(1)
                             .also { item ->
                                 item.editMeta(SkullMeta::class.java) {
-                                    val npc = npcData.npc
-                                    it.playerProfile = Bukkit.createProfile(npc.uniqueId, npc.name).also {
-                                        val skinTrait = npc.getOrAddTrait(SkinTrait::class.java)
-                                        it.setProperty(
-                                            ProfileProperty(
-                                                "textures",
-                                                if (unlocked) skinTrait.texture else LOCKED_SKIN_TEXTURE,
-                                                if (unlocked) skinTrait.signature else LOCKED_SKIN_SIGNATURE
-                                            )
-                                        )
-                                    }
+                                    it.playerProfile = Bukkit.createProfile(npcData.marker.getStringList("skin")!!.first())
                                 }
                             }
                     })
