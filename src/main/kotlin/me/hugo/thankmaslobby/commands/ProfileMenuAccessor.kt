@@ -199,6 +199,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
     private val npcJournal: PaginatedMenu =
         ConfigurablePaginatedMenu(menusConfig, "menus.npc-journal", profileMenu).apply {
             instance.playerNPCRegistry.getValues().filter { it.marker.getString("use") == "npc_hunt" }
+                .sortedBy { it.marker.getString("display_name") ?: it.marker.getStringList("skin")!!.first() }
                 .forEach { npcData ->
                     addIcon(Icon({ context, _ ->
                         val clicker = context.clicker
@@ -244,9 +245,15 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                                     val signature = skinTrait?.signature
                                     val texture = skinTrait?.texture
 
-                                    meta.playerProfile = if (signature != null && texture != null) {
+                                    meta.playerProfile = if (!unlocked || (signature != null && texture != null)) {
                                         Bukkit.createProfile(npcData.npc.uniqueId).also { profile ->
-                                            profile.setProperty(ProfileProperty("textures", texture, signature))
+                                            profile.setProperty(
+                                                ProfileProperty(
+                                                    "textures",
+                                                    if (!unlocked) LOCKED_SKIN_TEXTURE else texture!!,
+                                                    if (!unlocked) LOCKED_SKIN_SIGNATURE else signature
+                                                )
+                                            )
                                         }
                                     } else Bukkit.createProfile(npcData.marker.getStringList("skin")!!.first())
                                 }
