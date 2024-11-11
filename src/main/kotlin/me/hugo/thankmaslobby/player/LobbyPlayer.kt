@@ -49,6 +49,14 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
     private val fishRegistry: FishTypeRegistry by inject()
     private val rodRegistry: FishingRodRegistry by inject()
 
+    /** @returns whether this player has expanded fish bag capacity. */
+    private val hasExpandedBagCapacity
+        get() = onlinePlayer.hasPermission("fishbag.expanded_capacity")
+
+    /** @returns this player's fish bag capacity. */
+    private val fishBagCapacity: Int
+        get() = if (hasExpandedBagCapacity) 100 else 50
+
     private val foundNPCs: MutableMap<String, FoundNPC> = mutableMapOf()
     private val caughtFishes: MutableList<CaughtFish> = mutableListOf()
 

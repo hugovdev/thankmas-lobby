@@ -4,7 +4,7 @@ import com.google.common.collect.HashMultimap
 import dev.kezz.miniphrase.audience.sendTranslated
 import dev.kezz.miniphrase.audience.sendTranslatedIfPresent
 import me.hugo.thankmas.ThankmasPlugin
-import me.hugo.thankmas.config.enum
+import me.hugo.thankmas.config.string
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.markers.registry.MarkerRegistry
 import me.hugo.thankmas.math.formatToTime
@@ -17,9 +17,7 @@ import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.player.updateBoardTags
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
-import org.bukkit.Bukkit
-import org.bukkit.Particle
-import org.bukkit.Sound
+import org.bukkit.*
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.entity.FishHook
 import org.bukkit.entity.Item
@@ -52,7 +50,7 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
             register(
                 pondId, Pond(
                     pondId,
-                    config.enum<Sound>("$pondId.enter-sound"),
+                    Registry.SOUNDS.getOrThrow(NamespacedKey.minecraft(config.string("$pondId.enter-sound"))),
                     config.getConfigurationSection("$pondId.fish-weights")?.getKeys(false)?.associate { fishId ->
                         Pair(fishRegistry.get(fishId), config.getDouble("$pondId.fish-weights.$fishId"))
                     } ?: mapOf()

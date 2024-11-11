@@ -1,18 +1,17 @@
 package me.hugo.thankmaslobby.fishing.fish
 
 import me.hugo.thankmas.lang.Translated
+import net.kyori.adventure.text.format.NamedTextColor
 
-/**
- * Different rarities a fish type can have.
- */
-public enum class FishRarity(private val translationKey: String) : Translated {
+/** Different rarities a fish type can have. */
+public enum class FishRarity(private val translationKey: String, public val rarityColor: NamedTextColor) : Translated {
 
-    COMMON("common"),
-    UNCOMMON("uncommon"),
-    RARE("rare"),
-    EPIC("epic"),
-    LEGENDARY("legendary"),
-    GODLY("godly");
+    COMMON("common", NamedTextColor.WHITE),
+    UNCOMMON("uncommon", NamedTextColor.GREEN),
+    RARE("rare", NamedTextColor.BLUE),
+    EPIC("epic", NamedTextColor.DARK_PURPLE),
+    LEGENDARY("legendary", NamedTextColor.GOLD),
+    GODLY("godly", NamedTextColor.YELLOW);
 
     /** @returns the translation used for this rarity's tag. */
     public fun getTag(): String = "fishing.rarity.$translationKey"
