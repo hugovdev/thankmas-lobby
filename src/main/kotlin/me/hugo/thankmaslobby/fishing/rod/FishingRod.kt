@@ -4,6 +4,7 @@ import me.hugo.thankmas.config.enum
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.items.*
 import me.hugo.thankmas.lang.Translated
+import org.bukkit.Material
 import org.bukkit.NamespacedKey
 import org.bukkit.Particle
 import org.bukkit.configuration.file.FileConfiguration
@@ -18,9 +19,6 @@ import java.util.*
 /** Custom fishing rod with custom times, particles and name. */
 public class FishingRod(
     public val id: String,
-    public val name: String,
-    private val item: TranslatableItem,
-    private val icon: TranslatableItem,
     public val particle: Particle?,
     public val tier: Int,
     maxFishTime: Double,
@@ -39,15 +37,28 @@ public class FishingRod(
      */
     public constructor(config: FileConfiguration, path: String) : this(
         config.string("$path.id"),
-        config.string("$path.name"),
-        TranslatableItem(config, "$path.item"),
-        TranslatableItem(config, "$path.icon"),
         config.enum<Particle>("$path.particle"),
         config.getInt("$path.tier"),
         config.getDouble("$path.max-fish-time"),
         config.getDouble("$path.min-fish-time"),
         config.getDouble("$path.max-bite-time"),
         config.getDouble("$path.min-bite-time"),
+    )
+
+    public val name: String = "fishing_rods.$id.name"
+
+    private val item: TranslatableItem = TranslatableItem(
+        material = Material.FISHING_ROD,
+        model = "rods/$id",
+        name = "fishing_rods.$id.item.name",
+        lore = "fishing_rods.$id.item.lore",
+        unbreakable = true,
+    )
+
+    private val icon: TranslatableItem = TranslatableItem(
+        model = "rods/${id}_icon",
+        name = "fishing_rods.$id.item.name",
+        lore = "fishing_rods.$id.item.lore",
     )
 
     public companion object {
