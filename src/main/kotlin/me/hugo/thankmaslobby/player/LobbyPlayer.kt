@@ -99,9 +99,17 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
 
             // Load all the fishes this player has caught!
             Fishes.selectAll().where { Fishes.whoCaught eq playerId }.forEach { result ->
+                val fishTypeId = result[Fishes.fishType]
+                val fishType = fishRegistry.getOrNull(fishTypeId)
+
+                if (fishType == null) {
+                    ThankmasLobby.instance().logger.warning("Tried to find fish with id $fishTypeId, but doesn't exist!")
+                    return@forEach
+                }
+
                 caughtFishes.add(
                     CaughtFish(
-                        fishRegistry.get(result[Fishes.fishType]),
+                        fishType,
                         playerUUID,
                         result[Fishes.pondId],
                         result[Fishes.time].toEpochMilliseconds(),

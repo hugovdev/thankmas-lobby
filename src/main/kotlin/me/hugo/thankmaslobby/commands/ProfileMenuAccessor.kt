@@ -54,7 +54,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
     public val profileMenu: Menu = ConfiguredMenu(menusConfig, "menus.profile").apply {
         val fishingItem = TranslatableItem(menusConfig, "menus.profile.icons.fish-bag")
 
-        setIcon(11, Icon({ context, _ ->
+        setIcons(Icon({ context, _ ->
             val clicker = context.clicker
 
             fishingMenu.open(clicker)
@@ -66,7 +66,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                 parsed("fishes", playerData.uniqueFishTypes())
                 parsed("total_fishes", fishRegistry.size())
             }
-        })
+        }, 0, 1, 2, 9, 10, 11, 18, 19, 20)
 
         val profileItem = TranslatableItem(menusConfig, "menus.profile.icons.profile")
         setIcon(13, Icon({ context, _ ->
@@ -97,7 +97,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
         })
 
         val npcItem = TranslatableItem(menusConfig, "menus.profile.icons.npc-collector")
-        setIcon(15, Icon({ context, _ ->
+        setIcons(Icon({ context, _ ->
             context.clicker.apply {
                 npcJournal.open(this)
                 playSound(Sound.BLOCK_WOODEN_BUTTON_CLICK_ON)
@@ -112,7 +112,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                         .filter { it.marker.getString("use") == "npc_hunt" }.size
                 )
             }
-        })
+        }, 6, 7, 8, 15, 16, 17, 24, 25, 26)
     }
 
     /** Fishing menu: Fish Collection or Fish Bag. */
