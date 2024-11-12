@@ -30,8 +30,7 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
             val fishType = FishType(
                 fishKey,
                 config.getString("$fishKey.name") ?: "fishing.$fishKey",
-                config.enum<FishRarity>("$fishKey.rarity"),
-                TranslatableItem(config, "$fishKey.item")
+                config.enum<FishRarity>("$fishKey.rarity")
             )
 
             register(fishType.id, fishType)

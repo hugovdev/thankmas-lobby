@@ -32,9 +32,7 @@ import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
-/**
- * Registry of every pond in the lobby.
- */
+/** Registry of every pond in the lobby. */
 @Single
 public class PondRegistry(config: FileConfiguration, private val instance: ThankmasLobby) :
     AutoCompletableMapRegistry<Pond>(Pond::class.java), TranslatedComponent, Listener {
@@ -164,7 +162,11 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
 
         item?.apply {
             pickupDelay = Int.MAX_VALUE
-            itemStack = caughtFish.getItem(miniPhrase.defaultLocale)
+
+            // Create an item with a custom name so it doesn't
+            // stack with other people's fish.
+            itemStack = caughtFish.item.getBaseItem()
+                .also { it.editMeta { it.itemName(Component.text(System.nanoTime())) } }
 
             Bukkit.getScheduler().runTaskLater(ThankmasPlugin.instance(), Runnable {
                 remove()

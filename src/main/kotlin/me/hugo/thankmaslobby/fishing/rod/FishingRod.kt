@@ -109,7 +109,7 @@ public class FishingRod(
 
     /** @returns the item name translation key. */
     public fun getItemName(): String {
-        return item.name
+        return item.nameNotNull
     }
 
     /**
