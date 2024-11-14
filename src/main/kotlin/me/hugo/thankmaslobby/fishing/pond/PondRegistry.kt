@@ -1,6 +1,5 @@
 package me.hugo.thankmaslobby.fishing.pond
 
-import com.google.common.collect.HashMultimap
 import dev.kezz.miniphrase.audience.sendTranslated
 import dev.kezz.miniphrase.audience.sendTranslatedIfPresent
 import me.hugo.thankmas.ThankmasPlugin
@@ -10,7 +9,7 @@ import me.hugo.thankmas.markers.registry.MarkerRegistry
 import me.hugo.thankmas.math.formatToTime
 import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.player.translate
-import me.hugo.thankmas.region.Region
+import me.hugo.thankmas.region.triggering.TriggeringRegion
 import me.hugo.thankmas.registry.AutoCompletableMapRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
@@ -39,7 +38,7 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
 
     private val playerManager = ThankmasLobby.instance().playerManager
     private val flyingHooks: ConcurrentMap<FishHook, Particle> = ConcurrentHashMap()
-    private val pondAreas: HashMultimap<Pond, Region> = HashMultimap.create()
+    private val pondAreas: MutableMap<Pond, TriggeringRegion> = mutableMapOf()
 
     init {
         val fishRegistry: FishTypeRegistry by inject()
@@ -51,7 +50,7 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
                     Registry.SOUNDS.getOrThrow(NamespacedKey.minecraft(config.string("$pondId.enter-sound"))),
                     config.getConfigurationSection("$pondId.fish-weights")?.getKeys(false)?.associate { fishId ->
                         Pair(fishRegistry.get(fishId), config.getDouble("$pondId.fish-weights.$fishId"))
-                    } ?: mapOf()
+                    } ?: emptyMap()
                 )
             )
         }
@@ -65,39 +64,36 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
 
             val pond = get(pondId)
 
-            pondAreas.get(pond).add(
-                marker.toRegion(ThankmasLobby.instance().hubWorld).toTriggering(
-                    onEnter = { player ->
-                        player.inventory.setItem(
-                            3,
-                            playerManager.getPlayerData(player.uniqueId).selectedRod.value.buildRod(player)
-                        )
+            pondAreas[pond] = marker.toRegion(ThankmasLobby.instance().hubWorld, pondId).toTriggering(
+                onEnter = { player ->
+                    player.inventory.setItem(
+                        3,
+                        playerManager.getPlayerData(player.uniqueId).selectedRod.value.buildRod(player)
+                    )
 
-                        player.playSound(pond.enterSound)
-                        player.sendTranslatedIfPresent("fishing.pond.${pond.pondId}.enter_chat")
+                    player.playSound(pond.enterSound)
+                    player.sendTranslatedIfPresent("fishing.pond.${pond.pondId}.enter_chat")
 
-                        val title =
-                            miniPhrase.translateOrNull("fishing.pond.${pond.pondId}.enter_title", player.locale())
-                        val subtitle =
-                            miniPhrase.translateOrNull("fishing.pond.${pond.pondId}.enter_subtitle", player.locale())
+                    val title =
+                        miniPhrase.translateOrNull("fishing.pond.${pond.pondId}.enter_title", player.locale())
+                    val subtitle =
+                        miniPhrase.translateOrNull("fishing.pond.${pond.pondId}.enter_subtitle", player.locale())
 
-                        if (title != null || subtitle != null) {
-                            player.showTitle(
-                                Title.title(
-                                    title ?: Component.empty(), subtitle ?: Component.empty(),
-                                    Title.Times.times(
-                                        Duration.ofMillis(500),
-                                        Duration.ofSeconds(2),
-                                        Duration.ofMillis(500)
-                                    )
+                    if (title != null || subtitle != null) {
+                        player.showTitle(
+                            Title.title(
+                                title ?: Component.empty(), subtitle ?: Component.empty(),
+                                Title.Times.times(
+                                    Duration.ofMillis(500),
+                                    Duration.ofSeconds(2),
+                                    Duration.ofMillis(500)
                                 )
                             )
-                        }
-                    },
-                    onLeave = { player ->
-                        player.inventory.setItem(3, null)
-                    }, registry = instance.regionRegistry
-                )
+                        )
+                    }
+                },
+                onLeave = { it.inventory.setItem(3, null) },
+                registry = instance.regionRegistry
             )
         }
 
@@ -129,17 +125,17 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
     @EventHandler
     private fun onPlayerFish(event: PlayerFishEvent) {
         val player = event.player
-        val pond = pondAreas.keys().firstOrNull {
-            pondAreas.get(it).firstOrNull { region -> event.hook.location in region } != null
-        }
+        val pondRegion = pondAreas.values.firstOrNull { event.hook.location in it }
 
-        if (pond == null) {
+        if (pondRegion == null) {
             player.sendTranslated("fishing.pond.out_of_bounds")
             event.hook.remove()
 
             event.isCancelled = true
             return
         }
+
+        val pond = get(pondRegion.id)
 
         if (event.state == PlayerFishEvent.State.BITE) {
             player.playSound(Sound.BLOCK_NOTE_BLOCK_PLING)
