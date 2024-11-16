@@ -16,6 +16,7 @@ import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.entity.EntityDamageEvent
 import org.bukkit.event.entity.EntityPickupItemEvent
 import org.bukkit.event.entity.FoodLevelChangeEvent
+import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
@@ -38,6 +39,11 @@ public class PlayerLobbyProtection : Listener {
     @EventHandler
     private fun onBlockBreak(event: BlockBreakEvent) {
         if (event.player.gameMode == GameMode.CREATIVE && event.player.hasPermission("thankmaslobby.mapchange")) return
+        event.isCancelled = true
+    }
+
+    @EventHandler
+    private fun onHangingBreak(event: HangingBreakEvent) {
         event.isCancelled = true
     }
 
