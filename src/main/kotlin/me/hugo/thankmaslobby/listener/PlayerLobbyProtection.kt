@@ -1,12 +1,16 @@
 package me.hugo.thankmaslobby.listener
 
+import com.destroystokyo.paper.MaterialSetTag
+import com.destroystokyo.paper.MaterialTags
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent
 import org.bukkit.GameMode
 import org.bukkit.Material
+import org.bukkit.NamespacedKey
+import org.bukkit.event.Event
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
-import org.bukkit.event.block.Action
 import org.bukkit.event.block.BlockBreakEvent
+import org.bukkit.event.block.BlockPhysicsEvent
 import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.EntityChangeBlockEvent
 import org.bukkit.event.entity.EntityDamageEvent
@@ -19,6 +23,11 @@ import org.bukkit.event.player.PlayerSwapHandItemsEvent
 
 /** Protects the lobby from block changes, damage and environmental changes. */
 public class PlayerLobbyProtection : Listener {
+
+    /** Blocks that can be right-clicked. */
+    private val interactableBlocks: MaterialSetTag = MaterialSetTag(
+        NamespacedKey("thankmas", "lobby_interactable_blocks")
+    ).add(MaterialTags.TRAPDOORS, MaterialTags.DOORS)
 
     @EventHandler
     private fun onBlockPlace(event: BlockPlaceEvent) {
@@ -33,10 +42,21 @@ public class PlayerLobbyProtection : Listener {
     }
 
     @EventHandler
-    private fun onPhysicalInteraction(event: PlayerInteractEvent) {
-        if (event.action != Action.PHYSICAL) return
-        if (event.player.gameMode == GameMode.CREATIVE && event.player.hasPermission("thankmaslobby.mapchange")) return
+    private fun onBlockPhysics(event: BlockPhysicsEvent) {
+        // Allow doors to update their neighbouring door piece!
+        if (interactableBlocks.isTagged(event.changedBlockData.material)) return
+
         event.isCancelled = true
+    }
+
+    @EventHandler
+    private fun onBlockInteraction(event: PlayerInteractEvent) {
+        val clickedBlock = event.clickedBlock ?: return
+
+        if (event.player.gameMode == GameMode.CREATIVE && event.player.hasPermission("thankmaslobby.mapchange")) return
+        if (interactableBlocks.isTagged(clickedBlock)) return
+
+        event.setUseInteractedBlock(Event.Result.DENY)
     }
 
     @EventHandler
