@@ -2,8 +2,10 @@ package me.hugo.thankmaslobby
 
 import com.noxcrew.interfaces.InterfacesListeners
 import me.hugo.thankmas.ThankmasPlugin
+import me.hugo.thankmas.commands.CosmeticsCommand
 import me.hugo.thankmas.commands.TranslationsCommands
 import me.hugo.thankmas.config.string
+import me.hugo.thankmas.cosmetics.CosmeticsRegistry
 import me.hugo.thankmas.entity.HologramMarkerRegistry
 import me.hugo.thankmas.entity.npc.PlayerNPCMarkerRegistry
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
@@ -34,6 +36,7 @@ import org.koin.core.parameter.parametersOf
 import org.koin.ksp.generated.module
 import revxrsal.commands.bukkit.BukkitCommandHandler
 import revxrsal.commands.ktx.SuspendFunctionsSupport
+import kotlin.math.log
 
 public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
 
@@ -55,6 +58,10 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
 
     private val rodsRegistry: FishingRodRegistry by inject {
         parametersOf(configProvider.getOrLoad("hub/fishing/fishing_rods.yml"))
+    }
+
+    private val cosmeticsRegistry: CosmeticsRegistry by inject {
+        parametersOf(configProvider.getOrLoad("global/cosmetics.yml"))
     }
 
     private var worldName: String = "world"
@@ -115,6 +122,9 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         logger.info("Registering fishing rods...")
         logger.info("Registered ${rodsRegistry.size()} fishing rods!")
 
+        logger.info("Registering cosmetics...")
+        logger.info("Registered ${cosmeticsRegistry.size()} cosmetics!")
+
         logger.info("Registering item sets...")
         logger.info("Registered ${itemSetManager.size()} item sets!")
 
@@ -157,11 +167,13 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         commandHandler = BukkitCommandHandler.create(this)
         commandHandler.accept(SuspendFunctionsSupport)
 
+        cosmeticsRegistry.registerCompletions(commandHandler)
         rodsRegistry.registerCompletions(commandHandler)
         pondRegistry.registerCompletions(commandHandler)
 
         commandHandler.register(LobbyCommands(this))
         commandHandler.register(TranslationsCommands(playerManager))
+        commandHandler.register(CosmeticsCommand())
         commandHandler.register(profileMenuAccessor)
 
         commandHandler.registerBrigadier()
