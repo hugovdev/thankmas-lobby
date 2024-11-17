@@ -3,6 +3,7 @@ package me.hugo.thankmaslobby.listener
 import com.destroystokyo.paper.MaterialSetTag
 import com.destroystokyo.paper.MaterialTags
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent
+import org.bukkit.ExplosionResult
 import org.bukkit.GameMode
 import org.bukkit.Material
 import org.bukkit.NamespacedKey
@@ -12,10 +13,7 @@ import org.bukkit.event.Listener
 import org.bukkit.event.block.BlockBreakEvent
 import org.bukkit.event.block.BlockPhysicsEvent
 import org.bukkit.event.block.BlockPlaceEvent
-import org.bukkit.event.entity.EntityChangeBlockEvent
-import org.bukkit.event.entity.EntityDamageEvent
-import org.bukkit.event.entity.EntityPickupItemEvent
-import org.bukkit.event.entity.FoodLevelChangeEvent
+import org.bukkit.event.entity.*
 import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.inventory.InventoryClickEvent
 import org.bukkit.event.player.PlayerDropItemEvent
@@ -66,11 +64,20 @@ public class PlayerLobbyProtection : Listener {
     }
 
     @EventHandler
-    private fun onEntityTriggerLeaf(event: EntityChangeBlockEvent) {
+    private fun onEntityTriggerBlock(event: EntityChangeBlockEvent) {
         val block = event.block
 
         if (block.type == Material.BIG_DRIPLEAF) {
             event.isCancelled = true
+        }
+    }
+
+    @EventHandler
+    private fun onEntityTriggerBlock(event: EntityExplodeEvent) {
+        // Don't let wind charges interact with blocks!
+        if(event.explosionResult == ExplosionResult.TRIGGER_BLOCK) {
+            event.blockList().clear()
+            return
         }
     }
 
