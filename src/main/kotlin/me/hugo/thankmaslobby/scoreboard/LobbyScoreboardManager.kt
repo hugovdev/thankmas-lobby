@@ -23,9 +23,6 @@ public class LobbyScoreboardManager(private val instance: ThankmasLobby) :
     override fun registerTags() {
         super.registerTags()
 
-        val luckPerms = LuckPermsProvider.get()
-        val globalTranslations = instance.globalTranslations
-
         registerTag("global_players") { _, _ ->
             Tag.selfClosingInserting { Component.text(gameRegistry.globalPlayerCount) }
         }

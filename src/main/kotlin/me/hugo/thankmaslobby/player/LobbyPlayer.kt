@@ -41,7 +41,7 @@ import java.util.*
 public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
     RankedPlayerData<LobbyPlayer>(playerUUID, instance.playerManager, belowNameSupplier = { _, locale ->
         ThankmasLobby.instance().translations.translations.translate("below_name_test", locale)
-    }), TranslatedComponent {
+    }) {
 
     private val configProvider: ConfigurationProvider by inject()
     private val profileMenuAccessor: ProfileMenuAccessor by inject()
@@ -227,7 +227,6 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
         }
     }
 
-    context(MiniPhraseContext)
     override fun onPrepared(player: Player) {
         super.onPrepared(player)
 

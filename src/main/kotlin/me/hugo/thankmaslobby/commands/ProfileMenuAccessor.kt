@@ -9,10 +9,7 @@ import me.hugo.thankmas.gui.Icon
 import me.hugo.thankmas.gui.Menu
 import me.hugo.thankmas.gui.paginated.ConfigurablePaginatedMenu
 import me.hugo.thankmas.gui.paginated.PaginatedMenu
-import me.hugo.thankmas.items.TranslatableItem
-import me.hugo.thankmas.items.customModelData
-import me.hugo.thankmas.items.loreTranslatable
-import me.hugo.thankmas.items.nameTranslatable
+import me.hugo.thankmas.items.*
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.player.translate
@@ -237,7 +234,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                                 it.locale(),
                                 tags
                             )
-                            .customModelData(1)
+                            .model("gui/avatar")
                             .also { item ->
                                 item.editMeta(SkullMeta::class.java) { meta ->
                                     val skinTrait: SkinTrait? = npcData.npc.getTraitNullable(SkinTrait::class.java)
