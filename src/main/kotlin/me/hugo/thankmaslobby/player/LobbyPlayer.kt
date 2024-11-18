@@ -1,6 +1,5 @@
 package me.hugo.thankmaslobby.player
 
-import dev.kezz.miniphrase.MiniPhraseContext
 import dev.kezz.miniphrase.audience.sendTranslated
 import kotlinx.datetime.Instant
 import me.hugo.thankmas.config.ConfigurationProvider
@@ -9,7 +8,6 @@ import me.hugo.thankmas.gui.paginated.ConfigurablePaginatedMenu
 import me.hugo.thankmas.gui.paginated.PaginatedMenu
 import me.hugo.thankmas.items.hasKeyedData
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
-import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.firstIf
 import me.hugo.thankmas.player.rank.RankedPlayerData
 import me.hugo.thankmas.player.reset

@@ -36,7 +36,6 @@ import org.koin.core.parameter.parametersOf
 import org.koin.ksp.generated.module
 import revxrsal.commands.bukkit.BukkitCommandHandler
 import revxrsal.commands.ktx.SuspendFunctionsSupport
-import kotlin.math.log
 
 public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
 

@@ -5,7 +5,6 @@ import me.hugo.thankmas.config.enum
 import me.hugo.thankmas.gui.Icon
 import me.hugo.thankmas.gui.paginated.ConfigurablePaginatedMenu
 import me.hugo.thankmas.gui.paginated.PaginatedMenu
-import me.hugo.thankmas.items.TranslatableItem
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.registry.MapBasedRegistry
 import org.koin.core.annotation.Single

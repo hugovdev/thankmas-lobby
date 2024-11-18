@@ -9,7 +9,10 @@ import me.hugo.thankmas.gui.Icon
 import me.hugo.thankmas.gui.Menu
 import me.hugo.thankmas.gui.paginated.ConfigurablePaginatedMenu
 import me.hugo.thankmas.gui.paginated.PaginatedMenu
-import me.hugo.thankmas.items.*
+import me.hugo.thankmas.items.TranslatableItem
+import me.hugo.thankmas.items.loreTranslatable
+import me.hugo.thankmas.items.model
+import me.hugo.thankmas.items.nameTranslatable
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.player.translate

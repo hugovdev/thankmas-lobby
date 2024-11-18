@@ -6,7 +6,6 @@ import me.hugo.thankmaslobby.game.GameRegistry
 import me.hugo.thankmaslobby.player.LobbyPlayer
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.minimessage.tag.Tag
-import net.luckperms.api.LuckPermsProvider
 import org.koin.core.annotation.Single
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
