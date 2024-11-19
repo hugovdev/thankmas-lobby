@@ -142,10 +142,8 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
         val itemSetManager: ItemSetRegistry by inject()
         itemSetManager.giveSet("lobby", finalPlayer, newLocale)
 
-        val currentBoard = lastBoardId ?: "lobby"
-
         val scoreboardManager: LobbyScoreboardManager by inject()
-        scoreboardManager.getTemplate(currentBoard).printBoard(finalPlayer, newLocale)
+        scoreboardManager.getTemplate(lastBoardId).printBoard(finalPlayer, newLocale)
 
         // If they are fishing also give them the new translated rod!
         rebuildRod(newLocale)
