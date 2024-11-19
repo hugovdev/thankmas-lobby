@@ -2,7 +2,7 @@ package me.hugo.thankmaslobby.listener
 
 import com.destroystokyo.paper.event.player.PlayerConnectionCloseEvent
 import me.hugo.thankmas.lang.TranslatedComponent
-import me.hugo.thankmaslobby.player.updateBoardTags
+import me.hugo.thankmas.player.updateBoardTags
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 import org.bukkit.event.player.PlayerQuitEvent

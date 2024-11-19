@@ -4,9 +4,9 @@ import dev.kezz.miniphrase.audience.sendTranslated
 import me.hugo.thankmas.entity.npc.PlayerNPCMarkerRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.playSound
+import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.player.LobbyPlayer
-import me.hugo.thankmaslobby.player.updateBoardTags
 import net.citizensnpcs.api.event.NPCRightClickEvent
 import org.bukkit.Sound
 import org.bukkit.event.EventHandler
@@ -26,7 +26,7 @@ public class NPCHuntListener(private val playerNPCRegistry: PlayerNPCMarkerRegis
         val npc = event.npc
 
         val clicker = event.clicker
-        val playerProfile = ThankmasLobby.instance().playerManager.getPlayerData(clicker.uniqueId)
+        val playerProfile = ThankmasLobby.instance().playerDataManager.getPlayerData(clicker.uniqueId)
 
         val npcUse: String? = npc.data().get("use") as? String?
         if (npcUse != NPC_HUNT_USE_KEY) return

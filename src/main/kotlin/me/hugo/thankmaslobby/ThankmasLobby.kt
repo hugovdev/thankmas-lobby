@@ -13,6 +13,7 @@ import me.hugo.thankmas.listener.*
 import me.hugo.thankmas.markers.registry.MarkerRegistry
 import me.hugo.thankmas.player.PlayerDataManager
 import me.hugo.thankmas.player.rank.PlayerGroupChange
+import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.region.RegionRegistry
 import me.hugo.thankmaslobby.commands.LobbyCommands
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
@@ -26,7 +27,6 @@ import me.hugo.thankmaslobby.listener.PlayerLobbyAccess
 import me.hugo.thankmaslobby.listener.PlayerLobbyProtection
 import me.hugo.thankmaslobby.npchunt.NPCHuntListener
 import me.hugo.thankmaslobby.player.LobbyPlayer
-import me.hugo.thankmaslobby.player.updateBoardTags
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
 import org.bukkit.Bukkit
 import org.bukkit.World
@@ -37,11 +37,11 @@ import org.koin.ksp.generated.module
 import revxrsal.commands.bukkit.BukkitCommandHandler
 import revxrsal.commands.ktx.SuspendFunctionsSupport
 
-public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
+public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
 
-    public val playerManager: PlayerDataManager<LobbyPlayer> = PlayerDataManager { LobbyPlayer(it, this) }
+    override val playerDataManager: PlayerDataManager<LobbyPlayer> = PlayerDataManager { LobbyPlayer(it, this) }
 
-    public val scoreboardManager: LobbyScoreboardManager by inject { parametersOf(this) }
+    override val scoreboardTemplateManager: LobbyScoreboardManager by inject { parametersOf(this) }
 
     public lateinit var regionRegistry: RegionRegistry<LobbyPlayer>
         private set
@@ -105,7 +105,7 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
     override fun onEnable() {
         super.onEnable()
 
-        regionRegistry = RegionRegistry(playerManager)
+        regionRegistry = RegionRegistry(this.playerDataManager)
 
         logger.info("Registering games...")
         logger.info("Registered ${gameRegistry.size()} games!")
@@ -128,7 +128,7 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         logger.info("Registering item sets...")
         logger.info("Registered ${itemSetManager.size()} item sets!")
 
-        scoreboardManager.initialize()
+        this.scoreboardTemplateManager.initialize()
 
         logger.info("Creating Lobby Database connector and tables...")
         databaseConnector = LobbyDatabase(configProvider.getOrLoad("hub/database.yml"))
@@ -137,19 +137,19 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         val pluginManager = Bukkit.getPluginManager()
 
         // Player data loaders and spawnpoints
-        pluginManager.registerEvents(PlayerDataLoader(this, playerManager), this)
+        pluginManager.registerEvents(PlayerDataLoader(this, this.playerDataManager), this)
         pluginManager.registerEvents(PlayerSpawnpointOnJoin(worldName, "hub_spawnpoint"), this)
 
-        pluginManager.registerEvents(PlayerLocaleDetector(playerManager), this)
+        pluginManager.registerEvents(PlayerLocaleDetector(this.playerDataManager), this)
         pluginManager.registerEvents(PlayerAttributes("hub"), this)
 
         pluginManager.registerEvents(PlayerLobbyAccess(), this)
         pluginManager.registerEvents(PlayerLobbyProtection(), this)
 
         pluginManager.registerEvents(pondRegistry, this)
-        pluginManager.registerEvents(HologramMarkerRegistry(worldName, playerManager), this)
+        pluginManager.registerEvents(HologramMarkerRegistry(worldName, this.playerDataManager), this)
 
-        playerNPCRegistry = PlayerNPCMarkerRegistry(worldName, playerManager)
+        playerNPCRegistry = PlayerNPCMarkerRegistry(worldName, this.playerDataManager)
 
         pluginManager.registerEvents(playerNPCRegistry, this)
         pluginManager.registerEvents(NPCHuntListener(playerNPCRegistry), this)
@@ -157,10 +157,10 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         InterfacesListeners.install(this)
 
         // Check settings and ignored people etc.
-        pluginManager.registerEvents(RankedPlayerChat(playerManager) { _, _ -> true }, this)
+        pluginManager.registerEvents(RankedPlayerChat(this.playerDataManager) { _, _ -> true }, this)
 
         // Register luck perms events!
-        PlayerGroupChange(playerManager) { player -> player.updateBoardTags("rank") }
+        PlayerGroupChange(this.playerDataManager) { player -> player.updateBoardTags("rank") }
 
         server.messenger.registerOutgoingPluginChannel(this, "BungeeCord");
 
@@ -172,7 +172,7 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         pondRegistry.registerCompletions(commandHandler)
 
         commandHandler.register(LobbyCommands(this))
-        commandHandler.register(TranslationsCommands(playerManager))
+        commandHandler.register(TranslationsCommands(this.playerDataManager))
         commandHandler.register(CosmeticsCommand())
         commandHandler.register(profileMenuAccessor)
 
@@ -181,15 +181,6 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
 
     override fun onDisable() {
         super.onDisable()
-
-        logger.info("Saving all player data...")
-
-        // Save all player data before disabling!
-        playerManager.getAllPlayerData().forEach {
-            it.forceSave()
-        }
-
-        logger.info("Saved!")
 
         databaseConnector.dataSource.close()
         commandHandler.unregisterAllCommands()

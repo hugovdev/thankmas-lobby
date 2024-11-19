@@ -15,7 +15,7 @@ import org.koin.core.component.inject
  */
 @Single
 public class LobbyScoreboardManager(private val instance: ThankmasLobby) :
-    ScoreboardTemplateManager<LobbyPlayer>(instance.playerManager), KoinComponent {
+    ScoreboardTemplateManager<LobbyPlayer>(instance.playerDataManager), KoinComponent {
 
     private val gameRegistry: GameRegistry by inject()
 

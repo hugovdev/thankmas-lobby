@@ -11,10 +11,10 @@ import me.hugo.thankmas.gui.buildConfiguredChestInterface
 import me.hugo.thankmas.items.addLoreTranslatable
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.translate
+import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.registry.MapBasedRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.player.isDonor
-import me.hugo.thankmaslobby.player.updateBoardTags
 import org.bukkit.Bukkit
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.entity.Player

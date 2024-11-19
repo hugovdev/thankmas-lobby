@@ -9,11 +9,11 @@ import me.hugo.thankmas.markers.registry.MarkerRegistry
 import me.hugo.thankmas.math.formatToTime
 import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.player.translate
+import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.region.triggering.TriggeringRegion
 import me.hugo.thankmas.registry.AutoCompletableMapRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
-import me.hugo.thankmaslobby.player.updateBoardTags
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.title.Title
 import org.bukkit.*
@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentMap
 public class PondRegistry(config: FileConfiguration, private val instance: ThankmasLobby) :
     AutoCompletableMapRegistry<Pond>(Pond::class.java), TranslatedComponent, Listener {
 
-    private val playerManager = ThankmasLobby.instance().playerManager
+    private val playerManager = ThankmasLobby.instance().playerDataManager
     private val flyingHooks: ConcurrentMap<FishHook, Particle> = ConcurrentHashMap()
     private val pondAreas: MutableMap<Pond, TriggeringRegion> = mutableMapOf()
 
@@ -115,7 +115,7 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
         val hook = event.entity as? FishHook ?: return
         val player = hook.shooter as? Player ?: return
 
-        val selectedRod = instance.playerManager.getPlayerData(player.uniqueId).selectedRod.value
+        val selectedRod = instance.playerDataManager.getPlayerData(player.uniqueId).selectedRod.value
 
         // Apply rod fish and bite times!
         selectedRod.apply(hook)
@@ -142,7 +142,7 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
             return
         }
 
-        val playerData = instance.playerManager.getPlayerData(player.uniqueId)
+        val playerData = instance.playerDataManager.getPlayerData(player.uniqueId)
 
         if (event.state == PlayerFishEvent.State.FISHING) {
             playerData.lastHookShoot = System.currentTimeMillis()

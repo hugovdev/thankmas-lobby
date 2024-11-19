@@ -11,6 +11,7 @@ import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.player.firstIf
 import me.hugo.thankmas.player.rank.RankedPlayerData
 import me.hugo.thankmas.player.reset
+import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.state.StatefulValue
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
@@ -37,7 +38,7 @@ import java.util.*
 
 
 public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
-    RankedPlayerData<LobbyPlayer>(playerUUID, instance.playerManager, belowNameSupplier = { _, locale ->
+    RankedPlayerData<LobbyPlayer>(playerUUID, instance.playerDataManager, belowNameSupplier = { _, locale ->
         ThankmasLobby.instance().translations.translations.translate("below_name_test", locale)
     }) {
 

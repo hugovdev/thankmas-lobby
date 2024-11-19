@@ -38,7 +38,7 @@ public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComp
 
     @Command("fishbag", "capturedfishes")
     private fun openFishBag(sender: Player) {
-        instance.playerManager.getPlayerData(sender.uniqueId).fishBag.open(sender)
+        instance.playerDataManager.getPlayerData(sender.uniqueId).fishBag.open(sender)
     }
 
     @Command("unlockrod")
@@ -49,7 +49,7 @@ public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComp
         @Optional receiver: Player = sender,
         @Switch("save", defaultValue = false) save: Boolean = false
     ) {
-        val playerData = instance.playerManager.getPlayerData(receiver.uniqueId)
+        val playerData = instance.playerDataManager.getPlayerData(receiver.uniqueId)
 
         if (playerData.unlockedRods.containsKey(fishingRod)) {
             sender.sendMessage(Component.text("You already have this rod unlocked!", NamedTextColor.RED))

@@ -60,7 +60,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
             fishingMenu.open(clicker)
             clicker.playSound(Sound.BLOCK_WOODEN_BUTTON_CLICK_ON)
         }) {
-            val playerData = instance.playerManager.getPlayerData(it.uniqueId)
+            val playerData = instance.playerDataManager.getPlayerData(it.uniqueId)
 
             fishingItem.buildItem(it.locale()) {
                 parsed("fishes", playerData.uniqueFishTypes())
@@ -76,7 +76,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                 closeInventory()
             }
         }) { player ->
-            val playerData = instance.playerManager.getPlayerData(player.uniqueId)
+            val playerData = instance.playerDataManager.getPlayerData(player.uniqueId)
 
             profileItem.buildItem(player.locale()) {
                 parsed("fishes", playerData.uniqueFishTypes())
@@ -103,7 +103,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                 playSound(Sound.BLOCK_WOODEN_BUTTON_CLICK_ON)
             }
         }) {
-            val playerData = instance.playerManager.getPlayerData(it.uniqueId)
+            val playerData = instance.playerDataManager.getPlayerData(it.uniqueId)
 
             npcItem.buildItem(it.locale()) {
                 parsed("npcs", playerData.foundNPCs().size)
@@ -122,7 +122,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
 
             setIcon(11, 0, Icon({ context, _ ->
                 val clicker = context.clicker
-                val playerData = instance.playerManager.getPlayerData(clicker.uniqueId)
+                val playerData = instance.playerDataManager.getPlayerData(clicker.uniqueId)
 
                 if (playerData.fishAmount() == 0) {
                     clicker.sendTranslated("menu.fishing.no_fishes")
@@ -160,7 +160,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
             rodRegistry.getValues().sortedBy { it.tier }.forEach { rod ->
                 addIcon(Icon({ context, _ ->
                     val clicker = context.clicker
-                    val playerData = instance.playerManager.getPlayerData(clicker.uniqueId)
+                    val playerData = instance.playerDataManager.getPlayerData(clicker.uniqueId)
 
                     if (!playerData.unlockedRods.contains(rod)) {
                         clicker.sendTranslated("fishing.fishing_rods.click_when_blocked") {
@@ -185,14 +185,14 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                     }
                     clicker.playSound(Sound.BLOCK_NOTE_BLOCK_HAT)
                 }) {
-                    val playerData = instance.playerManager.getPlayerData(it.uniqueId)
+                    val playerData = instance.playerDataManager.getPlayerData(it.uniqueId)
 
                     rod.buildIcon(
                         it,
                         blocked = !playerData.unlockedRods.containsKey(rod),
                         selected = (playerData.selectedRod.value == rod)
                     )
-                }.listen { instance.playerManager.getPlayerData(it.uniqueId).selectedRod })
+                }.listen { instance.playerDataManager.getPlayerData(it.uniqueId).selectedRod })
             }
         }
 
@@ -203,7 +203,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                 .forEach { npcData ->
                     addIcon(Icon({ context, _ ->
                         val clicker = context.clicker
-                        val playerData = instance.playerManager.getPlayerData(clicker.uniqueId)
+                        val playerData = instance.playerDataManager.getPlayerData(clicker.uniqueId)
 
                         val markerData = npcData.marker
                         val unlocked = playerData.foundNPCs().contains(markerData.getString("id"))
@@ -217,7 +217,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                             }
                         } else clicker.playSound(Sound.BLOCK_NOTE_BLOCK_HAT)
                     }) {
-                        val playerData = instance.playerManager.getPlayerData(it.uniqueId)
+                        val playerData = instance.playerDataManager.getPlayerData(it.uniqueId)
 
                         val markerData = npcData.marker
                         val unlocked = playerData.foundNPCs().contains(markerData.getString("id"))
