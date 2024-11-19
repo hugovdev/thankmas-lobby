@@ -98,12 +98,13 @@ public class ThankmasLobby : ThankmasPlugin(listOf("hub")) {
         s3WorldSynchronizer.downloadWorld(
             scopeWorld,
             Bukkit.getWorldContainer().resolve(worldName).also { it.mkdirs() })
+
+        markerRegistry.loadWorldMarkers(this.worldName)
     }
 
     override fun onEnable() {
         super.onEnable()
 
-        markerRegistry.loadWorldMarkers(this.worldName)
         regionRegistry = RegionRegistry(playerManager)
 
         logger.info("Registering games...")

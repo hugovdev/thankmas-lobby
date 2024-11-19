@@ -227,6 +227,7 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
         super.onPrepared(player)
 
         player.isPersistent = false
+
         player.reset(GameMode.ADVENTURE)
 
         val scoreboardManager: LobbyScoreboardManager by inject()
@@ -237,5 +238,7 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
         // Give lobby item-set!
         val itemSetManager: ItemSetRegistry by inject()
         itemSetManager.giveSet("lobby", player)
+
+        updateBoardTags("players")
     }
 }
