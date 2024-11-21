@@ -3,6 +3,7 @@ package me.hugo.thankmaslobby.listener
 import com.destroystokyo.paper.MaterialSetTag
 import com.destroystokyo.paper.MaterialTags
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent
+import io.papermc.paper.event.player.PlayerItemFrameChangeEvent
 import org.bukkit.ExplosionResult
 import org.bukkit.GameMode
 import org.bukkit.Material
@@ -42,6 +43,11 @@ public class PlayerLobbyProtection : Listener {
 
     @EventHandler
     private fun onHangingBreak(event: HangingBreakEvent) {
+        event.isCancelled = true
+    }
+
+    @EventHandler
+    private fun onItemFrameItem(event: PlayerItemFrameChangeEvent) {
         event.isCancelled = true
     }
 
