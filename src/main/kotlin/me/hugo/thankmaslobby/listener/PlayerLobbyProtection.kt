@@ -17,6 +17,7 @@ import org.bukkit.event.block.BlockPlaceEvent
 import org.bukkit.event.entity.*
 import org.bukkit.event.hanging.HangingBreakEvent
 import org.bukkit.event.inventory.InventoryClickEvent
+import org.bukkit.event.player.PlayerArmorStandManipulateEvent
 import org.bukkit.event.player.PlayerDropItemEvent
 import org.bukkit.event.player.PlayerInteractEvent
 import org.bukkit.event.player.PlayerSwapHandItemsEvent
@@ -38,6 +39,11 @@ public class PlayerLobbyProtection : Listener {
     @EventHandler
     private fun onBlockBreak(event: BlockBreakEvent) {
         if (event.player.gameMode == GameMode.CREATIVE && event.player.hasPermission("thankmaslobby.mapchange")) return
+        event.isCancelled = true
+    }
+
+    @EventHandler
+    private fun onArmorStandInteraction(event: PlayerArmorStandManipulateEvent) {
         event.isCancelled = true
     }
 
