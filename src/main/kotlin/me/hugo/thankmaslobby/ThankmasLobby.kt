@@ -6,6 +6,7 @@ import me.hugo.thankmas.commands.CosmeticsCommand
 import me.hugo.thankmas.commands.TranslationsCommands
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.cosmetics.CosmeticsRegistry
+import me.hugo.thankmas.database.Database
 import me.hugo.thankmas.entity.HologramMarkerRegistry
 import me.hugo.thankmas.entity.npc.PlayerNPCMarkerRegistry
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
@@ -17,7 +18,6 @@ import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.region.RegionRegistry
 import me.hugo.thankmaslobby.commands.LobbyCommands
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
-import me.hugo.thankmaslobby.database.LobbyDatabase
 import me.hugo.thankmaslobby.dependencyinjection.LobbyModules
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.fishing.pond.PondRegistry
@@ -73,7 +73,7 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
     public lateinit var playerNPCRegistry: PlayerNPCMarkerRegistry<LobbyPlayer>
         private set
 
-    private lateinit var databaseConnector: LobbyDatabase
+    private lateinit var databaseConnector: Database
     private lateinit var commandHandler: BukkitCommandHandler
 
     public companion object {
@@ -131,7 +131,7 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
         this.scoreboardTemplateManager.initialize()
 
         logger.info("Creating Lobby Database connector and tables...")
-        databaseConnector = LobbyDatabase(configProvider.getOrLoad("hub/database.yml"))
+        databaseConnector = Database(configProvider.getOrLoad("hub/database.yml"))
         logger.info("Connected and created correctly!")
 
         val pluginManager = Bukkit.getPluginManager()

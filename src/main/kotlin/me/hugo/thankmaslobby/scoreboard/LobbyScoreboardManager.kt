@@ -32,6 +32,12 @@ public class LobbyScoreboardManager(private val instance: ThankmasLobby) :
             }
         }
 
+        registerTag("currency") { player, _ ->
+            Tag.selfClosingInserting {
+                Component.text(playerManager.getPlayerData(player.uniqueId).foundNPCs().size)
+            }
+        }
+
         registerTag("total_npcs") { _, _ ->
             Tag.selfClosingInserting {
                 Component.text(

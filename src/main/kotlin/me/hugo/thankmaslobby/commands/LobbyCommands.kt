@@ -1,9 +1,9 @@
 package me.hugo.thankmaslobby.commands
 
+import me.hugo.thankmas.database.Fishes
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.translate
 import me.hugo.thankmaslobby.ThankmasLobby
-import me.hugo.thankmaslobby.database.Fishes
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.fishing.pond.Pond
 import me.hugo.thankmaslobby.fishing.rod.FishingRod
