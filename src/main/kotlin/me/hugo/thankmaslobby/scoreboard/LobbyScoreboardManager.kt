@@ -34,7 +34,7 @@ public class LobbyScoreboardManager(private val instance: ThankmasLobby) :
 
         registerTag("currency") { player, _ ->
             Tag.selfClosingInserting {
-                Component.text(playerManager.getPlayerData(player.uniqueId).foundNPCs().size)
+                Component.text(playerManager.getPlayerData(player.uniqueId).currency)
             }
         }
 

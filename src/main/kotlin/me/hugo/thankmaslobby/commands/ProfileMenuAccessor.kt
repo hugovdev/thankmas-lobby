@@ -4,7 +4,6 @@ import com.destroystokyo.paper.profile.ProfileProperty
 import dev.kezz.miniphrase.audience.sendTranslated
 import dev.kezz.miniphrase.tag.TagResolverBuilder
 import me.hugo.thankmas.config.ConfigurationProvider
-import me.hugo.thankmas.gui.ConfiguredMenu
 import me.hugo.thankmas.gui.Icon
 import me.hugo.thankmas.gui.Menu
 import me.hugo.thankmas.gui.paginated.ConfigurablePaginatedMenu
@@ -51,7 +50,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
     private val menusConfig = configProvider.getOrLoad("hub/menus.yml")
 
     /** Profile menu with fishing menu and npc collector menu. */
-    public val profileMenu: Menu = ConfiguredMenu(menusConfig, "menus.profile").apply {
+    public val profileMenu: Menu = Menu(menusConfig, "menus.profile").apply {
         val fishingItem = TranslatableItem(menusConfig, "menus.profile.icons.fish-bag")
 
         setIcons(Icon({ context, _ ->
