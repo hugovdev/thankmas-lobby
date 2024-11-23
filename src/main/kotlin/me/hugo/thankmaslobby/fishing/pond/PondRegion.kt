@@ -12,7 +12,8 @@ import org.bukkit.entity.Player
 import java.time.Duration
 
 /** Visuals and rod-giving when entering ponds. */
-public class PondRegion(private val pond: Pond, marker: Marker, world: World) : WorldRegion(marker, world) {
+public class PondRegion(private val pond: Pond, marker: Marker, world: World) :
+    WorldRegion(marker, requireNotNull(marker.getString("pond_id")), world) {
 
     private val instance = ThankmasLobby.instance()
 

@@ -49,7 +49,7 @@ public class FishingRod(
 
     private val item: TranslatableItem = TranslatableItem(
         material = Material.FISHING_ROD,
-        model = "rods/$id",
+        customModelData = tier,
         name = "fishing_rods.$id.item.name",
         lore = "fishing_rods.$id.item.lore",
         unbreakable = true,
