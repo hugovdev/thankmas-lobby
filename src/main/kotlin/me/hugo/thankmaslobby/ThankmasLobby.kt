@@ -6,7 +6,8 @@ import me.hugo.thankmas.commands.CosmeticsCommand
 import me.hugo.thankmas.commands.TranslationsCommands
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.cosmetics.CosmeticsRegistry
-import me.hugo.thankmas.database.Database
+import me.hugo.thankmas.database.CosmeticsOwned
+import me.hugo.thankmas.database.PlayerData
 import me.hugo.thankmas.entity.HologramMarkerRegistry
 import me.hugo.thankmas.entity.npc.PlayerNPCMarkerRegistry
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
@@ -18,6 +19,9 @@ import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.region.RegionRegistry
 import me.hugo.thankmaslobby.commands.LobbyCommands
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
+import me.hugo.thankmaslobby.database.Fishes
+import me.hugo.thankmaslobby.database.FoundNPCs
+import me.hugo.thankmaslobby.database.Rods
 import me.hugo.thankmaslobby.dependencyinjection.LobbyModules
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.fishing.pond.PondRegistry
@@ -37,14 +41,16 @@ import org.koin.ksp.generated.module
 import revxrsal.commands.bukkit.BukkitCommandHandler
 import revxrsal.commands.ktx.SuspendFunctionsSupport
 
-public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
+public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
+    listOf("hub"),
+    sqlTables = arrayOf(PlayerData, CosmeticsOwned, Fishes, FoundNPCs, Rods)
+) {
 
     override val playerDataManager: PlayerDataManager<LobbyPlayer> = PlayerDataManager { LobbyPlayer(it, this) }
 
     override val scoreboardTemplateManager: LobbyScoreboardManager by inject { parametersOf(this) }
 
-    public lateinit var regionRegistry: RegionRegistry<LobbyPlayer>
-        private set
+    public val regionRegistry: RegionRegistry by inject()
 
     // Fishing Stuff
     private val fishRegistry: FishTypeRegistry by inject()
@@ -59,9 +65,7 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
         parametersOf(configProvider.getOrLoad("hub/fishing/fishing_rods.yml"))
     }
 
-    private val cosmeticsRegistry: CosmeticsRegistry by inject {
-        parametersOf(configProvider.getOrLoad("global/cosmetics.yml"))
-    }
+    private val cosmeticsRegistry: CosmeticsRegistry by inject()
 
     private var worldName: String = "world"
 
@@ -73,7 +77,6 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
     public lateinit var playerNPCRegistry: PlayerNPCMarkerRegistry<LobbyPlayer>
         private set
 
-    private lateinit var databaseConnector: Database
     private lateinit var commandHandler: BukkitCommandHandler
 
     public companion object {
@@ -105,8 +108,6 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
     override fun onEnable() {
         super.onEnable()
 
-        regionRegistry = RegionRegistry(this.playerDataManager)
-
         logger.info("Registering games...")
         logger.info("Registered ${gameRegistry.size()} games!")
 
@@ -129,10 +130,6 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
         logger.info("Registered ${itemSetManager.size()} item sets!")
 
         this.scoreboardTemplateManager.initialize()
-
-        logger.info("Creating Lobby Database connector and tables...")
-        databaseConnector = Database(configProvider.getOrLoad("hub/database.yml"))
-        logger.info("Connected and created correctly!")
 
         val pluginManager = Bukkit.getPluginManager()
 
@@ -162,7 +159,8 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
         // Register luck perms events!
         PlayerGroupChange(this.playerDataManager) { player -> player.updateBoardTags("rank") }
 
-        server.messenger.registerOutgoingPluginChannel(this, "BungeeCord");
+        server.messenger.registerOutgoingPluginChannel(this, "BungeeCord")
+        server.messenger.registerIncomingPluginChannel(this, "BungeeCord", gameRegistry)
 
         commandHandler = BukkitCommandHandler.create(this)
         commandHandler.accept(SuspendFunctionsSupport)
@@ -182,7 +180,6 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
     override fun onDisable() {
         super.onDisable()
 
-        databaseConnector.dataSource.close()
         commandHandler.unregisterAllCommands()
     }
 

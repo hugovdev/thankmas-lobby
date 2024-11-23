@@ -1,7 +1,6 @@
 package me.hugo.thankmaslobby.fishing.pond
 
 import dev.kezz.miniphrase.audience.sendTranslated
-import dev.kezz.miniphrase.audience.sendTranslatedIfPresent
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.lang.TranslatedComponent
@@ -10,12 +9,10 @@ import me.hugo.thankmas.math.formatToTime
 import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.player.updateBoardTags
-import me.hugo.thankmas.region.triggering.TriggeringRegion
 import me.hugo.thankmas.registry.AutoCompletableMapRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.title.Title
 import org.bukkit.*
 import org.bukkit.configuration.file.FileConfiguration
 import org.bukkit.entity.FishHook
@@ -27,7 +24,6 @@ import org.bukkit.event.entity.ProjectileLaunchEvent
 import org.bukkit.event.player.PlayerFishEvent
 import org.koin.core.annotation.Single
 import org.koin.core.component.inject
-import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.ConcurrentMap
 
@@ -36,9 +32,8 @@ import java.util.concurrent.ConcurrentMap
 public class PondRegistry(config: FileConfiguration, private val instance: ThankmasLobby) :
     AutoCompletableMapRegistry<Pond>(Pond::class.java), TranslatedComponent, Listener {
 
-    private val playerManager = ThankmasLobby.instance().playerDataManager
     private val flyingHooks: ConcurrentMap<FishHook, Particle> = ConcurrentHashMap()
-    private val pondAreas: MutableMap<Pond, TriggeringRegion> = mutableMapOf()
+    private val pondAreas: MutableMap<Pond, PondRegion> = mutableMapOf()
 
     init {
         val fishRegistry: FishTypeRegistry by inject()
@@ -63,38 +58,7 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
             { "No pond id has been specified for pond area in ${marker.location}." }
 
             val pond = get(pondId)
-
-            pondAreas[pond] = marker.toRegion(ThankmasLobby.instance().hubWorld, pondId).toTriggering(
-                onEnter = { player ->
-                    player.inventory.setItem(
-                        3,
-                        playerManager.getPlayerData(player.uniqueId).selectedRod.value.buildRod(player)
-                    )
-
-                    player.playSound(pond.enterSound)
-                    player.sendTranslatedIfPresent("fishing.pond.${pond.pondId}.enter_chat")
-
-                    val title =
-                        miniPhrase.translateOrNull("fishing.pond.${pond.pondId}.enter_title", player.locale())
-                    val subtitle =
-                        miniPhrase.translateOrNull("fishing.pond.${pond.pondId}.enter_subtitle", player.locale())
-
-                    if (title != null || subtitle != null) {
-                        player.showTitle(
-                            Title.title(
-                                title ?: Component.empty(), subtitle ?: Component.empty(),
-                                Title.Times.times(
-                                    Duration.ofMillis(500),
-                                    Duration.ofSeconds(2),
-                                    Duration.ofMillis(500)
-                                )
-                            )
-                        )
-                    }
-                },
-                onLeave = { it.inventory.setItem(3, null) },
-                registry = instance.regionRegistry
-            )
+            pondAreas[pond] = PondRegion(pond, marker, ThankmasLobby.instance().hubWorld).also { it.register() }
         }
 
         Bukkit.getScheduler().runTaskTimer(ThankmasLobby.instance(), Runnable {

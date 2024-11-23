@@ -6,8 +6,7 @@ import dev.kezz.miniphrase.tag.TagResolverBuilder
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.gui.Icon
 import me.hugo.thankmas.gui.Menu
-import me.hugo.thankmas.gui.paginated.ConfigurablePaginatedMenu
-import me.hugo.thankmas.gui.paginated.PaginatedMenu
+import me.hugo.thankmas.gui.PaginatedMenu
 import me.hugo.thankmas.items.TranslatableItem
 import me.hugo.thankmas.items.loreTranslatable
 import me.hugo.thankmas.items.model
@@ -50,7 +49,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
     private val menusConfig = configProvider.getOrLoad("hub/menus.yml")
 
     /** Profile menu with fishing menu and npc collector menu. */
-    public val profileMenu: Menu = Menu(menusConfig, "menus.profile").apply {
+    public val profileMenu: Menu = Menu(menusConfig, "menus.profile", miniPhrase).apply {
         val fishingItem = TranslatableItem(menusConfig, "menus.profile.icons.fish-bag")
 
         setIcons(Icon({ context, _ ->
@@ -116,7 +115,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
 
     /** Fishing menu: Fish Collection or Fish Bag. */
     public val fishingMenu: PaginatedMenu =
-        ConfigurablePaginatedMenu(menusConfig, "menus.fishing", profileMenu).apply {
+        PaginatedMenu(menusConfig, "menus.fishing", profileMenu, miniPhrase = miniPhrase).apply {
             val fishBagItem = TranslatableItem(menusConfig, "menus.fishing.icons.fish-bag")
 
             setIcon(11, 0, Icon({ context, _ ->
@@ -155,7 +154,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
     private val rodRegistry: FishingRodRegistry by inject()
 
     private val rodSelector: PaginatedMenu =
-        ConfigurablePaginatedMenu(menusConfig, "menus.fishing-rod-selector", fishingMenu.firstPage()).apply {
+        PaginatedMenu(menusConfig, "menus.fishing-rod-selector", fishingMenu.firstPage(), miniPhrase = miniPhrase).apply {
             rodRegistry.getValues().sortedBy { it.tier }.forEach { rod ->
                 addIcon(Icon({ context, _ ->
                     val clicker = context.clicker
@@ -196,7 +195,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
         }
 
     private val npcJournal: PaginatedMenu =
-        ConfigurablePaginatedMenu(menusConfig, "menus.npc-journal", profileMenu).apply {
+        PaginatedMenu(menusConfig, "menus.npc-journal", profileMenu, miniPhrase = miniPhrase).apply {
             instance.playerNPCRegistry.getValues().filter { it.marker.getString("use") == "npc_hunt" }
                 .sortedBy { it.marker.getString("display_name") ?: it.marker.getStringList("skin")!!.first() }
                 .forEach { npcData ->

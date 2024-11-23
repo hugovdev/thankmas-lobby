@@ -84,16 +84,18 @@ public class GameRegistry(config: FileConfiguration) : MapBasedRegistry<String, 
 
         if (!inputs.equals("PlayerCount", ignoreCase = true)) return
 
-        var count by getValues().firstOrNull { it.serverName == serverName }?.playerCount ?: return
-        count = serverCount
-
         if (serverName.equals("all", ignoreCase = true)) {
             if (globalPlayerCount != serverCount) {
                 globalPlayerCount = serverCount
 
                 updateBoardTags("global_players")
             }
+
+            return
         }
+
+        var count by getValues().firstOrNull { it.serverName == serverName }?.playerCount ?: return
+        count = serverCount
     }
 
     /**

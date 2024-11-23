@@ -3,8 +3,7 @@ package me.hugo.thankmaslobby.fishing.fish
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.config.enum
 import me.hugo.thankmas.gui.Icon
-import me.hugo.thankmas.gui.paginated.ConfigurablePaginatedMenu
-import me.hugo.thankmas.gui.paginated.PaginatedMenu
+import me.hugo.thankmas.gui.PaginatedMenu
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.registry.MapBasedRegistry
 import org.koin.core.annotation.Single
@@ -37,7 +36,7 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
 
         val menuConfig = configProvider.getOrLoad("hub/menus.yml")
 
-        fishTypesMenu = ConfigurablePaginatedMenu(menuConfig, "menus.unlocked-fishes").apply {
+        fishTypesMenu = PaginatedMenu(menuConfig, "menus.unlocked-fishes", miniPhrase = miniPhrase).apply {
             getValues().forEach { fishType -> addIcon(Icon { player -> fishType.getItem(player.locale()) }) }
         }
     }

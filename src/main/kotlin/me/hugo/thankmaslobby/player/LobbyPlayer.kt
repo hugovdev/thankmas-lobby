@@ -3,13 +3,9 @@ package me.hugo.thankmaslobby.player
 import dev.kezz.miniphrase.audience.sendTranslated
 import kotlinx.datetime.Instant
 import me.hugo.thankmas.config.ConfigurationProvider
-import me.hugo.thankmas.database.Fishes
-import me.hugo.thankmas.database.FoundNPCs
 import me.hugo.thankmas.database.PlayerData
-import me.hugo.thankmas.database.Rods
 import me.hugo.thankmas.gui.Icon
-import me.hugo.thankmas.gui.paginated.ConfigurablePaginatedMenu
-import me.hugo.thankmas.gui.paginated.PaginatedMenu
+import me.hugo.thankmas.gui.PaginatedMenu
 import me.hugo.thankmas.items.hasKeyedData
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.player.cosmetics.CosmeticsPlayerData
@@ -19,6 +15,9 @@ import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.state.StatefulValue
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
+import me.hugo.thankmaslobby.database.Fishes
+import me.hugo.thankmaslobby.database.FoundNPCs
+import me.hugo.thankmaslobby.database.Rods
 import me.hugo.thankmaslobby.fishing.fish.CaughtFish
 import me.hugo.thankmaslobby.fishing.fish.FishType
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
@@ -67,10 +66,11 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
     public var lastHookShoot: Long = 0L
 
     /** Menu that displays all the fishes the viewer has caught. */
-    public val fishBag: PaginatedMenu = ConfigurablePaginatedMenu(
+    public val fishBag: PaginatedMenu = PaginatedMenu(
         configProvider.getOrLoad("hub/menus.yml"),
         "menus.fish-bag",
-        profileMenuAccessor.fishingMenu.firstPage()
+        profileMenuAccessor.fishingMenu.firstPage(),
+        miniPhrase = miniPhrase
     )
 
     init {
