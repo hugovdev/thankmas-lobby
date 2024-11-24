@@ -2,6 +2,7 @@ package me.hugo.thankmaslobby.listener
 
 import com.destroystokyo.paper.MaterialSetTag
 import com.destroystokyo.paper.MaterialTags
+import com.destroystokyo.paper.event.block.BlockDestroyEvent
 import com.destroystokyo.paper.event.player.PlayerPickupExperienceEvent
 import io.papermc.paper.event.player.PlayerItemFrameChangeEvent
 import org.bukkit.ExplosionResult
@@ -53,6 +54,11 @@ public class PlayerLobbyProtection : Listener {
     }
 
     @EventHandler
+    private fun onBlockDestroy(event: BlockDestroyEvent) {
+        event.isCancelled = true
+    }
+
+    @EventHandler
     private fun onItemFrameItem(event: PlayerItemFrameChangeEvent) {
         event.isCancelled = true
     }
@@ -87,7 +93,7 @@ public class PlayerLobbyProtection : Listener {
     @EventHandler
     private fun onEntityTriggerBlock(event: EntityExplodeEvent) {
         // Don't let wind charges interact with blocks!
-        if(event.explosionResult == ExplosionResult.TRIGGER_BLOCK) {
+        if (event.explosionResult == ExplosionResult.TRIGGER_BLOCK) {
             event.blockList().clear()
             return
         }
