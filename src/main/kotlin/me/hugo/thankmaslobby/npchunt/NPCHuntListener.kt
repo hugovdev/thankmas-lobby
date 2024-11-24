@@ -6,14 +6,13 @@ import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmaslobby.ThankmasLobby
-import me.hugo.thankmaslobby.player.LobbyPlayer
 import net.citizensnpcs.api.event.NPCRightClickEvent
 import org.bukkit.Sound
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
 
 /** Registers when players finding NPC Hunt NPCs. */
-public class NPCHuntListener(private val playerNPCRegistry: PlayerNPCMarkerRegistry<LobbyPlayer>) : Listener,
+public class NPCHuntListener(private val playerNPCRegistry: PlayerNPCMarkerRegistry) : Listener,
     TranslatedComponent {
 
     public companion object {

@@ -3,6 +3,7 @@ package me.hugo.thankmaslobby
 import com.noxcrew.interfaces.InterfacesListeners
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.commands.CosmeticsCommand
+import me.hugo.thankmas.commands.NPCCommands
 import me.hugo.thankmas.commands.TranslationsCommands
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.cosmetics.CosmeticsRegistry
@@ -74,8 +75,9 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
     private val itemSetManager: ItemSetRegistry by inject { parametersOf(configProvider.getOrLoad("hub/config.yml")) }
     private val profileMenuAccessor: ProfileMenuAccessor by inject { parametersOf(this) }
 
-    public lateinit var playerNPCRegistry: PlayerNPCMarkerRegistry<LobbyPlayer>
-        private set
+    public val playerNPCRegistry: PlayerNPCMarkerRegistry by inject {
+        parametersOf(worldName)
+    }
 
     private lateinit var commandHandler: BukkitCommandHandler
 
@@ -145,9 +147,6 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
 
         pluginManager.registerEvents(pondRegistry, this)
         pluginManager.registerEvents(HologramMarkerRegistry(worldName, this.playerDataManager), this)
-
-        playerNPCRegistry = PlayerNPCMarkerRegistry(worldName, this.playerDataManager)
-
         pluginManager.registerEvents(playerNPCRegistry, this)
         pluginManager.registerEvents(NPCHuntListener(playerNPCRegistry), this)
 
@@ -173,6 +172,7 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
         commandHandler.register(TranslationsCommands(this.playerDataManager))
         commandHandler.register(CosmeticsCommand())
         commandHandler.register(profileMenuAccessor)
+        commandHandler.register(NPCCommands())
 
         commandHandler.registerBrigadier()
     }
