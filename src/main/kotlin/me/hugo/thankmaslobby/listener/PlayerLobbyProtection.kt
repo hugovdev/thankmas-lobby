@@ -29,7 +29,7 @@ public class PlayerLobbyProtection : Listener {
     /** Blocks that can be right-clicked. */
     private val interactableBlocks: MaterialSetTag = MaterialSetTag(
         NamespacedKey("thankmas", "lobby_interactable_blocks")
-    ).add(MaterialTags.TRAPDOORS, MaterialTags.DOORS)
+    ).add(MaterialTags.DOORS)
 
     @EventHandler
     private fun onBlockPlace(event: BlockPlaceEvent) {
