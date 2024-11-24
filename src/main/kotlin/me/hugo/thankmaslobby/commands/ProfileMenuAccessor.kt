@@ -27,6 +27,7 @@ import org.bukkit.inventory.meta.SkullMeta
 import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 import revxrsal.commands.annotation.Command
+import java.util.*
 
 /**
  * Creates profile menus and sub-menus, also provides
@@ -41,6 +42,32 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
             "ewogICJ0aW1lc3RhbXAiIDogMTcxNzM1NDAwNjg0MywKICAicHJvZmlsZUlkIiA6ICJkYjQwYmNjNWUzMDE0ZmZjOGVlOWQxNDU5MTcyYjdhNCIsCiAgInByb2ZpbGVOYW1lIiA6ICJhWGUxOCIsCiAgInNpZ25hdHVyZVJlcXVpcmVkIiA6IHRydWUsCiAgInRleHR1cmVzIiA6IHsKICAgICJTS0lOIiA6IHsKICAgICAgInVybCIgOiAiaHR0cDovL3RleHR1cmVzLm1pbmVjcmFmdC5uZXQvdGV4dHVyZS83M2VkYzk4YTZjNzFhZmI4OTNhZTUyNjJkNjc5YzM0MTBlNzZhODhmMzkwMzgyZjMzMjM2YzNlMWUwZGZhYTY3IiwKICAgICAgIm1ldGFkYXRhIiA6IHsKICAgICAgICAibW9kZWwiIDogInNsaW0iCiAgICAgIH0KICAgIH0KICB9Cn0="
         private const val LOCKED_SKIN_SIGNATURE: String =
             "OI96u/DaTO1LjrrOVLV0bDZFGpSxQGeaY6fgzk8kOoU9DhuyE++hhSSsZ1QgTsExP9ippjvWVj0CSSuHd11CmWiLCWykQKFflH4Q6CAAfELOiUZlqxvpCKinjaHA5bUhSjmJ5tKZG2zNGKyTNc+JvY7yO5vVE+iLqvHEX5ewG4gjNBeHu4m+wsdyUwVDctWwck8J22hzJS7PtmuoCN2ZRkUDIPnVxb01/SvIMsL2WIAUFmNovKsbSISLsm38LzMhWkbnrAybZcu8ZJQ2kZa/TX9LwuLKO9LXQRRUuN3Tcq6pBQRJZzOaW6zU6RiuJ9mVywDEC/s6a79FU78/U60qNkQnHISRsBk/QidwDZR1Ph2rj/2WkPItDA/MNDyW/82kwPSqq90JirvRFxvi3IxKKtJMVZ767JgDpiEDLdr5Sa0iHA2+Gc5Fk8PwasTypAd8gCk7sPsoWdNVG7n2T3RLpj2/bVXGgClQiBhndxvS5+sO46f9vbb2H8KjDrEESR2Rs21GEgj8f3X1IBu3aHuumMKxZMkbir5nj4oM64STijjoITCX1jMqiDHtFVWq74stQY3FesRcYV19ECx30WNfEMjichTPfoekMy611VnFQIKgnAOE9vJFWFKZqHTsl0g299Cf9J90MO2y6n8nLsLGYBmq/593oq7y5sJh7noflEo="
+
+        private val lockedProfile = Bukkit.createProfile(UUID.randomUUID()).also { profile ->
+            profile.setProperty(
+                ProfileProperty(
+                    "textures",
+                    LOCKED_SKIN_TEXTURE,
+                    LOCKED_SKIN_SIGNATURE
+                )
+            )
+        }
+
+        /** Skin to use when an NPC player hasn't been found yet! */
+        private const val LOADING_SKIN_TEXTURE: String =
+            "eyJ0aW1lc3RhbXAiOjE1ODc4MjU0NzgwNDcsInByb2ZpbGVJZCI6ImUzYjQ0NWM4NDdmNTQ4ZmI4YzhmYTNmMWY3ZWZiYThlIiwicHJvZmlsZU5hbWUiOiJNaW5pRGlnZ2VyVGVzdCIsInNpZ25hdHVyZVJlcXVpcmVkIjp0cnVlLCJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2E1ODg4YWEyZDdlMTk5MTczYmEzN2NhNzVjNjhkZTdkN2Y4NjJiMzRhMTNiZTMyNDViZTQ0N2UyZjIyYjI3ZSJ9fX0="
+        private const val LOADING_SKIN_SIGNATURE: String =
+            "Yt6VmTAUTbpfGQoFneECtoYcbu7jcARAwZu2LYWv3Yf1MJGXv6Bi3i7Pl9P8y1ShB7V1Q2HyA1bce502x1naOKJPzzMJ0jKZfEAKXnzaFop9t9hXzgOq7PaIAM6fsapymYhkkulRIxnJdMrMb2PLRYfo9qiBJG+IEbdj8MTSvWJO10xm7GtpSMmA2Xd0vg5205hsj0OxSdgxf1uuWPyRaXpPZYDUU05/faRixDKti86hlkBs/v0rttU65r1UghkftfjK0sJoPpk9hABvkw4OjXVFb63wcb27KPhIiSHZzTooSxjGNDniauCsF8Je+fhhMebpXeba1R2lZPLhkHwazNgZmTCKbV1M/a8BDHN24HH9okJpQOR9SPCPOJrNbK+LTPsrR06agj+H/yvYq0ZMJTF6IE6C3KJqntPJF1NQvJM0/YegPPtzpbT/7O1cd4JBCVmguhadOFYvrxqCKHcmaYdkyMJtnGub/5sCjJAG7fZadACftwLnmdBZoQRcNKQMubpdUjuzF8g6C03MiZkeNBUgqkfVjXi7DqpmB0ZvTttp34vy7EIBCo3Hfj15779nGs8SoTw9V2zZc+LgiVPjWF6tffjWkgzLq8K2Cndu6RDlWGJWmrztN/X9lIiLdn8GEfSSGY983n0C91x8mkpOKSfAWPnSZd7NuHU5GaoMvyE="
+
+        private val loadingProfile = Bukkit.createProfile(UUID.randomUUID()).also { profile ->
+            profile.setProperty(
+                ProfileProperty(
+                    "textures",
+                    LOADING_SKIN_TEXTURE,
+                    LOADING_SKIN_SIGNATURE
+                )
+            )
+        }
     }
 
     private val configProvider: ConfigurationProvider by inject()
@@ -154,7 +181,12 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
     private val rodRegistry: FishingRodRegistry by inject()
 
     private val rodSelector: PaginatedMenu =
-        PaginatedMenu(menusConfig, "menus.fishing-rod-selector", fishingMenu.firstPage(), miniPhrase = miniPhrase).apply {
+        PaginatedMenu(
+            menusConfig,
+            "menus.fishing-rod-selector",
+            fishingMenu.firstPage(),
+            miniPhrase = miniPhrase
+        ).apply {
             rodRegistry.getValues().sortedBy { it.tier }.forEach { rod ->
                 addIcon(Icon({ context, _ ->
                     val clicker = context.clicker
@@ -243,17 +275,21 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                                     val signature = skinTrait?.signature
                                     val texture = skinTrait?.texture
 
-                                    meta.playerProfile = if (!unlocked || (signature != null && texture != null)) {
-                                        Bukkit.createProfile(npcData.npc.uniqueId).also { profile ->
-                                            profile.setProperty(
-                                                ProfileProperty(
-                                                    "textures",
-                                                    if (!unlocked) LOCKED_SKIN_TEXTURE else texture!!,
-                                                    if (!unlocked) LOCKED_SKIN_SIGNATURE else signature
-                                                )
-                                            )
-                                        }
-                                    } else Bukkit.createProfile(npcData.marker.getStringList("skin")!!.first())
+                                    if (!unlocked || (signature != null && texture != null)) {
+                                        meta.playerProfile =
+                                            if (!unlocked) lockedProfile else {
+                                                Bukkit.createProfile(npcData.npc.uniqueId).also { profile ->
+                                                    profile.setProperty(
+                                                        ProfileProperty(
+                                                            "textures",
+                                                            texture!!,
+                                                            signature
+                                                        )
+                                                    )
+                                                }
+                                            }
+
+                                    } else meta.playerProfile = loadingProfile
                                 }
                             }
                     })
