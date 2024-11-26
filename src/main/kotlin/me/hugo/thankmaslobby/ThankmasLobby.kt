@@ -23,6 +23,7 @@ import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
 import me.hugo.thankmaslobby.database.Fishes
 import me.hugo.thankmaslobby.database.FoundNPCs
 import me.hugo.thankmaslobby.database.Rods
+import me.hugo.thankmaslobby.decoration.SummoningCircles
 import me.hugo.thankmaslobby.dependencyinjection.LobbyModules
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.fishing.pond.PondRegistry
@@ -130,6 +131,8 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
 
         logger.info("Registering item sets...")
         logger.info("Registered ${itemSetManager.size()} item sets!")
+
+        logger.info("Registered ${SummoningCircles(worldName).summoningCircles.size} summoning circles!")
 
         this.scoreboardTemplateManager.initialize()
 

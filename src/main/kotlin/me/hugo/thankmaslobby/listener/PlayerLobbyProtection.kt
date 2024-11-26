@@ -27,9 +27,8 @@ import org.bukkit.event.player.PlayerSwapHandItemsEvent
 public class PlayerLobbyProtection : Listener {
 
     /** Blocks that can be right-clicked. */
-    private val interactableBlocks: MaterialSetTag = MaterialSetTag(
-        NamespacedKey("thankmas", "lobby_interactable_blocks")
-    ).add(MaterialTags.DOORS)
+    private val interactableBlocks: MaterialSetTag =
+        MaterialSetTag(NamespacedKey("thankmas", "lobby_interactable_blocks")).add(MaterialTags.DOORS)
 
     @EventHandler
     private fun onBlockPlace(event: BlockPlaceEvent) {
