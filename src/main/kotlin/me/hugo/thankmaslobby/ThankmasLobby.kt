@@ -106,7 +106,7 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
             scopeWorld,
             Bukkit.getWorldContainer().resolve(worldName).also { it.mkdirs() })
 
-        anvilWorldRegistry.getOrLoadWithMarkers(this.worldName)
+        anvilWorldRegistry.loadMarkers(this.worldName)
     }
 
     override fun onEnable() {
