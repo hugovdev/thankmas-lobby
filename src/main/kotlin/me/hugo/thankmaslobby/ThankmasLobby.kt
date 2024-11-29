@@ -13,11 +13,11 @@ import me.hugo.thankmas.entity.HologramMarkerRegistry
 import me.hugo.thankmas.entity.npc.PlayerNPCMarkerRegistry
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.listener.*
-import me.hugo.thankmas.markers.registry.MarkerRegistry
 import me.hugo.thankmas.player.PlayerDataManager
 import me.hugo.thankmas.player.rank.PlayerGroupChange
 import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.region.RegionRegistry
+import me.hugo.thankmas.world.AnvilWorldRegistry
 import me.hugo.thankmaslobby.commands.LobbyCommands
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
 import me.hugo.thankmaslobby.database.Fishes
@@ -71,7 +71,8 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
 
     private var worldName: String = "world"
 
-    private val markerRegistry: MarkerRegistry by inject()
+    private val anvilWorldRegistry: AnvilWorldRegistry by inject()
+
     private val gameRegistry: GameRegistry by inject { parametersOf(configProvider.getOrLoad("hub/games.yml")) }
     private val itemSetManager: ItemSetRegistry by inject { parametersOf(configProvider.getOrLoad("hub/config.yml")) }
     private val profileMenuAccessor: ProfileMenuAccessor by inject { parametersOf(this) }
@@ -105,7 +106,7 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
             scopeWorld,
             Bukkit.getWorldContainer().resolve(worldName).also { it.mkdirs() })
 
-        markerRegistry.loadWorldMarkers(this.worldName)
+        anvilWorldRegistry.getOrLoadWithMarkers(this.worldName)
     }
 
     override fun onEnable() {
@@ -149,7 +150,7 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
         pluginManager.registerEvents(PlayerLobbyProtection(), this)
 
         pluginManager.registerEvents(pondRegistry, this)
-        pluginManager.registerEvents(HologramMarkerRegistry(worldName, this.playerDataManager), this)
+        pluginManager.registerEvents(HologramMarkerRegistry(worldName), this)
         pluginManager.registerEvents(playerNPCRegistry, this)
         pluginManager.registerEvents(NPCHuntListener(playerNPCRegistry), this)
 

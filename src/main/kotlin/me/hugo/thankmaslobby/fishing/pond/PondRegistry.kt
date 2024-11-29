@@ -4,12 +4,12 @@ import dev.kezz.miniphrase.audience.sendTranslated
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.lang.TranslatedComponent
-import me.hugo.thankmas.markers.registry.MarkerRegistry
 import me.hugo.thankmas.math.formatToTime
 import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.registry.AutoCompletableMapRegistry
+import me.hugo.thankmas.world.AnvilWorldRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import net.kyori.adventure.text.Component
@@ -50,10 +50,10 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
             )
         }
 
-        val markerRegistry: MarkerRegistry by inject()
+        val anvilWorldRegistry: AnvilWorldRegistry by inject()
 
         // Load all pond area markers.
-        markerRegistry.getMarkerForType("pond_area").forEach { marker ->
+        anvilWorldRegistry.getMarkerForType(instance.hubWorld.name, "pond_area").forEach { marker ->
             val pondId = requireNotNull(marker.getString("pond_id"))
             { "No pond id has been specified for pond area in ${marker.location}." }
 

@@ -1,7 +1,7 @@
 package me.hugo.thankmaslobby.decoration
 
 import me.hugo.thankmas.items.model
-import me.hugo.thankmas.markers.registry.MarkerRegistry
+import me.hugo.thankmas.world.AnvilWorldRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
 import org.bukkit.Bukkit
 import org.bukkit.Location
@@ -16,7 +16,7 @@ import org.koin.core.component.inject
 
 public class SummoningCircles(worldName: String) : KoinComponent {
 
-    private val markerRegistry: MarkerRegistry by inject()
+    private val anvilWorldRegistry: AnvilWorldRegistry by inject()
 
     public val summoningCircles: MutableList<SummoningCircle> = mutableListOf()
 
@@ -24,7 +24,7 @@ public class SummoningCircles(worldName: String) : KoinComponent {
         val world = Bukkit.getWorld(worldName)
 
         if (world != null) {
-            markerRegistry.getMarkerForType("summoning_circle", worldName).forEach { marker ->
+            anvilWorldRegistry.getMarkerForType(worldName, "summoning_circle").forEach { marker ->
                 summoningCircles += SummoningCircle(marker.location.toLocation(world).clone().add(0.0, 1.1, 0.0))
             }
 
