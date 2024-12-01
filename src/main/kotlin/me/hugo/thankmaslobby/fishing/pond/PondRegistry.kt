@@ -9,7 +9,7 @@ import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.player.translate
 import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.registry.AutoCompletableMapRegistry
-import me.hugo.thankmas.world.AnvilWorldRegistry
+import me.hugo.thankmas.world.registry.AnvilWorldRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import net.kyori.adventure.text.Component

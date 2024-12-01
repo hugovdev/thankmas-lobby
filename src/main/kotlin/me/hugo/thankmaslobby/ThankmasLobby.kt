@@ -17,7 +17,8 @@ import me.hugo.thankmas.player.PlayerDataManager
 import me.hugo.thankmas.player.rank.PlayerGroupChange
 import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.region.RegionRegistry
-import me.hugo.thankmas.world.AnvilWorldRegistry
+import me.hugo.thankmas.region.types.HubJumpPad
+import me.hugo.thankmas.world.registry.AnvilWorldRegistry
 import me.hugo.thankmaslobby.commands.LobbyCommands
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
 import me.hugo.thankmaslobby.database.Fishes
@@ -42,6 +43,7 @@ import org.koin.core.parameter.parametersOf
 import org.koin.ksp.generated.module
 import revxrsal.commands.bukkit.BukkitCommandHandler
 import revxrsal.commands.ktx.SuspendFunctionsSupport
+import java.util.*
 
 public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
     listOf("hub"),
@@ -161,6 +163,11 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
 
         // Register luck perms events!
         PlayerGroupChange(this.playerDataManager) { player -> player.updateBoardTags("rank") }
+
+        anvilWorldRegistry.getMarkerForType(worldName, "hub_jump_pad").forEach {
+            val jumpPadId = UUID.randomUUID().toString()
+            regionRegistry.register(jumpPadId, HubJumpPad(it, jumpPadId, hubWorld))
+        }
 
         server.messenger.registerOutgoingPluginChannel(this, "BungeeCord")
         server.messenger.registerIncomingPluginChannel(this, "BungeeCord", gameRegistry)

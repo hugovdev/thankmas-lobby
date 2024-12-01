@@ -1,7 +1,7 @@
 package me.hugo.thankmaslobby.decoration
 
 import me.hugo.thankmas.items.model
-import me.hugo.thankmas.world.AnvilWorldRegistry
+import me.hugo.thankmas.world.registry.AnvilWorldRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
 import org.bukkit.Bukkit
 import org.bukkit.Location
