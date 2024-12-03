@@ -128,10 +128,8 @@ public class FishingRod(
      */
     public fun apply(hook: FishHook) {
         hook.apply {
-            this.maxWaitTime = maxFishTime
-            this.minWaitTime = minFishTime
-            this.maxLureTime = maxBiteTime
-            this.minLureTime = minBiteTime
+            setWaitTime(minFishTime, maxFishTime)
+            setLureTime(minBiteTime, maxBiteTime)
         }
     }
 
