@@ -23,6 +23,7 @@ import me.hugo.thankmaslobby.fishing.fish.FishType
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
 import me.hugo.thankmaslobby.fishing.rod.FishingRod
 import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
+import me.hugo.thankmaslobby.music.LobbyMusic
 import me.hugo.thankmaslobby.npchunt.FoundNPC
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
 import org.bukkit.GameMode
@@ -158,6 +159,9 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
 
         updateBoardTags("players")
         giveCosmetic()
+
+        val lobbyMusic: LobbyMusic by inject()
+        lobbyMusic.playDefaultTrack(player)
     }
 
     override fun setLocale(newLocale: Locale) {

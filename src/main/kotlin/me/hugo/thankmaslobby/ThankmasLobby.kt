@@ -18,6 +18,7 @@ import me.hugo.thankmas.player.rank.PlayerGroupChange
 import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.region.RegionRegistry
 import me.hugo.thankmas.region.types.HubJumpPad
+import me.hugo.thankmas.region.types.MusicalRegion
 import me.hugo.thankmas.world.registry.AnvilWorldRegistry
 import me.hugo.thankmaslobby.commands.LobbyCommands
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
@@ -32,6 +33,7 @@ import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
 import me.hugo.thankmaslobby.game.GameRegistry
 import me.hugo.thankmaslobby.listener.PlayerLobbyAccess
 import me.hugo.thankmaslobby.listener.PlayerLobbyProtection
+import me.hugo.thankmaslobby.music.LobbyMusic
 import me.hugo.thankmaslobby.npchunt.NPCHuntListener
 import me.hugo.thankmaslobby.player.LobbyPlayer
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
@@ -168,6 +170,13 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
             val jumpPadId = UUID.randomUUID().toString()
             regionRegistry.register(jumpPadId, HubJumpPad(it, jumpPadId, hubWorld))
         }
+
+        anvilWorldRegistry.getMarkerForType(worldName, "musical_region").forEach {
+            regionRegistry.register(it.getMarkerId(), MusicalRegion(it, it.getMarkerId(), hubWorld))
+        }
+
+        val lobbyMusic: LobbyMusic by inject()
+        lobbyMusic.runTaskTimer(this, 0L, 1L)
 
         server.messenger.registerOutgoingPluginChannel(this, "BungeeCord")
         server.messenger.registerIncomingPluginChannel(this, "BungeeCord", gameRegistry)
