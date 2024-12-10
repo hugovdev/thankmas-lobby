@@ -130,6 +130,8 @@ public class FishingRod(
         hook.apply {
             setWaitTime(minFishTime, maxFishTime)
             setLureTime(minBiteTime, maxBiteTime)
+
+            resetFishingState() // Necessary since 1.21+
         }
     }
 

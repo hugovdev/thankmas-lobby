@@ -70,7 +70,7 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
     public val fishBag: PaginatedMenu = PaginatedMenu(
         configProvider.getOrLoad("hub/menus.yml"),
         "menus.fish-bag",
-        profileMenuAccessor.fishingMenu.firstPage(),
+        null,
         miniPhrase = miniPhrase
     )
 

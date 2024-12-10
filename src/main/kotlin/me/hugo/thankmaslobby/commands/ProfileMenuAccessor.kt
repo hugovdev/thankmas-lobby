@@ -77,7 +77,12 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
         setIcons(Icon({ context, _ ->
             val clicker = context.clicker
 
-            fishingMenu.open(clicker)
+            if (context.clickType.isRightClick) {
+                rodSelector.open(clicker)
+            } else {
+                instance.playerDataManager.getPlayerData(clicker.uniqueId).fishBag.open(clicker)
+            }
+
             clicker.playSound(Sound.BLOCK_WOODEN_BUTTON_CLICK_ON)
         }) {
             val playerData = instance.playerDataManager.getPlayerData(it.uniqueId)
@@ -135,51 +140,13 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
         }, 6, 7, 8, 15, 16, 17, 24, 25, 26)
     }
 
-    /** Fishing menu: Fish Collection or Fish Bag. */
-    public val fishingMenu: PaginatedMenu =
-        PaginatedMenu(menusConfig, "menus.fishing", profileMenu, miniPhrase = miniPhrase).apply {
-            val fishBagItem = TranslatableItem(menusConfig, "menus.fishing.icons.fish-bag")
-
-            setIcon(11, 0, Icon({ context, _ ->
-                val clicker = context.clicker
-                val playerData = instance.playerDataManager.getPlayerData(clicker.uniqueId)
-
-                if (playerData.fishAmount() == 0) {
-                    clicker.sendTranslated("menu.fishing.no_fishes")
-                    clicker.closeInventory()
-                    return@Icon
-                }
-
-                playerData.fishBag.open(clicker)
-                clicker.playSound(Sound.BLOCK_WOODEN_BUTTON_CLICK_ON)
-            }) {
-                fishBagItem.buildItem(it.locale())
-            })
-
-            val fishingRodSelector = TranslatableItem(menusConfig, "menus.fishing.icons.fishing-rod-selector")
-
-            setIcon(13, 0, Icon({ context, _ ->
-                val clicker = context.clicker
-
-                rodSelector.open(clicker)
-                clicker.playSound(Sound.BLOCK_WOODEN_BUTTON_CLICK_ON)
-            }) {
-                fishingRodSelector.buildItem(it.locale())
-            })
-
-            val fishCollectionItem = TranslatableItem(menusConfig, "menus.fishing.icons.fish-collection")
-            setIcon(15, 0, Icon {
-                fishCollectionItem.buildItem(it.locale())
-            })
-        }
-
     private val rodRegistry: FishingRodRegistry by inject()
 
     private val rodSelector: PaginatedMenu =
         PaginatedMenu(
             menusConfig,
             "menus.fishing-rod-selector",
-            fishingMenu.firstPage(),
+            null,
             miniPhrase = miniPhrase
         ).apply {
             rodRegistry.getValues().sortedBy { it.tier }.forEach { rod ->
