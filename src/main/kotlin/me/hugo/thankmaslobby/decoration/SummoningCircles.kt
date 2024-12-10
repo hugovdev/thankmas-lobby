@@ -30,6 +30,18 @@ public class SummoningCircles(worldName: String) : KoinComponent {
 
             Bukkit.getScheduler().runTaskTimer(ThankmasLobby.instance(), Runnable {
                 summoningCircles.forEach {
+                    val summoningLocation = it.location
+
+                    // Ignore unloaded chunks.
+                    if (!summoningLocation.isChunkLoaded) return@forEach
+
+                    // Ignore chunks without loaded entities.
+                    if(!summoningLocation.chunk.isEntitiesLoaded) return@forEach
+
+                    // Fix entity references in case Entity objects changed.
+                    if (!it.isValid()) it.fixEntities()
+
+                    // Move it!
                     it.rotateLowerCircle()
                     it.rotateHigherCircle()
                     it.moveFloatingKweebec()
@@ -39,10 +51,10 @@ public class SummoningCircles(worldName: String) : KoinComponent {
     }
 
     /** Summoning circle composed of 3 entities with functions to animate them. */
-    public class SummoningCircle(location: Location) {
+    public class SummoningCircle(public val location: Location) {
         private val lowerCircleMatrix: Matrix4f = Matrix4f().scale(2.0f)
 
-        private val lowerCircle: ItemDisplay =
+        private var lowerCircle: ItemDisplay =
             (location.world.spawnEntity(location, EntityType.ITEM_DISPLAY) as ItemDisplay).also {
                 it.setItemStack(ItemStack(Material.PHANTOM_MEMBRANE).model("decor/summoning_circle"))
                 it.setTransformationMatrix(lowerCircleMatrix)
@@ -57,7 +69,7 @@ public class SummoningCircles(worldName: String) : KoinComponent {
 
         private val higherCircleMatrix: Matrix4f = Matrix4f().scale(1.5f)
 
-        private val higherCircle: ItemDisplay =
+        private var higherCircle: ItemDisplay =
             (location.world.spawnEntity(
                 location.clone().add(0.0, 0.2, 0.0),
                 EntityType.ITEM_DISPLAY
@@ -75,7 +87,7 @@ public class SummoningCircles(worldName: String) : KoinComponent {
         private var goingUp: Boolean = true
         private val floatingKweebecMatrix: Matrix4f = Matrix4f().scale(2.0f)
 
-        private val floatingKweebec: ItemDisplay =
+        private var floatingKweebec: ItemDisplay =
             (location.world.spawnEntity(
                 location.clone().add(0.0, 1.8, 0.0),
                 EntityType.ITEM_DISPLAY
@@ -96,6 +108,17 @@ public class SummoningCircles(worldName: String) : KoinComponent {
             goingUp = !goingUp
         }
 
+        /** Returns whether all the entities for this summoning circle are valid. */
+        public fun isValid(): Boolean {
+            return lowerCircle.isValid && higherCircle.isValid && floatingKweebec.isValid
+        }
+
+        /** Fixes entity references when chunks get loaded back and entities aren't valid. */
+        public fun fixEntities() {
+            lowerCircle = location.world.getEntity(lowerCircle.uniqueId) as ItemDisplay
+            higherCircle = location.world.getEntity(higherCircle.uniqueId) as ItemDisplay
+            floatingKweebec = location.world.getEntity(floatingKweebec.uniqueId) as ItemDisplay
+        }
     }
 
 }
