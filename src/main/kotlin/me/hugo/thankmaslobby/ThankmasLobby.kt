@@ -167,12 +167,17 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
         PlayerGroupChange(this.playerDataManager) { player -> player.updateBoardTags("rank") }
 
         anvilWorldRegistry.getMarkerForType(worldName, "hub_jump_pad").forEach {
+            // Different ids so the region controller works properly.
             val jumpPadId = UUID.randomUUID().toString()
+
             regionRegistry.register(jumpPadId, HubJumpPad(it, jumpPadId, hubWorld))
         }
 
         anvilWorldRegistry.getMarkerForType(worldName, "musical_region").forEach {
-            regionRegistry.register(it.getMarkerId(), MusicalRegion(it, it.getMarkerId(), hubWorld))
+            // Different ids so the region controller works properly.
+            val musicalRegionId = UUID.randomUUID().toString()
+
+            regionRegistry.register(musicalRegionId, MusicalRegion(it, musicalRegionId, hubWorld))
         }
 
         val lobbyMusic: LobbyMusic by inject()
