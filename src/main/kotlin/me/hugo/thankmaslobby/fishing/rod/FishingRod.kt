@@ -55,6 +55,15 @@ public class FishingRod(
         unbreakable = true,
     )
 
+    private val lockedIcon: TranslatableItem = TranslatableItem(
+        material = Material.LEATHER_HORSE_ARMOR,
+        model = "rods/${id}_icon",
+        name = "fishing_rods.$id.item.name",
+        lore = "fishing_rods.$id.item.lore",
+        flags = listOf(ItemFlag.HIDE_ATTRIBUTES),
+        color = 0
+    )
+
     private val icon: TranslatableItem = TranslatableItem(
         model = "rods/${id}_icon",
         name = "fishing_rods.$id.item.name",
@@ -106,7 +115,7 @@ public class FishingRod(
     ): ItemStack {
         val finalLocale = locale ?: player.locale()
 
-        return icon.buildItem(finalLocale)
+        return (if (blocked) lockedIcon else icon).buildItem(finalLocale)
             .addStats(finalLocale)
             .selectedEffect(selected)
             .addLoreTranslatable(
