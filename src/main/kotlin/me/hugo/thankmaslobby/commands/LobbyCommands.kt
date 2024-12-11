@@ -3,18 +3,12 @@ package me.hugo.thankmaslobby.commands
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.translate
 import me.hugo.thankmaslobby.ThankmasLobby
-import me.hugo.thankmaslobby.database.Fishes
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
-import me.hugo.thankmaslobby.fishing.pond.Pond
 import me.hugo.thankmaslobby.fishing.rod.FishingRod
 import me.hugo.thankmaslobby.game.GameRegistry
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
-import org.bukkit.Bukkit
 import org.bukkit.entity.Player
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.count
-import org.jetbrains.exposed.sql.transactions.transaction
 import org.koin.core.component.inject
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Optional
@@ -34,11 +28,6 @@ public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComp
     private suspend fun openGameSelector(sender: Player) {
         val gameRegistry: GameRegistry by inject()
         gameRegistry.gameSelector.open(sender)
-    }
-
-    @Command("fishbag", "capturedfishes")
-    private fun openFishBag(sender: Player) {
-        instance.playerDataManager.getPlayerData(sender.uniqueId).fishBag.open(sender)
     }
 
     @Command("unlockrod")
@@ -62,25 +51,5 @@ public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComp
                 .append(sender.translate(fishingRod.getItemName()))
                 .append(Component.text(" for ${receiver.name}" + (if (save) " and saved!" else " temporarily!")))
         )
-    }
-
-    @Command("leaderboard")
-    @CommandPermission("thankmas.admin")
-    private fun viewLeaderboard(sender: Player, pond: Pond) {
-        sender.sendMessage(Component.text("Asking the database for a leaderboard...", NamedTextColor.GREEN))
-
-        Bukkit.getScheduler().runTaskAsynchronously(instance, Runnable {
-            transaction {
-                Fishes
-                    .select(Fishes.whoCaught, Fishes.whoCaught.count())
-                    .where { Fishes.pondId eq pond.pondId }
-                    .groupBy(Fishes.whoCaught)
-                    .orderBy(Fishes.whoCaught.count(), SortOrder.DESC)
-                    .limit(10)
-                    .forEachIndexed { index, resultRow ->
-                        sender.sendMessage("${index + 1}. ${resultRow[Fishes.whoCaught]} -> ${resultRow[Fishes.whoCaught.count()]}")
-                    }
-            }
-        })
     }
 }

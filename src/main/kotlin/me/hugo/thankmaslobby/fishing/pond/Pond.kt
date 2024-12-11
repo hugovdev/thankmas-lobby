@@ -20,4 +20,9 @@ public class Pond(
         return fishWeights.toList().chooseWeighted { it.second }.first
     }
 
+    /** @returns all the possible fish that can be caught here. */
+    public fun catchableFish(): List<FishType> {
+        return fishWeights.keys.distinct()
+    }
+
 }

@@ -4,8 +4,6 @@ import dev.kezz.miniphrase.audience.sendTranslated
 import kotlinx.datetime.Instant
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.database.PlayerData
-import me.hugo.thankmas.gui.Icon
-import me.hugo.thankmas.gui.PaginatedMenu
 import me.hugo.thankmas.items.hasKeyedData
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.player.cosmetics.CosmeticsPlayerData
@@ -15,6 +13,7 @@ import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.state.StatefulValue
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
+import me.hugo.thankmaslobby.database.FishUnlocked
 import me.hugo.thankmaslobby.database.Fishes
 import me.hugo.thankmaslobby.database.FoundNPCs
 import me.hugo.thankmaslobby.database.Rods
@@ -60,19 +59,14 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
     /** List of the rods this player has unlocked. */
     public val unlockedRods: MutableMap<FishingRod, FishingRod.FishingRodData> = mutableMapOf()
 
+    /** Different kinds of fish found by this player. */
+    public val unlockedFish: MutableList<FishType> = mutableListOf()
+
     /** The fishing rod this player is using to fish. */
     public lateinit var selectedRod: StatefulValue<FishingRod>
         private set
 
     public var lastHookShoot: Long = 0L
-
-    /** Menu that displays all the fishes the viewer has caught. */
-    public val fishBag: PaginatedMenu = PaginatedMenu(
-        configProvider.getOrLoad("hub/menus.yml"),
-        "menus.fish-bag",
-        null,
-        miniPhrase = miniPhrase
-    )
 
     init {
         val startTime = System.currentTimeMillis()
@@ -107,6 +101,19 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
                 foundNPCs[npcId] = FoundNPC(npcId, playerUUID, result[FoundNPCs.time].toEpochMilliseconds(), false)
             }
 
+            // Load all the unique fish types this player has caught!
+            FishUnlocked.selectAll().where { FishUnlocked.whoCaught eq playerId }.forEach { result ->
+                val fishTypeId = result[FishUnlocked.fishType]
+                val fishType = fishRegistry.getOrNull(fishTypeId)
+
+                if (fishType == null) {
+                    ThankmasLobby.instance().logger.warning("Tried to find fish with id $fishTypeId, but doesn't exist!")
+                    return@forEach
+                }
+
+                unlockedFish += fishType
+            }
+
             // Load all the fishes this player has caught!
             Fishes.selectAll().where { Fishes.whoCaught eq playerId }.forEach { result ->
                 val fishTypeId = result[Fishes.fishType]
@@ -117,14 +124,12 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
                     return@forEach
                 }
 
-                caughtFishes.add(
-                    CaughtFish(
-                        fishType,
-                        playerUUID,
-                        result[Fishes.pondId],
-                        result[Fishes.time].toEpochMilliseconds(),
-                        false
-                    )
+                caughtFishes += CaughtFish(
+                    fishType,
+                    playerUUID,
+                    result[Fishes.pondId],
+                    result[Fishes.time].toEpochMilliseconds(),
+                    false
                 )
             }
 
@@ -133,9 +138,6 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
                 unlockedRods[rodRegistry.getValues().first { it.tier == 1 }] =
                     FishingRod.FishingRodData(System.currentTimeMillis())
             }
-
-            // Add caught fishes to the fish bag menu. Max at 150 for caution!
-            caughtFishes.take(150).forEach { fishBag.addIcon(Icon { player -> it.buildItem(player) }) }
         }
 
         instance.logger.info("Player data for $playerUUID loaded in ${System.currentTimeMillis() - startTime}ms.")
@@ -231,7 +233,6 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
         val caughtFish = CaughtFish(fish, playerUUID, pondId)
 
         caughtFishes.add(caughtFish)
-        fishBag.addIcon(Icon { player -> caughtFish.buildItem(player) })
     }
 
     /** @returns the amount of captured fishes this player has. */

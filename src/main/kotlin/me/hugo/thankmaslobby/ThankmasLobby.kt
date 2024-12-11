@@ -22,6 +22,7 @@ import me.hugo.thankmas.region.types.MusicalRegion
 import me.hugo.thankmas.world.registry.AnvilWorldRegistry
 import me.hugo.thankmaslobby.commands.LobbyCommands
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
+import me.hugo.thankmaslobby.database.FishUnlocked
 import me.hugo.thankmaslobby.database.Fishes
 import me.hugo.thankmaslobby.database.FoundNPCs
 import me.hugo.thankmaslobby.database.Rods
@@ -49,7 +50,7 @@ import java.util.*
 
 public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
     listOf("hub"),
-    sqlTables = arrayOf(PlayerData, CosmeticsOwned, Fishes, FoundNPCs, Rods)
+    sqlTables = arrayOf(PlayerData, CosmeticsOwned, FishUnlocked, Fishes, FoundNPCs, Rods)
 ) {
 
     override val playerDataManager: PlayerDataManager<LobbyPlayer> = PlayerDataManager { LobbyPlayer(it, this) }

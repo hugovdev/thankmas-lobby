@@ -1,10 +1,6 @@
 package me.hugo.thankmaslobby.fishing.fish
 
-import me.hugo.thankmas.items.addLoreTranslatable
 import me.hugo.thankmas.lang.Translated
-import org.bukkit.entity.Player
-import org.bukkit.inventory.ItemStack
-import java.text.SimpleDateFormat
 import java.util.*
 
 /**
@@ -24,17 +20,4 @@ public data class CaughtFish(
      * session and needs to be saved in the database.
      */
     public val thisSession: Boolean = true
-) : Translated {
-
-    /** @returns the display item of this captured fish for [viewer]. */
-    public fun buildItem(viewer: Player): ItemStack {
-        val date = Date(timeCaptured)
-
-        return fishType.getItem(viewer.locale())
-            .addLoreTranslatable("fishing.captured_fish.date", viewer.locale()) {
-                parsed("date", SimpleDateFormat("dd/MM/yyyy").format(date))
-                parsed("time", SimpleDateFormat("HH:mm").format(date))
-            }
-    }
-
-}
+) : Translated

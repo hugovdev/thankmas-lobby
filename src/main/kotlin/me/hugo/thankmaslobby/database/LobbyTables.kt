@@ -1,6 +1,7 @@
 package me.hugo.thankmaslobby.database
 
 import kotlinx.datetime.Instant
+import me.hugo.thankmaslobby.database.FishUnlocked.whoCaught
 import org.jetbrains.exposed.sql.Column
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
@@ -13,6 +14,15 @@ public object Fishes : Table("fish_caught") {
     public val time: Column<Instant> = timestamp("time")
 
     override val primaryKey: PrimaryKey = PrimaryKey(whoCaught, time)
+}
+
+/** Table that saves the unique fished unlocked by [whoCaught]. */
+public object FishUnlocked : Table("fish_unlocked") {
+    public val whoCaught: Column<String> = varchar("uuid", 36)
+    public val fishType: Column<String> = varchar("fish_type", 30)
+    public val time: Column<Instant> = timestamp("time")
+
+    override val primaryKey: PrimaryKey = PrimaryKey(whoCaught, fishType)
 }
 
 /** Table that saves all the npcs every player has caught. */

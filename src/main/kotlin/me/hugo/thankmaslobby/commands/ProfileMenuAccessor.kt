@@ -3,6 +3,7 @@ package me.hugo.thankmaslobby.commands
 import com.destroystokyo.paper.profile.ProfileProperty
 import dev.kezz.miniphrase.audience.sendTranslated
 import dev.kezz.miniphrase.tag.TagResolverBuilder
+import io.papermc.paper.datacomponent.DataComponentTypes
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.entity.npc.PlayerNPCMarkerRegistry
 import me.hugo.thankmas.gui.Icon
@@ -65,6 +66,8 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
         }
     }
 
+    private val fishTypeRegistry: FishTypeRegistry by inject()
+
     private val configProvider: ConfigurationProvider by inject()
     private val fishRegistry: FishTypeRegistry by inject()
 
@@ -80,7 +83,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
             if (context.clickType.isRightClick) {
                 rodSelector.open(clicker)
             } else {
-                instance.playerDataManager.getPlayerData(clicker.uniqueId).fishBag.open(clicker)
+                fishTypeRegistry.fishTypesMenu.open(clicker)
             }
 
             clicker.playSound(Sound.BLOCK_WOODEN_BUTTON_CLICK_ON)
@@ -150,6 +153,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
             miniPhrase = miniPhrase
         ).apply {
             rodRegistry.getValues().sortedBy { it.tier }.forEach { rod ->
+                // Add main rod selection icon
                 addIcon(Icon({ context, _ ->
                     val clicker = context.clicker
                     val playerData = instance.playerDataManager.getPlayerData(clicker.uniqueId)
@@ -185,6 +189,18 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
                         selected = (playerData.selectedRod.value == rod)
                     )
                 }.listen { instance.playerDataManager.getPlayerData(it.uniqueId).selectedRod })
+
+                if (rod.tier > 1) {
+                    addIcon(Icon {
+                        val playerData = instance.playerDataManager.getPlayerData(it.uniqueId)
+
+                        ItemStack(Material.PHANTOM_MEMBRANE)
+                            .model(if (!playerData.unlockedRods.contains(rod)) "misc/empty" else "icons/progress_green")
+                            .apply {
+                                setData(DataComponentTypes.HIDE_TOOLTIP)
+                            }
+                    }, '_')
+                }
             }
         }
 
