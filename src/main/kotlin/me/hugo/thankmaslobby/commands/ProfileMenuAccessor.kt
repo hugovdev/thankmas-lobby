@@ -36,7 +36,7 @@ import java.util.*
  * a command to open the main menu.
  */
 @Single
-public class ProfileMenuAccessor(private val instance: ThankmasLobby) : TranslatedComponent {
+public class ProfileMenuAccessor : TranslatedComponent {
 
     private companion object {
         /** Skin to use when an NPC player hasn't been found yet! */
@@ -66,7 +66,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
         }
     }
 
-    private val fishTypeRegistry: FishTypeRegistry by inject()
+    private val instance: ThankmasLobby = ThankmasLobby.instance()
 
     private val configProvider: ConfigurationProvider by inject()
     private val fishRegistry: FishTypeRegistry by inject()
@@ -83,7 +83,7 @@ public class ProfileMenuAccessor(private val instance: ThankmasLobby) : Translat
             if (context.clickType.isRightClick) {
                 rodSelector.open(clicker)
             } else {
-                fishTypeRegistry.fishTypesMenu.open(clicker)
+                fishRegistry.fishTypesMenu.open(clicker)
             }
 
             clicker.playSound(Sound.BLOCK_WOODEN_BUTTON_CLICK_ON)

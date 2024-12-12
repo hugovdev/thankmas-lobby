@@ -7,6 +7,8 @@ import me.hugo.thankmas.gui.PaginatedMenu
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.registry.MapBasedRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
+import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
+import org.bukkit.Bukkit
 import org.koin.core.annotation.Single
 import org.koin.core.component.inject
 
@@ -17,10 +19,11 @@ import org.koin.core.component.inject
 @Single
 public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), TranslatedComponent {
 
+    private val profileMenuAccessor: ProfileMenuAccessor by inject()
     private val configProvider: ConfigurationProvider by inject()
 
     /** Menu that displays the unlocked fishes of the viewer. */
-    public val fishTypesMenu: PaginatedMenu
+    public lateinit var fishTypesMenu: PaginatedMenu
 
     init {
         val config = configProvider.getOrLoad("hub/fishing/fishes.yml")
@@ -37,13 +40,21 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
 
         val menuConfig = configProvider.getOrLoad("hub/menus.yml")
 
-        fishTypesMenu = PaginatedMenu(menuConfig, "menus.unlocked-fishes", miniPhrase = miniPhrase).apply {
-            getValues().sortedBy { it.rarity.ordinal }.forEach { fishType ->
-                addIcon(Icon { player ->
-                    val playerData = ThankmasLobby.instance().playerDataManager.getPlayerData(player.uniqueId)
-                    fishType.getIcon(fishType !in playerData.unlockedFish, player.locale())
-                })
+        // Wait until the profile menu accessor exists!
+        Bukkit.getScheduler().runTaskLater(ThankmasLobby.instance(), kotlinx.coroutines.Runnable {
+            fishTypesMenu = PaginatedMenu(
+                menuConfig,
+                "menus.unlocked-fishes",
+                lastMenu = profileMenuAccessor.profileMenu,
+                miniPhrase = miniPhrase
+            ).apply {
+                getValues().sortedBy { it.rarity.ordinal }.forEach { fishType ->
+                    addIcon(Icon { player ->
+                        val playerData = ThankmasLobby.instance().playerDataManager.getPlayerData(player.uniqueId)
+                        fishType.getIcon(fishType !in playerData.unlockedFish, player.locale())
+                    })
+                }
             }
-        }
+        }, 1L)
     }
 }

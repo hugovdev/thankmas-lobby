@@ -80,7 +80,7 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
 
     private val gameRegistry: GameRegistry by inject { parametersOf(configProvider.getOrLoad("hub/games.yml")) }
     private val itemSetManager: ItemSetRegistry by inject { parametersOf(configProvider.getOrLoad("hub/config.yml")) }
-    private val profileMenuAccessor: ProfileMenuAccessor by inject { parametersOf(this) }
+    private val profileMenuAccessor: ProfileMenuAccessor by inject()
 
     public val playerNPCRegistry: PlayerNPCMarkerRegistry by inject {
         parametersOf(worldName)
