@@ -29,6 +29,7 @@ public class FishingRod(
 
     private val maxFishTime: Int = (maxFishTime * 20).toInt()
     private val minFishTime: Int = (minFishTime * 20).toInt()
+
     private val maxBiteTime: Int = (maxBiteTime * 20).toInt()
     private val minBiteTime: Int = (minBiteTime * 20).toInt()
 
@@ -137,6 +138,9 @@ public class FishingRod(
      */
     public fun apply(hook: FishHook) {
         hook.apply {
+            isSkyInfluenced = false
+            isRainInfluenced = false
+
             setWaitTime(minFishTime, maxFishTime)
             setLureTime(minBiteTime, maxBiteTime)
 
