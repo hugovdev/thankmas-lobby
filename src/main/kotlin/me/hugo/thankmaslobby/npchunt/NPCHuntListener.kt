@@ -1,6 +1,7 @@
 package me.hugo.thankmaslobby.npchunt
 
 import dev.kezz.miniphrase.audience.sendTranslated
+import me.hugo.thankmas.cosmetics.CosmeticsRegistry
 import me.hugo.thankmas.entity.npc.PlayerNPCMarkerRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.playSound
@@ -10,6 +11,7 @@ import net.citizensnpcs.api.event.NPCRightClickEvent
 import org.bukkit.Sound
 import org.bukkit.event.EventHandler
 import org.bukkit.event.Listener
+import org.koin.core.component.inject
 
 /** Registers when players finding NPC Hunt NPCs. */
 public class NPCHuntListener(private val playerNPCRegistry: PlayerNPCMarkerRegistry) : Listener,
@@ -19,6 +21,8 @@ public class NPCHuntListener(private val playerNPCRegistry: PlayerNPCMarkerRegis
         /** Key used to identify NPC Hunt NPCs. */
         public const val NPC_HUNT_USE_KEY: String = "npc_hunt"
     }
+
+    private val cosmeticsRegistry: CosmeticsRegistry by inject()
 
     @EventHandler
     private fun onNPCRightClick(event: NPCRightClickEvent) {
@@ -34,10 +38,32 @@ public class NPCHuntListener(private val playerNPCRegistry: PlayerNPCMarkerRegis
         requireNotNull(npcId) { "Tried to find Hunt NPC without an id!" }
 
         val markerData = playerNPCRegistry.get(npcId).marker
+
+        // Unlock the NPC if not already unlocked!
+        if (!playerProfile.hasFound(npcId)) {
+            val displayName = markerData.getString("display_name")
+
+            playerProfile.find(npcId)
+
+            clicker.sendTranslated("npc_hunt.found") {
+                parsed("display_name", displayName)
+            }
+
+            if(playerProfile.foundNPCs().size == playerNPCRegistry.getValues()
+                    .filter { it.marker.getString("use") == "npc_hunt" }.size) {
+                playerProfile.acquireCosmetic(cosmeticsRegistry.get("pink_kweebec")) {
+                    clicker.sendTranslated("npc_hunt.found_all")
+                }
+            }
+
+            playerProfile.currency += 15
+            clicker.playSound(Sound.ENTITY_PLAYER_LEVELUP)
+            clicker.updateBoardTags("npcs")
+        }
+
         val phrase = (markerData.getStringList("phrases") ?: emptyList()).randomOrNull()
 
-        val displayName = markerData.getString("display_name")
-
+        // Make the NPC yap
         if (phrase != null) {
             clicker.sendTranslated("npc_hunt.talk") {
                 parsed("npc_phrase", phrase)
@@ -48,18 +74,6 @@ public class NPCHuntListener(private val playerNPCRegistry: PlayerNPCMarkerRegis
             }
 
             clicker.playSound(Sound.ENTITY_VILLAGER_YES)
-        }
-
-        if (!playerProfile.hasFound(npcId)) {
-            playerProfile.find(npcId)
-
-            clicker.sendTranslated("npc_hunt.found") {
-                parsed("display_name", displayName)
-            }
-
-            clicker.playSound(Sound.ENTITY_PLAYER_LEVELUP)
-
-            clicker.updateBoardTags("npcs")
         }
     }
 

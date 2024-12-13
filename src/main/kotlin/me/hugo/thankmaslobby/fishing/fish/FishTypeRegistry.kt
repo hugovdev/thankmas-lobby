@@ -1,5 +1,6 @@
 package me.hugo.thankmaslobby.fishing.fish
 
+import kotlinx.coroutines.Runnable
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.config.enum
 import me.hugo.thankmas.gui.Icon
@@ -41,7 +42,7 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
         val menuConfig = configProvider.getOrLoad("hub/menus.yml")
 
         // Wait until the profile menu accessor exists!
-        Bukkit.getScheduler().runTaskLater(ThankmasLobby.instance(), kotlinx.coroutines.Runnable {
+        Bukkit.getScheduler().runTaskLater(ThankmasLobby.instance(), Runnable {
             fishTypesMenu = PaginatedMenu(
                 menuConfig,
                 "menus.unlocked-fishes",

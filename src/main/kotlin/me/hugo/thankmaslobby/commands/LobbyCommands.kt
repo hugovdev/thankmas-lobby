@@ -30,6 +30,19 @@ public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComp
         gameRegistry.gameSelector.open(sender)
     }
 
+    @Command("getcoins")
+    @CommandPermission("thankmas.superadmin")
+    private fun unlockRod(
+        sender: Player,
+        coins: Int
+    ) {
+        val playerData = instance.playerDataManager.getPlayerData(sender.uniqueId)
+
+        playerData.currency += coins
+
+        sender.sendMessage(Component.text("Given $coins to ${sender.name}"))
+    }
+
     @Command("unlockrod")
     @CommandPermission("thankmas.admin")
     private fun unlockRod(

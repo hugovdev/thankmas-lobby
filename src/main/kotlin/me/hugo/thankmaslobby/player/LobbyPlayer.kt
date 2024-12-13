@@ -190,7 +190,7 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
                 it[uuid] = playerId
                 it[selectedRod] = this@LobbyPlayer.selectedRod.value.id
                 it[selectedCosmetic] = this@LobbyPlayer.selectedCosmetic.value?.id ?: ""
-                it[currency] = currency
+                it[currency] = this@LobbyPlayer.currency
             }
 
             // Insert all the recently unlocked NPCs!
