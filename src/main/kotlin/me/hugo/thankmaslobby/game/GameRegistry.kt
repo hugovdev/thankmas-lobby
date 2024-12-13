@@ -2,12 +2,10 @@ package me.hugo.thankmaslobby.game
 
 import com.google.common.io.ByteArrayDataInput
 import com.google.common.io.ByteStreams
-import com.noxcrew.interfaces.drawable.Drawable.Companion.drawable
-import com.noxcrew.interfaces.element.StaticElement
-import com.noxcrew.interfaces.interfaces.ChestInterface
 import dev.kezz.miniphrase.audience.sendTranslated
 import me.hugo.thankmas.config.ConfigurationProvider
-import me.hugo.thankmas.gui.buildConfiguredChestInterface
+import me.hugo.thankmas.gui.Icon
+import me.hugo.thankmas.gui.Menu
 import me.hugo.thankmas.items.addLoreTranslatable
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmas.player.translate
@@ -31,39 +29,35 @@ public class GameRegistry(config: FileConfiguration) : MapBasedRegistry<String, 
     PluginMessageListener {
 
     public var globalPlayerCount: Int = 0
-    public val gameSelector: ChestInterface
+    public val gameSelector: Menu
 
     init {
         config.getKeys(false).forEach { register(it, Game(config, it)) }
 
         val configProvider: ConfigurationProvider by inject()
 
-        gameSelector = buildConfiguredChestInterface(configProvider.getOrLoad("hub/menus.yml"), "menus.game-selector") {
-            getValues().forEach { game ->
-                withTransform(game.playerCount) { pane, a ->
-                    val playerCount by game.playerCount
+        gameSelector = Menu(configProvider.getOrLoad("hub/menus.yml"), "menus.game-selector", miniPhrase)
 
-                    pane[game.gridPoint] = StaticElement(
-                        drawable(game.item.buildItem(a.player.locale())
-                            .addLoreTranslatable("game_selector.player_count", a.player.locale()) {
-                                parsed("players", playerCount)
-                            })
-                    ) {
-                        val clicker = it.player
+        getValues().forEach { game ->
+            gameSelector.setIcons(Icon({ context, _ ->
+                val clicker = context.clicker
 
-                        clicker.closeInventory()
+                clicker.closeInventory()
 
-                        if (clicker.isDonor("perk.play_games")) {
-                            clicker.sendTranslated("game_selector.sending") {
-                                inserting("game", clicker.translate(game.name))
-                            }
-
-                            game.send(clicker)
-                        }
+                if (clicker.isDonor("perk.play_games")) {
+                    clicker.sendTranslated("game_selector.sending") {
+                        inserting("game", clicker.translate(game.name))
                     }
+
+                    game.send(clicker)
                 }
-            }
+            }) {
+                game.item.buildItem(it.locale()).addLoreTranslatable("game_selector.player_count", it.locale()) {
+                    parsed("players", game.playerCount.value)
+                }
+            }, *gameSelector.menuFormat!!.getSlotsForChar(game.slots).toIntArray())
         }
+
 
         Bukkit.getScheduler().runTaskTimer(ThankmasLobby.instance(), Runnable {
             val player = Bukkit.getOnlinePlayers().firstOrNull { it.isOnline } ?: return@Runnable
@@ -94,8 +88,7 @@ public class GameRegistry(config: FileConfiguration) : MapBasedRegistry<String, 
             return
         }
 
-        var count by getValues().firstOrNull { it.serverName == serverName }?.playerCount ?: return
-        count = serverCount
+        getValues().firstOrNull { it.serverName == serverName }?.playerCount?.value = serverCount
     }
 
     /**

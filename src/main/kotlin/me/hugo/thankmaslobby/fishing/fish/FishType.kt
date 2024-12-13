@@ -19,6 +19,7 @@ public class FishType(
     public val id: String,
     public val name: String,
     public val rarity: FishRarity,
+    model: String?
 ) : TranslatedComponent {
 
     private val pondRegistry: PondRegistry by inject()
@@ -26,7 +27,7 @@ public class FishType(
     /** Item shown in menus when this fish is locked to this viewer. */
     private val lockedItem: TranslatableItem = TranslatableItem(
         material = Material.LEATHER_HORSE_ARMOR,
-        model = "fish/$id",
+        model = model ?: "fish/$id",
         flags = listOf(ItemFlag.HIDE_ATTRIBUTES),
         color = 0
     )
@@ -34,7 +35,7 @@ public class FishType(
     /** Item shown in menus when this fish is locked to this viewer. */
     private val unlockedItem: TranslatableItem = TranslatableItem(
         material = Material.PHANTOM_MEMBRANE,
-        model = "fish/$id",
+        model = model ?: "fish/$id",
     )
 
     public fun getIcon(locked: Boolean, locale: Locale): ItemStack {
