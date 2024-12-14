@@ -10,7 +10,7 @@ public enum class FishRarity(
     public val sellPrice: Int
 ) : Translated {
 
-    COMMON("common", NamedTextColor.WHITE, 10),
+    COMMON("common", NamedTextColor.WHITE, 15),
     UNCOMMON("uncommon", NamedTextColor.GREEN, 30),
     RARE("rare", NamedTextColor.BLUE, 50),
     EPIC("epic", NamedTextColor.DARK_PURPLE, 100),
