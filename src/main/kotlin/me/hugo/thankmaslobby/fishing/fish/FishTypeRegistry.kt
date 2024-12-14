@@ -8,10 +8,12 @@ import me.hugo.thankmas.gui.Icon
 import me.hugo.thankmas.gui.Menu
 import me.hugo.thankmas.gui.PaginatedMenu
 import me.hugo.thankmas.lang.TranslatedComponent
+import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.registry.MapBasedRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
 import org.bukkit.Bukkit
+import org.bukkit.Sound
 import org.bukkit.entity.Player
 import org.koin.core.annotation.Single
 import org.koin.core.component.inject
@@ -92,6 +94,8 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
                 }
 
                 player.closeInventory()
+
+                player.playSound(Sound.ENTITY_ENDERMAN_TELEPORT) // Meow
 
                 // Remove ghost items from shift clicking
                 player.updateInventory()
