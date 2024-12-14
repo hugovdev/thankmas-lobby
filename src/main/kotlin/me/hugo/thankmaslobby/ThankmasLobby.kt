@@ -166,7 +166,7 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
         InterfacesListeners.install(this)
 
         // Check settings and ignored people etc.
-        pluginManager.registerEvents(RankedPlayerChat(this.playerDataManager) { _, _ -> true }, this)
+        pluginManager.registerEvents(RankedPlayerChat(this.playerDataManager), this)
 
         // Register luck perms events!
         PlayerGroupChange(this.playerDataManager) { player -> player.updateBoardTags("rank") }

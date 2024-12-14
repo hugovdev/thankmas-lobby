@@ -49,7 +49,9 @@ public class GameRegistry(config: FileConfiguration) : MapBasedRegistry<String, 
                         inserting("game", clicker.translate(game.name))
                     }
 
-                    game.send(clicker)
+                    ThankmasLobby.instance().playerDataManager.getPlayerData(clicker.uniqueId).saveSafely(clicker) {
+                        game.send(clicker)
+                    }
                 }
             }) {
                 game.item.buildItem(it.locale()).addLoreTranslatable("game_selector.player_count", it.locale()) {

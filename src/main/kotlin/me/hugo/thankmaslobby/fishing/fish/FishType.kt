@@ -1,7 +1,10 @@
 package me.hugo.thankmaslobby.fishing.fish
 
 import io.papermc.paper.datacomponent.DataComponentTypes
-import me.hugo.thankmas.items.*
+import me.hugo.thankmas.items.TranslatableItem
+import me.hugo.thankmas.items.addLoreTranslatable
+import me.hugo.thankmas.items.addToLore
+import me.hugo.thankmas.items.name
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmaslobby.fishing.pond.PondRegistry
 import net.kyori.adventure.text.Component
