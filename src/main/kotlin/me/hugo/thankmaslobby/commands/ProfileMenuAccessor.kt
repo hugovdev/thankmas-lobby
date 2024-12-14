@@ -145,7 +145,7 @@ public class ProfileMenuAccessor : TranslatedComponent {
 
     private val rodRegistry: FishingRodRegistry by inject()
 
-    private val rodSelector: PaginatedMenu =
+    public val rodSelector: PaginatedMenu =
         PaginatedMenu(
             menusConfig,
             "menus.fishing-rod-selector",
@@ -158,34 +158,61 @@ public class ProfileMenuAccessor : TranslatedComponent {
                     val clicker = context.clicker
                     val playerData = instance.playerDataManager.getPlayerData(clicker.uniqueId)
 
-                    if (!playerData.unlockedRods.contains(rod)) {
-                        clicker.sendTranslated("fishing.fishing_rods.click_when_blocked") {
-                            inserting("rod", clicker.translate(rod.name))
-                        }
-                        clicker.playSound(Sound.ENTITY_ENDERMAN_TELEPORT)
-                        return@Icon
-                    }
-
                     if (playerData.selectedRod.value == rod) {
                         clicker.sendTranslated("fishing.fishing_rods.already_selected") {
                             inserting("rod", clicker.translate(rod.name))
                         }
 
                         clicker.playSound(Sound.ENTITY_ENDERMAN_TELEPORT)
+                        clicker.closeInventory()
                         return@Icon
                     }
 
-                    playerData.selectedRod.value = rod
-                    clicker.sendTranslated("fishing.fishing_rods.you_selected") {
-                        inserting("rod", clicker.translate(rod.name))
+                    if (playerData.unlockedRods.contains(rod)) {
+                        playerData.selectedRod.value = rod
+                        clicker.sendTranslated("fishing.fishing_rods.you_selected") {
+                            inserting("rod", clicker.translate(rod.name))
+                        }
+
+                        clicker.playSound(Sound.BLOCK_NOTE_BLOCK_HAT)
+                        clicker.closeInventory()
+                        return@Icon
                     }
-                    clicker.playSound(Sound.BLOCK_NOTE_BLOCK_HAT)
+
+                    if (!context.clickType.isShiftClick) return@Icon
+                    if (playerData.inTransaction) return@Icon
+
+                    if (playerData.currency >= rod.price) {
+                        playerData.acquireRod(rod) {
+                            clicker.sendTranslated(
+                                "fishing.fishing_rods.bought",
+                                clicker.locale()
+                            ) {
+                                inserting("rod", clicker.translate(rod.nameKey).color(null))
+                            }
+
+                            playerData.selectedRod.value = rod
+                            clicker.playSound("lobby.cosmetic_selector_buy")
+                        }
+
+                        clicker.closeInventory()
+                    } else {
+                        clicker.sendTranslated(
+                            "fishing.fishing_rods.broke"
+                        ) {
+                            inserting("rod", clicker.translate(rod.nameKey).color(null))
+                        }
+
+                        clicker.closeInventory()
+                    }
                 }) {
                     val playerData = instance.playerDataManager.getPlayerData(it.uniqueId)
+                    val bestPlayerRod = playerData.unlockedRods.maxBy { it.tier }
 
                     rod.buildIcon(
                         it,
-                        blocked = !playerData.unlockedRods.containsKey(rod),
+                        blocked = !playerData.unlockedRods.contains(rod),
+                        buyable = bestPlayerRod.tier + 1 == rod.tier,
                         selected = (playerData.selectedRod.value == rod)
                     )
                 }.listen { instance.playerDataManager.getPlayerData(it.uniqueId).selectedRod })

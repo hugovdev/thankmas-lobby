@@ -53,7 +53,7 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
                 getValues().sortedBy { it.rarity.ordinal }.forEach { fishType ->
                     addIcon(Icon { player ->
                         val playerData = ThankmasLobby.instance().playerDataManager.getPlayerData(player.uniqueId)
-                        fishType.getIcon(fishType !in playerData.unlockedFish, player.locale())
+                        fishType.getIcon(playerData.unlockedFish.firstOrNull { it.first == fishType }?.second, player.locale())
                     })
                 }
             }

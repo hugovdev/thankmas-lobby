@@ -12,9 +12,4 @@ public data class FoundNPC(
     public val finder: UUID,
     /** Time at which this NPC was found. */
     public val timeFound: Long = System.currentTimeMillis(),
-    /**
-     * Weather or not this NPC was found in this player
-     * session and needs to be saved in the database.
-     */
-    public val thisSession: Boolean = true
 )

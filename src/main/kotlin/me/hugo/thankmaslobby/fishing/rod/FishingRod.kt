@@ -21,11 +21,14 @@ public class FishingRod(
     public val id: String,
     public val particle: Particle?,
     public val tier: Int,
+    public val price: Int,
     maxFishTime: Double,
     minFishTime: Double,
     maxBiteTime: Double,
     minBiteTime: Double
 ) : Translated {
+
+    public val nameKey: String = "fishing_rods.$id.name"
 
     private val maxFishTime: Int = (maxFishTime * 20).toInt()
     private val minFishTime: Int = (minFishTime * 20).toInt()
@@ -40,6 +43,7 @@ public class FishingRod(
         config.string("$path.id"),
         config.enum<Particle>("$path.particle"),
         config.getInt("$path.tier"),
+        config.getInt("$path.price"),
         config.getDouble("$path.max-fish-time"),
         config.getDouble("$path.min-fish-time"),
         config.getDouble("$path.max-bite-time"),
@@ -112,6 +116,7 @@ public class FishingRod(
         player: Player,
         locale: Locale? = null,
         blocked: Boolean,
+        buyable: Boolean,
         selected: Boolean = false
     ): ItemStack {
         val finalLocale = locale ?: player.locale()
@@ -120,12 +125,17 @@ public class FishingRod(
             .addStats(finalLocale)
             .selectedEffect(selected)
             .addLoreTranslatable(
-                if (blocked) "fishing.fishing_rods.blocked" else {
+                if (blocked) {
+                    if (buyable) "fishing.fishing_rods.buy"
+                    else "fishing.fishing_rods.blocked"
+                } else {
                     if (selected) "fishing.fishing_rods.selected"
                     else "fishing.fishing_rods.click_to_selected"
                 },
                 finalLocale
-            )
+            ) {
+                parsed("price", price)
+            }
     }
 
     /** @returns the item name translation key. */

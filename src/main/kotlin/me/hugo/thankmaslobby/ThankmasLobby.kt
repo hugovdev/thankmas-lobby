@@ -10,6 +10,7 @@ import me.hugo.thankmas.cosmetics.CosmeticsRegistry
 import me.hugo.thankmas.database.CosmeticsOwned
 import me.hugo.thankmas.database.PlayerData
 import me.hugo.thankmas.entity.HologramMarkerRegistry
+import me.hugo.thankmas.entity.InteractionEntityRegistry
 import me.hugo.thankmas.entity.npc.PlayerNPCMarkerRegistry
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.listener.*
@@ -35,7 +36,7 @@ import me.hugo.thankmaslobby.game.GameRegistry
 import me.hugo.thankmaslobby.listener.PlayerLobbyAccess
 import me.hugo.thankmaslobby.listener.PlayerLobbyProtection
 import me.hugo.thankmaslobby.music.LobbyMusic
-import me.hugo.thankmaslobby.npchunt.NPCHuntListener
+import me.hugo.thankmaslobby.npchunt.HubNPCListener
 import me.hugo.thankmaslobby.player.LobbyPlayer
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
 import org.bukkit.Bukkit
@@ -157,7 +158,10 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
         pluginManager.registerEvents(pondRegistry, this)
         pluginManager.registerEvents(HologramMarkerRegistry(worldName), this)
         pluginManager.registerEvents(playerNPCRegistry, this)
-        pluginManager.registerEvents(NPCHuntListener(playerNPCRegistry), this)
+        pluginManager.registerEvents(HubNPCListener(playerNPCRegistry), this)
+        pluginManager.registerEvents(InteractionEntityRegistry(worldName, mapOf(Pair("fish_sell", {
+            it.sendMessage("yippie")
+        }))), this)
 
         InterfacesListeners.install(this)
 

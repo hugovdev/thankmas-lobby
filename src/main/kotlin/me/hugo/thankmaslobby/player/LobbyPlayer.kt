@@ -2,7 +2,7 @@ package me.hugo.thankmaslobby.player
 
 import dev.kezz.miniphrase.audience.sendTranslated
 import kotlinx.datetime.Instant
-import me.hugo.thankmas.config.ConfigurationProvider
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.database.PlayerData
 import me.hugo.thankmas.items.hasKeyedData
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
@@ -12,7 +12,6 @@ import me.hugo.thankmas.player.reset
 import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.state.StatefulValue
 import me.hugo.thankmaslobby.ThankmasLobby
-import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
 import me.hugo.thankmaslobby.database.FishUnlocked
 import me.hugo.thankmaslobby.database.Fishes
 import me.hugo.thankmaslobby.database.FoundNPCs
@@ -25,10 +24,11 @@ import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
 import me.hugo.thankmaslobby.music.LobbyMusic
 import me.hugo.thankmaslobby.npchunt.FoundNPC
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
+import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.persistence.PersistentDataType
-import org.jetbrains.exposed.sql.batchInsert
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.upsert
@@ -39,9 +39,6 @@ import kotlin.collections.set
 public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
     CosmeticsPlayerData<LobbyPlayer>(playerUUID, instance) {
 
-    private val configProvider: ConfigurationProvider by inject()
-    private val profileMenuAccessor: ProfileMenuAccessor by inject()
-
     private val fishRegistry: FishTypeRegistry by inject()
     private val rodRegistry: FishingRodRegistry by inject()
 
@@ -51,16 +48,16 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
 
     /** @returns this player's fish bag capacity. */
     private val fishBagCapacity: Int
-        get() = if (hasExpandedBagCapacity) 100 else 50
+        get() = if (hasExpandedBagCapacity) 200 else 120
 
     private val foundNPCs: MutableMap<String, FoundNPC> = mutableMapOf()
     private val caughtFishes: MutableList<CaughtFish> = mutableListOf()
 
     /** List of the rods this player has unlocked. */
-    public val unlockedRods: MutableMap<FishingRod, FishingRod.FishingRodData> = mutableMapOf()
+    public val unlockedRods: MutableList<FishingRod> = mutableListOf()
 
     /** Different kinds of fish found by this player. */
-    public val unlockedFish: MutableList<FishType> = mutableListOf()
+    public val unlockedFish: MutableList<Pair<FishType, Long>> = mutableListOf()
 
     /** The fishing rod this player is using to fish. */
     public lateinit var selectedRod: StatefulValue<FishingRod>
@@ -80,15 +77,14 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
 
             // Load every rod this player has unlocked!
             Rods.selectAll().where { Rods.owner eq playerId }.forEach { result ->
-                unlockedRods[rodRegistry.get(result[Rods.rodId])] =
-                    FishingRod.FishingRodData(result[Rods.time].toEpochMilliseconds(), false)
+                unlockedRods += rodRegistry.get(result[Rods.rodId])
             }
 
             val rod: FishingRod = if (playerData != null) {
                 val rodId = playerData[PlayerData.selectedRod]
                 val databaseRod = rodRegistry.getOrNull(rodId)
 
-                if (databaseRod != null && unlockedRods.containsKey(databaseRod)) {
+                if (databaseRod != null && unlockedRods.contains(databaseRod)) {
                     databaseRod
                 } else rodRegistry.getValues().first { it.tier == 1 }
             } else rodRegistry.getValues().first { it.tier == 1 }
@@ -98,7 +94,7 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
             // Load all the fishes this player has caught!
             FoundNPCs.selectAll().where { FoundNPCs.whoFound eq playerId }.forEach { result ->
                 val npcId = result[FoundNPCs.npcId]
-                foundNPCs[npcId] = FoundNPC(npcId, playerUUID, result[FoundNPCs.time].toEpochMilliseconds(), false)
+                foundNPCs[npcId] = FoundNPC(npcId, playerUUID, result[FoundNPCs.time].toEpochMilliseconds())
             }
 
             // Load all the unique fish types this player has caught!
@@ -111,7 +107,7 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
                     return@forEach
                 }
 
-                unlockedFish += fishType
+                unlockedFish += Pair(fishType, result[FishUnlocked.time].toEpochMilliseconds())
             }
 
             // Load all the fishes this player has caught!
@@ -128,19 +124,57 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
                     fishType,
                     playerUUID,
                     result[Fishes.pondId],
-                    result[Fishes.time].toEpochMilliseconds(),
-                    false
+                    result[Fishes.time].toEpochMilliseconds()
                 )
             }
 
             // If the player has no rods then we give them the default one!
             if (unlockedRods.isEmpty()) {
-                unlockedRods[rodRegistry.getValues().first { it.tier == 1 }] =
-                    FishingRod.FishingRodData(System.currentTimeMillis())
+                val freeRod = rodRegistry.getValues().first { it.tier == 1 }
+
+                transaction {
+                    Rods.insert {
+                        it[owner] = playerUUID.toString()
+                        it[rodId] = freeRod.id
+                        it[time] = Instant.fromEpochMilliseconds(System.currentTimeMillis())
+                    }
+                }
+
+                unlockedRods += freeRod
             }
         }
 
         instance.logger.info("Player data for $playerUUID loaded in ${System.currentTimeMillis() - startTime}ms.")
+    }
+
+    /** Acquires [rod] for this player. */
+    public fun acquireRod(rod: FishingRod, onAcquired: () -> Unit = {}) {
+        require(rod !in unlockedRods)
+        require(currency >= rod.price)
+        require(!inTransaction)
+
+        val instance = ThankmasPlugin.instance()
+
+        inTransaction = true
+
+        Bukkit.getScheduler().runTaskAsynchronously(instance, Runnable {
+            transaction {
+                Rods.insert {
+                    it[owner] = playerUUID.toString()
+                    it[rodId] = rod.id
+                    it[time] = Instant.fromEpochMilliseconds(System.currentTimeMillis())
+                }
+            }
+
+            Bukkit.getScheduler().runTask(instance, Runnable {
+                unlockedRods += rod
+                currency -= rod.price
+
+                onAcquired()
+
+                inTransaction = false
+            })
+        })
     }
 
     override fun onPrepared(player: Player) {
@@ -192,28 +226,6 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
                 it[selectedCosmetic] = this@LobbyPlayer.selectedCosmetic.value?.id ?: ""
                 it[currency] = this@LobbyPlayer.currency
             }
-
-            // Insert all the recently unlocked NPCs!
-            FoundNPCs.batchInsert(foundNPCs.values.filter { it.thisSession }) {
-                this[FoundNPCs.whoFound] = playerId
-                this[FoundNPCs.npcId] = it.npcId
-                this[FoundNPCs.time] = Instant.fromEpochMilliseconds(it.timeFound)
-            }
-
-            // Insert the new fishes into the database!
-            Fishes.batchInsert(caughtFishes.filter { it.thisSession }) {
-                this[Fishes.whoCaught] = playerId
-                this[Fishes.fishType] = it.fishType.id
-                this[Fishes.pondId] = it.pondId
-                this[Fishes.time] = Instant.fromEpochMilliseconds(it.timeCaptured)
-            }
-
-            // Insert the new unlocked rods into the database!
-            Rods.batchInsert(unlockedRods.filter { it.value.thisSession }.toList()) {
-                this[Rods.owner] = playerId
-                this[Rods.rodId] = it.first.id
-                this[Rods.time] = Instant.fromEpochMilliseconds(it.second.unlockTime)
-            }
         }
     }
 
@@ -225,14 +237,48 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
 
     /** Registers the finding of [npcId] for this player. */
     public fun find(npcId: String) {
-        foundNPCs[npcId] = FoundNPC(npcId, playerUUID)
+        val foundNPC = FoundNPC(npcId, playerUUID)
+        foundNPCs[npcId] = foundNPC
+
+        Bukkit.getScheduler().runTaskAsynchronously(ThankmasLobby.instance(), Runnable {
+            transaction {
+                // Insert the new fish into the database!
+                FoundNPCs.insert {
+                    it[whoFound] = playerUUID.toString()
+                    it[FoundNPCs.npcId] = npcId
+                    it[time] = Instant.fromEpochMilliseconds(foundNPC.timeFound)
+                }
+            }
+        })
     }
 
     /** Captures [fish] on [pondId]. */
     public fun captureFish(fish: FishType, pondId: String) {
         val caughtFish = CaughtFish(fish, playerUUID, pondId)
+        caughtFishes += caughtFish
 
-        caughtFishes.add(caughtFish)
+        Bukkit.getScheduler().runTaskAsynchronously(ThankmasLobby.instance(), Runnable {
+            transaction {
+                // Unlock new fish types!
+                if (unlockedFish.none { it.first == fish }) {
+                    unlockedFish += Pair(fish, caughtFish.timeCaptured)
+
+                    FishUnlocked.insert {
+                        it[whoCaught] = playerUUID.toString()
+                        it[fishType] = fish.id
+                        it[time] = Instant.fromEpochMilliseconds(caughtFish.timeCaptured)
+                    }
+                }
+
+                // Insert the new fish into the database!
+                Fishes.insert {
+                    it[whoCaught] = playerUUID.toString()
+                    it[fishType] = fish.id
+                    it[Fishes.pondId] = pondId
+                    it[time] = Instant.fromEpochMilliseconds(caughtFish.timeCaptured)
+                }
+            }
+        })
     }
 
     /** @returns the amount of captured fishes this player has. */

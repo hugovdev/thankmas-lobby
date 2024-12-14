@@ -13,6 +13,7 @@ import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.koin.core.component.inject
 import java.util.*
+import kotlin.math.floor
 
 /** Type of fish that can be caught. */
 public class FishType(
@@ -38,7 +39,9 @@ public class FishType(
         model = model ?: "fish/$id",
     )
 
-    public fun getIcon(locked: Boolean, locale: Locale): ItemStack {
+    public fun getIcon(unlockTime: Long?, locale: Locale): ItemStack {
+        val locked = unlockTime == null
+
         return (if (locked) lockedItem else unlockedItem).buildItem(locale).apply {
             name(
                 miniPhrase.translate("fishing.$id.item.name")
@@ -68,7 +71,31 @@ public class FishType(
             addLoreTranslatable(
                 if (locked) "menu.fishing.fish_tracker.locked"
                 else "menu.fishing.fish_tracker.unlocked", locale
-            )
+            ) {
+                if (!locked) parsed("time", getTimeAgo(unlockTime!!))
+            }
         }
+    }
+
+    private fun getTimeAgo(time: Long): String {
+        val seconds = floor((System.currentTimeMillis() - time) / 1000.0)
+
+        var interval = seconds / 31536000
+
+        if (interval > 1) return "${floor(interval).toInt()} years"
+
+        interval = seconds / 2592000
+        if (interval > 1) return "${floor(interval).toInt()} months"
+
+        interval = seconds / 86400
+        if (interval > 1) return "${floor(interval).toInt()} days";
+
+        interval = seconds / 3600
+        if (interval > 1) return "${floor(interval).toInt()} hours"
+
+        interval = seconds / 60
+        if (interval > 1) return "${floor(interval).toInt()} minutes"
+
+        return "${floor(seconds)} seconds"
     }
 }

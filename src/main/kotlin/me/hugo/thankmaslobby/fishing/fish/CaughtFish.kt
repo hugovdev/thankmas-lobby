@@ -15,9 +15,4 @@ public data class CaughtFish(
     public val pondId: String,
     /** Time at which this fish was caught. */
     public val timeCaptured: Long = System.currentTimeMillis(),
-    /**
-     * Weather or not this fish was caught in this player
-     * session and needs to be saved in the database.
-     */
-    public val thisSession: Boolean = true
 ) : Translated

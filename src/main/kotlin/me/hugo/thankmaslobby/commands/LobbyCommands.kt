@@ -12,7 +12,6 @@ import org.bukkit.entity.Player
 import org.koin.core.component.inject
 import revxrsal.commands.annotation.Command
 import revxrsal.commands.annotation.Optional
-import revxrsal.commands.annotation.Switch
 import revxrsal.commands.bukkit.annotation.CommandPermission
 
 public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComponent {
@@ -48,21 +47,20 @@ public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComp
     private fun unlockRod(
         sender: Player,
         fishingRod: FishingRod,
-        @Optional receiver: Player = sender,
-        @Switch("save", defaultValue = false) save: Boolean = false
+        @Optional receiver: Player = sender
     ) {
         val playerData = instance.playerDataManager.getPlayerData(receiver.uniqueId)
 
-        if (playerData.unlockedRods.containsKey(fishingRod)) {
+        if (playerData.unlockedRods.contains(fishingRod)) {
             sender.sendMessage(Component.text("You already have this rod unlocked!", NamedTextColor.RED))
             return
         }
 
-        playerData.unlockedRods[fishingRod] = FishingRod.FishingRodData(System.currentTimeMillis(), save)
+        playerData.unlockedRods += fishingRod
         sender.sendMessage(
             Component.text("Unlocked ", NamedTextColor.GREEN)
                 .append(sender.translate(fishingRod.getItemName()))
-                .append(Component.text(" for ${receiver.name}" + (if (save) " and saved!" else " temporarily!")))
+                .append(Component.text(" for ${receiver.name} temporarily!"))
         )
     }
 }
