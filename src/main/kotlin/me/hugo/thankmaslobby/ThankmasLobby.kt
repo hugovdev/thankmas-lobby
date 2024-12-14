@@ -147,7 +147,7 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
 
         // Player data loaders and spawnpoints
         pluginManager.registerEvents(PlayerDataLoader(this, this.playerDataManager), this)
-        pluginManager.registerEvents(PlayerSpawnpointOnJoin(worldName, "hub_spawnpoint"), this)
+        pluginManager.registerEvents(PlayerSpawnpointOnJoin(worldName, "hub_spawnpoint", 30), this)
 
         pluginManager.registerEvents(PlayerLocaleDetector(this.playerDataManager), this)
         pluginManager.registerEvents(PlayerAttributes("hub"), this)
