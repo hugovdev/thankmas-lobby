@@ -91,7 +91,7 @@ public class ProfileMenuAccessor : TranslatedComponent {
             val playerData = instance.playerDataManager.getPlayerData(it.uniqueId)
 
             fishingItem.buildItem(it.locale()) {
-                parsed("fishes", playerData.uniqueFishTypes())
+                parsed("fishes", playerData.unlockedFish.size)
                 parsed("total_fishes", fishRegistry.size())
             }
         }, 0, 1, 2, 9, 10, 11, 18, 19, 20)
@@ -107,7 +107,7 @@ public class ProfileMenuAccessor : TranslatedComponent {
             val playerData = instance.playerDataManager.getPlayerData(player.uniqueId)
 
             profileItem.buildItem(player.locale()) {
-                parsed("fishes", playerData.uniqueFishTypes())
+                parsed("fishes", playerData.unlockedFish.size)
                 parsed("total_fishes", fishRegistry.size())
                 parsed("npcs", playerData.foundNPCs().size)
                 parsed(
@@ -181,6 +181,7 @@ public class ProfileMenuAccessor : TranslatedComponent {
 
                     if (!context.clickType.isShiftClick) return@Icon
                     if (playerData.inTransaction) return@Icon
+                    if (playerData.unlockedRods.maxOf { it.tier } + 1 != rod.tier) return@Icon
 
                     if (playerData.currency >= rod.price) {
                         playerData.acquireRod(rod) {
@@ -205,6 +206,9 @@ public class ProfileMenuAccessor : TranslatedComponent {
 
                         clicker.closeInventory()
                     }
+
+                    // Remove ghost items from shift clicking
+                    clicker.updateInventory()
                 }) {
                     val playerData = instance.playerDataManager.getPlayerData(it.uniqueId)
                     val bestPlayerRod = playerData.unlockedRods.maxBy { it.tier }

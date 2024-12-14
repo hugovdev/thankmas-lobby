@@ -125,7 +125,7 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
 
             // Create an item with a custom name so it doesn't
             // stack with other people's fish.
-            itemStack = caughtFish.getIcon(null, player.locale())
+            itemStack = caughtFish.getIcon(System.currentTimeMillis(), player.locale())
                 .also { it.editMeta { it.itemName(Component.text(System.nanoTime())) } }
 
             Bukkit.getScheduler().runTaskLater(ThankmasPlugin.instance(), Runnable {

@@ -10,11 +10,11 @@ public enum class FishRarity(
     public val sellPrice: Int
 ) : Translated {
 
-    COMMON("common", NamedTextColor.WHITE, 15),
-    UNCOMMON("uncommon", NamedTextColor.GREEN, 30),
-    RARE("rare", NamedTextColor.BLUE, 50),
-    EPIC("epic", NamedTextColor.DARK_PURPLE, 100),
-    LEGENDARY("legendary", NamedTextColor.GOLD, 200),
+    COMMON("common", NamedTextColor.WHITE, 10),
+    UNCOMMON("uncommon", NamedTextColor.GREEN, 20),
+    RARE("rare", NamedTextColor.BLUE, 35),
+    EPIC("epic", NamedTextColor.DARK_PURPLE, 85),
+    LEGENDARY("legendary", NamedTextColor.GOLD, 350),
     GODLY("godly", NamedTextColor.YELLOW, 1000);
 
     /** @returns the translation used for this rarity's tag. */

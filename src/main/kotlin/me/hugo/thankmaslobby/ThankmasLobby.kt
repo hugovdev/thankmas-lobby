@@ -159,9 +159,9 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
         pluginManager.registerEvents(HologramMarkerRegistry(worldName), this)
         pluginManager.registerEvents(playerNPCRegistry, this)
         pluginManager.registerEvents(HubNPCListener(playerNPCRegistry), this)
-        pluginManager.registerEvents(InteractionEntityRegistry(worldName, mapOf(Pair("fish_sell", {
-            it.sendMessage("yippie")
-        }))), this)
+        pluginManager.registerEvents(InteractionEntityRegistry(worldName, mapOf(Pair("fish_sell") {
+            fishRegistry.openSellMenu(it)
+        })), this)
 
         InterfacesListeners.install(this)
 

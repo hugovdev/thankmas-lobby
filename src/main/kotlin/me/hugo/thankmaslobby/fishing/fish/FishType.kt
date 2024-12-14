@@ -1,9 +1,7 @@
 package me.hugo.thankmaslobby.fishing.fish
 
-import me.hugo.thankmas.items.TranslatableItem
-import me.hugo.thankmas.items.addLoreTranslatable
-import me.hugo.thankmas.items.addToLore
-import me.hugo.thankmas.items.name
+import io.papermc.paper.datacomponent.DataComponentTypes
+import me.hugo.thankmas.items.*
 import me.hugo.thankmas.lang.TranslatedComponent
 import me.hugo.thankmaslobby.fishing.pond.PondRegistry
 import net.kyori.adventure.text.Component
@@ -77,6 +75,28 @@ public class FishType(
         }
     }
 
+    public fun getSellIcon(amount: Int, locale: Locale): ItemStack {
+        return (unlockedItem).buildItem(locale).apply {
+            setData(DataComponentTypes.MAX_STACK_SIZE, 99)
+            setAmount(amount)
+
+            name(miniPhrase.translate("fishing.$id.item.name").color(this@FishType.rarity.rarityColor))
+
+            addToLore(miniPhrase.translate(this@FishType.rarity.getTag(), locale).color(NamedTextColor.DARK_GRAY))
+            addToLore(Component.empty())
+
+            addLoreTranslatable("fishing.$id.item.lore", locale)
+
+            addToLore(Component.empty())
+
+            addLoreTranslatable(
+                "menu.fish_sell.sell", locale
+            ) {
+                parsed("price", this@FishType.rarity.sellPrice * amount)
+            }
+        }
+    }
+
     private fun getTimeAgo(time: Long): String {
         val seconds = floor((System.currentTimeMillis() - time) / 1000.0)
 
@@ -96,6 +116,6 @@ public class FishType(
         interval = seconds / 60
         if (interval > 1) return "${floor(interval).toInt()} minutes"
 
-        return "${floor(seconds)} seconds"
+        return "${floor(seconds).toInt()} seconds"
     }
 }

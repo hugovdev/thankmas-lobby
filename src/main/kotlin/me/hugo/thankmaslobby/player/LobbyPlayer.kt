@@ -28,10 +28,9 @@ import org.bukkit.Bukkit
 import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.persistence.PersistentDataType
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.upsert
 import org.koin.core.component.inject
 import java.util.*
 import kotlin.collections.set
@@ -51,7 +50,7 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
         get() = if (hasExpandedBagCapacity) 200 else 120
 
     private val foundNPCs: MutableMap<String, FoundNPC> = mutableMapOf()
-    private val caughtFishes: MutableList<CaughtFish> = mutableListOf()
+    public val caughtFishes: MutableList<CaughtFish> = mutableListOf()
 
     /** List of the rods this player has unlocked. */
     public val unlockedRods: MutableList<FishingRod> = mutableListOf()
@@ -145,36 +144,6 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
         }
 
         instance.logger.info("Player data for $playerUUID loaded in ${System.currentTimeMillis() - startTime}ms.")
-    }
-
-    /** Acquires [rod] for this player. */
-    public fun acquireRod(rod: FishingRod, onAcquired: () -> Unit = {}) {
-        require(rod !in unlockedRods)
-        require(currency >= rod.price)
-        require(!inTransaction)
-
-        val instance = ThankmasPlugin.instance()
-
-        inTransaction = true
-
-        Bukkit.getScheduler().runTaskAsynchronously(instance, Runnable {
-            transaction {
-                Rods.insert {
-                    it[owner] = playerUUID.toString()
-                    it[rodId] = rod.id
-                    it[time] = Instant.fromEpochMilliseconds(System.currentTimeMillis())
-                }
-            }
-
-            Bukkit.getScheduler().runTask(instance, Runnable {
-                unlockedRods += rod
-                currency -= rod.price
-
-                onAcquired()
-
-                inTransaction = false
-            })
-        })
     }
 
     override fun onPrepared(player: Player) {
@@ -278,6 +247,70 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
                     it[time] = Instant.fromEpochMilliseconds(caughtFish.timeCaptured)
                 }
             }
+        })
+    }
+
+    /** Sells all fish of type [fish]. */
+    public fun sellAllOfType(fish: FishType, soldFor: Int, onSold: () -> Unit = {}) {
+        require(!inTransaction)
+        require(caughtFishes.any { it.fishType == fish })
+
+        val fishToRemove = caughtFishes.filter { it.fishType == fish }
+        caughtFishes.removeAll(fishToRemove)
+
+        val instance = ThankmasPlugin.instance()
+        inTransaction = true
+
+        Bukkit.getScheduler().runTaskAsynchronously(instance, Runnable {
+            transaction {
+                try {
+                    transaction { Fishes.deleteWhere { (whoCaught eq playerUUID.toString()) and (fishType eq fish.id) } }
+
+                    Bukkit.getScheduler().runTask(instance, Runnable {
+                        currency += soldFor
+                        onSold()
+
+                        inTransaction = false
+                    })
+                } catch (e: Exception) {
+                    rollback()
+
+                    caughtFishes += fishToRemove
+                    inTransaction = false
+
+                    e.printStackTrace()
+                }
+            }
+        })
+    }
+
+    /** Acquires [rod] for this player. */
+    public fun acquireRod(rod: FishingRod, onAcquired: () -> Unit = {}) {
+        require(rod !in unlockedRods)
+        require(currency >= rod.price)
+        require(!inTransaction)
+
+        val instance = ThankmasPlugin.instance()
+
+        inTransaction = true
+
+        Bukkit.getScheduler().runTaskAsynchronously(instance, Runnable {
+            transaction {
+                Rods.insert {
+                    it[owner] = playerUUID.toString()
+                    it[rodId] = rod.id
+                    it[time] = Instant.fromEpochMilliseconds(System.currentTimeMillis())
+                }
+            }
+
+            Bukkit.getScheduler().runTask(instance, Runnable {
+                unlockedRods += rod
+                currency -= rod.price
+
+                onAcquired()
+
+                inTransaction = false
+            })
         })
     }
 
