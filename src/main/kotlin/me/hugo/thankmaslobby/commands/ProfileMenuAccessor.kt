@@ -4,6 +4,7 @@ import com.destroystokyo.paper.profile.ProfileProperty
 import dev.kezz.miniphrase.audience.sendTranslated
 import dev.kezz.miniphrase.tag.TagResolverBuilder
 import io.papermc.paper.datacomponent.DataComponentTypes
+import io.papermc.paper.datacomponent.item.TooltipDisplay
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.entity.npc.PlayerNPCMarkerRegistry
 import me.hugo.thankmas.gui.Icon
@@ -228,7 +229,7 @@ public class ProfileMenuAccessor : TranslatedComponent {
                         ItemStack(Material.PHANTOM_MEMBRANE)
                             .model(if (!playerData.unlockedRods.contains(rod)) "misc/empty" else "icons/progress_green")
                             .apply {
-                                setData(DataComponentTypes.HIDE_TOOLTIP)
+                                setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay().hiddenComponents(dataTypes))
                             }
                     }, '_')
                 }
