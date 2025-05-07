@@ -5,7 +5,6 @@ import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.cosmetics.Cosmetic
-import me.hugo.thankmas.database.PlayerData
 import me.hugo.thankmas.items.hasKeyedData
 import me.hugo.thankmas.items.itemsets.ItemSetRegistry
 import me.hugo.thankmas.player.PlayerBasics
@@ -31,7 +30,6 @@ import org.bukkit.GameMode
 import org.bukkit.entity.Player
 import org.bukkit.persistence.PersistentDataType
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.upsert
 import org.koin.core.component.inject
 import java.util.*
 
@@ -138,7 +136,7 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
         val foundNPC = FoundNPC(npcId)
         npcQuest.foundNPCs += foundNPC
 
-        Bukkit.getScheduler().runTaskAsynchronously(ThankmasLobby.instance(), Runnable {
+        Bukkit.getScheduler().runTaskAsynchronously(ThankmasPlugin.instance<ThankmasLobby>(), Runnable {
             transaction {
                 playerPropertyManager.getProperty<NPCFindQuestProgress>().write(playerUUID, npcQuest)
             }
@@ -154,7 +152,7 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
         fishData.caughtFish += caughtFish
         fishData.speciesFound[fishTypeId] = Clock.System.now()
 
-        Bukkit.getScheduler().runTaskAsynchronously(ThankmasLobby.instance(), Runnable {
+        Bukkit.getScheduler().runTaskAsynchronously(ThankmasPlugin.instance<ThankmasLobby>(), Runnable {
             transaction {
                 playerPropertyManager.getProperty<PlayerFishData>().write(playerUUID, fishData)
             }
@@ -171,7 +169,7 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
         val fishToRemove = fishData.caughtFish.filter { it.fishTypeId == fishTypeId }
         fishData.caughtFish.removeAll(fishToRemove)
 
-        val instance = ThankmasPlugin.instance()
+        val instance = ThankmasPlugin.instance<ThankmasLobby>()
         inTransaction = true
 
         Bukkit.getScheduler().runTaskAsynchronously(instance, Runnable {
@@ -203,7 +201,7 @@ public class LobbyPlayer(playerUUID: UUID, instance: ThankmasLobby) :
         require(currency >= rod.price)
         require(!inTransaction)
 
-        val instance = ThankmasPlugin.instance()
+        val instance = ThankmasPlugin.instance<ThankmasLobby>()
 
         inTransaction = true
         fishingRods.fishingRods += UnlockedRod(rod.id)

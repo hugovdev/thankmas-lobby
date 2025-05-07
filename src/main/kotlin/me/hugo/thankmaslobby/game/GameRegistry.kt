@@ -3,6 +3,7 @@ package me.hugo.thankmaslobby.game
 import com.google.common.io.ByteArrayDataInput
 import com.google.common.io.ByteStreams
 import dev.kezz.miniphrase.audience.sendTranslated
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.gui.Icon
 import me.hugo.thankmas.gui.Menu
@@ -38,6 +39,8 @@ public class GameRegistry(config: FileConfiguration) : MapBasedRegistry<String, 
 
         gameSelector = Menu(configProvider.getOrLoad("hub/menus.yml"), "menus.game-selector", miniPhrase)
 
+        val instance = ThankmasPlugin.instance<ThankmasLobby>()
+
         getValues().forEach { game ->
             gameSelector.setIcons(Icon({ context, _ ->
                 val clicker = context.clicker
@@ -49,7 +52,7 @@ public class GameRegistry(config: FileConfiguration) : MapBasedRegistry<String, 
                         inserting("game", clicker.translate(game.name))
                     }
 
-                    ThankmasLobby.instance().playerDataManager.getPlayerData(clicker.uniqueId).saveSafely(clicker) {
+                    instance.playerDataManager.getPlayerData(clicker.uniqueId).saveSafely(clicker) {
                         game.send(clicker)
                     }
                 }
@@ -61,7 +64,7 @@ public class GameRegistry(config: FileConfiguration) : MapBasedRegistry<String, 
         }
 
 
-        Bukkit.getScheduler().runTaskTimer(ThankmasLobby.instance(), Runnable {
+        Bukkit.getScheduler().runTaskTimer(instance, Runnable {
             val player = Bukkit.getOnlinePlayers().firstOrNull { it.isOnline } ?: return@Runnable
 
             getValues().forEach { player.requestServerCount(it.serverName) }
@@ -102,7 +105,7 @@ public class GameRegistry(config: FileConfiguration) : MapBasedRegistry<String, 
         out.writeUTF("PlayerCount")
         out.writeUTF(serverName)
 
-        sendPluginMessage(ThankmasLobby.instance(), "BungeeCord", out.toByteArray())
+        sendPluginMessage(ThankmasPlugin.instance<ThankmasLobby>(), "BungeeCord", out.toByteArray())
     }
 
 }

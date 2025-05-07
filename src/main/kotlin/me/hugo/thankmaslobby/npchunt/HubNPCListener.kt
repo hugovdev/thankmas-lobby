@@ -1,6 +1,7 @@
 package me.hugo.thankmaslobby.npchunt
 
 import dev.kezz.miniphrase.audience.sendTranslated
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.cosmetics.CosmeticsRegistry
 import me.hugo.thankmas.entity.npc.PlayerNPCMarkerRegistry
 import me.hugo.thankmas.lang.TranslatedComponent
@@ -37,7 +38,7 @@ public class HubNPCListener(private val playerNPCRegistry: PlayerNPCMarkerRegist
         val npc = event.npc
 
         val clicker = event.clicker
-        val playerProfile = ThankmasLobby.instance().playerDataManager.getPlayerData(clicker.uniqueId)
+        val playerProfile = ThankmasPlugin.instance<ThankmasLobby>().playerDataManager.getPlayerData(clicker.uniqueId)
 
         val npcUse: String? = npc.data().get("use") as? String?
         if (npcUse != NPC_HUNT_USE_KEY) return

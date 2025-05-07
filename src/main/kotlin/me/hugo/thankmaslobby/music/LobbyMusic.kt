@@ -1,5 +1,6 @@
 package me.hugo.thankmaslobby.music
 
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.music.MusicManager
 import me.hugo.thankmas.region.types.MusicalRegion
 import me.hugo.thankmaslobby.ThankmasLobby
@@ -29,7 +30,7 @@ public class LobbyMusic : MusicManager() {
      * musical region entered by the player and plays its music track.
      */
     override val musicResolver: (listener: Player) -> MusicTrack? = {
-        val playerData = ThankmasLobby.instance().playerDataManager.getPlayerDataOrNull(it.uniqueId)
+        val playerData = ThankmasPlugin.instance<ThankmasLobby>().playerDataManager.getPlayerDataOrNull(it.uniqueId)
         val lastMusicalRegion = playerData?.lastRegion { it is MusicalRegion } as MusicalRegion?
 
         // Get the track that belongs to this player depending on their last musical region,

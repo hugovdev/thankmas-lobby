@@ -1,6 +1,7 @@
 package me.hugo.thankmaslobby.fishing.pond
 
 import dev.kezz.miniphrase.audience.sendTranslatedIfPresent
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.markers.Marker
 import me.hugo.thankmas.player.playSound
 import me.hugo.thankmas.region.WorldRegion
@@ -15,7 +16,7 @@ import java.time.Duration
 public class PondRegion(private val pond: Pond, marker: Marker, world: World) :
     WorldRegion(marker, requireNotNull(marker.getString("pond_id")), world) {
 
-    private val instance = ThankmasLobby.instance()
+    private val instance = ThankmasPlugin.instance<ThankmasLobby>()
 
     override fun onEnter(player: Player) {
         player.inventory.setItem(

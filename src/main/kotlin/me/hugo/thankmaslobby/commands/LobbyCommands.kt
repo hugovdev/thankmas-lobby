@@ -1,17 +1,13 @@
 package me.hugo.thankmaslobby.commands
 
 import me.hugo.thankmas.lang.TranslatedComponent
-import me.hugo.thankmas.player.translate
 import me.hugo.thankmaslobby.ThankmasLobby
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
-import me.hugo.thankmaslobby.fishing.rod.FishingRod
 import me.hugo.thankmaslobby.game.GameRegistry
 import net.kyori.adventure.text.Component
-import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.entity.Player
 import org.koin.core.component.inject
 import revxrsal.commands.annotation.Command
-import revxrsal.commands.annotation.Optional
 import revxrsal.commands.bukkit.annotation.CommandPermission
 
 public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComponent {

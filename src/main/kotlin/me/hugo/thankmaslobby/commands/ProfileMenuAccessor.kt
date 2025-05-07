@@ -5,6 +5,7 @@ import dev.kezz.miniphrase.audience.sendTranslated
 import dev.kezz.miniphrase.tag.TagResolverBuilder
 import io.papermc.paper.datacomponent.DataComponentTypes
 import io.papermc.paper.datacomponent.item.TooltipDisplay
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.entity.npc.PlayerNPCMarkerRegistry
 import me.hugo.thankmas.gui.Icon
@@ -67,7 +68,7 @@ public class ProfileMenuAccessor : TranslatedComponent {
         }
     }
 
-    private val instance: ThankmasLobby = ThankmasLobby.instance()
+    private val instance: ThankmasLobby = ThankmasPlugin.instance<ThankmasLobby>()
 
     private val configProvider: ConfigurationProvider by inject()
     private val fishRegistry: FishTypeRegistry by inject()

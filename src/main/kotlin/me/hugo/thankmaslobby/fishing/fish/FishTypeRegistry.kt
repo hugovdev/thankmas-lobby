@@ -2,6 +2,7 @@ package me.hugo.thankmaslobby.fishing.fish
 
 import dev.kezz.miniphrase.audience.sendTranslated
 import kotlinx.coroutines.Runnable
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.config.ConfigurationProvider
 import me.hugo.thankmas.config.enum
 import me.hugo.thankmas.gui.Icon
@@ -47,8 +48,10 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
 
         val menuConfig = configProvider.getOrLoad("hub/menus.yml")
 
+        val instance = ThankmasPlugin.instance<ThankmasLobby>()
+
         // Wait until the profile menu accessor exists!
-        Bukkit.getScheduler().runTaskLater(ThankmasLobby.instance(), Runnable {
+        Bukkit.getScheduler().runTaskLater(instance, Runnable {
             fishTypesMenu = PaginatedMenu(
                 menuConfig,
                 "menus.unlocked-fishes",
@@ -57,7 +60,7 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
             ).apply {
                 getValues().sortedBy { it.rarity.ordinal }.forEach { fishType ->
                     addIcon(Icon { player ->
-                        val playerData = ThankmasLobby.instance().playerDataManager.getPlayerData(player.uniqueId)
+                        val playerData = instance.playerDataManager.getPlayerData(player.uniqueId)
                         fishType.getIcon(
                             playerData.speciesFound[fishType.id]?.toEpochMilliseconds(),
                             player.locale()
@@ -73,7 +76,7 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
         val sellMenu =
             PaginatedMenu("menu.fish_sell.title", 9 * 3, Menu.MenuFormat.FISH_TRACKER, null, null, miniPhrase)
 
-        val playerData = ThankmasLobby.instance().playerDataManager.getPlayerData(player.uniqueId)
+        val playerData = ThankmasPlugin.instance<ThankmasLobby>().playerDataManager.getPlayerData(player.uniqueId)
 
         val caughtFish = playerData.caughtFishes.groupBy { get(it.fishTypeId) }
 

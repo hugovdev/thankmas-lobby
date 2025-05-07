@@ -1,5 +1,6 @@
 package me.hugo.thankmaslobby.decoration
 
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.items.model
 import me.hugo.thankmas.world.registry.AnvilWorldRegistry
 import me.hugo.thankmaslobby.ThankmasLobby
@@ -28,7 +29,7 @@ public class SummoningCircles(worldName: String) : KoinComponent {
                 summoningCircles += SummoningCircle(marker.location.toLocation(world).clone().add(0.0, 1.1, 0.0))
             }
 
-            Bukkit.getScheduler().runTaskTimer(ThankmasLobby.instance(), Runnable {
+            Bukkit.getScheduler().runTaskTimer(ThankmasPlugin.instance<ThankmasLobby>(), Runnable {
                 summoningCircles.forEach {
                     val summoningLocation = it.location
 

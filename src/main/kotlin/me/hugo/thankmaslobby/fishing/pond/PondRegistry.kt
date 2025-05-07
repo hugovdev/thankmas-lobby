@@ -53,15 +53,15 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
         val anvilWorldRegistry: AnvilWorldRegistry by inject()
 
         // Load all pond area markers.
-        anvilWorldRegistry.getMarkerForType(instance.hubWorld.name, "pond_area").forEach { marker ->
+        anvilWorldRegistry.getMarkerForType(instance.worldName, "pond_area").forEach { marker ->
             val pondId = requireNotNull(marker.getString("pond_id"))
             { "No pond id has been specified for pond area in ${marker.location}." }
 
             val pond = get(pondId)
-            pondAreas[pond] = PondRegion(pond, marker, ThankmasLobby.instance().hubWorld).also { it.register() }
+            pondAreas[pond] = PondRegion(pond, marker, ThankmasPlugin.instance<ThankmasLobby>().world).also { it.register() }
         }
 
-        Bukkit.getScheduler().runTaskTimer(ThankmasLobby.instance(), Runnable {
+        Bukkit.getScheduler().runTaskTimer(ThankmasPlugin.instance<ThankmasLobby>(), Runnable {
             flyingHooks.forEach { (hook, particle) ->
                 if (hook.isDead || !hook.isValid || hook.isOnGround || hook.isInWater || hook.hookedEntity != null) {
                     flyingHooks.remove(hook)
@@ -128,7 +128,7 @@ public class PondRegistry(config: FileConfiguration, private val instance: Thank
             itemStack = caughtFish.getIcon(System.currentTimeMillis(), player.locale())
                 .also { it.editMeta { it.itemName(Component.text(System.nanoTime())) } }
 
-            Bukkit.getScheduler().runTaskLater(ThankmasPlugin.instance(), Runnable {
+            Bukkit.getScheduler().runTaskLater(ThankmasPlugin.instance<ThankmasPlugin<*>>(), Runnable {
                 remove()
             }, 15L)
         }

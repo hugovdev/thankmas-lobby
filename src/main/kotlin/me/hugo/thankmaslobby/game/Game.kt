@@ -1,6 +1,7 @@
 package me.hugo.thankmaslobby.game
 
 import com.google.common.io.ByteStreams
+import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.items.TranslatableItem
 import me.hugo.thankmas.state.StatefulValue
@@ -32,7 +33,7 @@ public class Game(
         val out = ByteStreams.newDataOutput()
         out.writeUTF("Connect")
         out.writeUTF(serverName)
-        player.sendPluginMessage(ThankmasLobby.instance(), "BungeeCord", out.toByteArray())
+        player.sendPluginMessage(ThankmasPlugin.instance<ThankmasLobby>(), "BungeeCord", out.toByteArray())
     }
 
 }

@@ -5,7 +5,6 @@ import me.hugo.thankmas.ThankmasPlugin
 import me.hugo.thankmas.commands.CosmeticsCommand
 import me.hugo.thankmas.commands.NPCCommands
 import me.hugo.thankmas.commands.TranslationsCommands
-import me.hugo.thankmas.config.string
 import me.hugo.thankmas.cosmetics.CosmeticsRegistry
 import me.hugo.thankmas.entity.HologramMarkerRegistry
 import me.hugo.thankmas.entity.InteractionEntityRegistry
@@ -18,7 +17,6 @@ import me.hugo.thankmas.player.updateBoardTags
 import me.hugo.thankmas.region.RegionRegistry
 import me.hugo.thankmas.region.types.HubJumpPad
 import me.hugo.thankmas.region.types.MusicalRegion
-import me.hugo.thankmas.world.registry.AnvilWorldRegistry
 import me.hugo.thankmaslobby.commands.LobbyCommands
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
 import me.hugo.thankmaslobby.decoration.SummoningCircles
@@ -37,22 +35,20 @@ import me.hugo.thankmaslobby.npchunt.NPCFindQuestProgress
 import me.hugo.thankmaslobby.player.LobbyPlayer
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
 import org.bukkit.Bukkit
-import org.bukkit.World
 import org.koin.core.component.inject
-import org.koin.core.context.loadKoinModules
 import org.koin.core.parameter.parametersOf
 import org.koin.ksp.generated.module
 import revxrsal.commands.bukkit.BukkitCommandHandler
 import revxrsal.commands.ktx.SuspendFunctionsSupport
 import java.util.*
 
-public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
+public class ThankmasLobby :
+    ThankmasPlugin<LobbyPlayer>(listOf("hub"), { listOf(LobbyModules().module) }) {
 
     override val playerDataManager: PlayerDataManager<LobbyPlayer> = PlayerDataManager { LobbyPlayer(it, this) }
-
     override val scoreboardTemplateManager: LobbyScoreboardManager by inject { parametersOf(this) }
 
-    public val regionRegistry: RegionRegistry by inject()
+    private val regionRegistry: RegionRegistry by inject()
 
     // Fishing Stuff
     private val fishRegistry: FishTypeRegistry by inject()
@@ -69,53 +65,17 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
 
     private val cosmeticsRegistry: CosmeticsRegistry by inject()
 
-    private var worldName: String = "world"
-
-    private val anvilWorldRegistry: AnvilWorldRegistry by inject()
+    override val worldNameOrNull: String = "world"
 
     private val gameRegistry: GameRegistry by inject { parametersOf(configProvider.getOrLoad("hub/games.yml")) }
     private val itemSetManager: ItemSetRegistry by inject { parametersOf(configProvider.getOrLoad("hub/config.yml")) }
     private val profileMenuAccessor: ProfileMenuAccessor by inject()
 
     public val playerNPCRegistry: PlayerNPCMarkerRegistry by inject {
-        parametersOf(worldName)
+        parametersOf(worldNameOrNull)
     }
 
     private lateinit var commandHandler: BukkitCommandHandler
-
-    public companion object {
-        private var instance: ThankmasLobby? = null
-
-        public fun instance(): ThankmasLobby {
-            return requireNotNull(instance)
-            { "Tried to fetch a ThankmasPlugin instance while it's null!" }
-        }
-    }
-
-    override fun onLoad() {
-        super.onLoad()
-
-        instance = this
-        loadKoinModules(LobbyModules().module)
-
-        val scopeWorld = configProvider.getOrLoad("hub/config.yml").string("world")
-
-        Bukkit.unloadWorld(worldName, false)
-
-        s3WorldSynchronizer.downloadWorld(
-            scopeWorld,
-            Bukkit.getWorldContainer().resolve(worldName).also { it.mkdirs() })
-
-        anvilWorldRegistry.loadMarkers(this.worldName)
-
-        playerPropertyManager.initialize("player_fish_bags", { PlayerFishData() }, PlayerFishData.serializer())
-        playerPropertyManager.initialize("player_fishing_rods", { PlayerFishingRods() }, PlayerFishingRods.serializer())
-        playerPropertyManager.initialize(
-            "player_npc_quests",
-            { NPCFindQuestProgress() },
-            NPCFindQuestProgress.serializer()
-        )
-    }
 
     override fun onEnable() {
         super.onEnable()
@@ -141,7 +101,7 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
         logger.info("Registering item sets...")
         logger.info("Registered ${itemSetManager.size()} item sets!")
 
-        logger.info("Registered ${SummoningCircles(worldName).summoningCircles.size} summoning circles!")
+        logger.info("Registered ${SummoningCircles(worldNameOrNull).summoningCircles.size} summoning circles!")
 
         this.scoreboardTemplateManager.initialize()
 
@@ -149,7 +109,7 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
 
         // Player data loaders and spawnpoints
         pluginManager.registerEvents(PlayerDataLoader(this, this.playerDataManager), this)
-        pluginManager.registerEvents(PlayerSpawnpointOnJoin(worldName, "hub_spawnpoint", 30), this)
+        pluginManager.registerEvents(PlayerSpawnpointOnJoin(this, "hub_spawnpoint", 30), this)
 
         pluginManager.registerEvents(PlayerLocaleDetector(this.playerDataManager), this)
         pluginManager.registerEvents(PlayerAttributes("hub"), this)
@@ -158,10 +118,10 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
         pluginManager.registerEvents(PlayerLobbyProtection(), this)
 
         pluginManager.registerEvents(pondRegistry, this)
-        pluginManager.registerEvents(HologramMarkerRegistry(worldName), this)
+        pluginManager.registerEvents(HologramMarkerRegistry(this), this)
         pluginManager.registerEvents(playerNPCRegistry, this)
         pluginManager.registerEvents(HubNPCListener(playerNPCRegistry), this)
-        pluginManager.registerEvents(InteractionEntityRegistry(worldName, mapOf(Pair("fish_sell") {
+        pluginManager.registerEvents(InteractionEntityRegistry(this, mapOf(Pair("fish_sell") {
             fishRegistry.openSellMenu(it)
         })), this)
 
@@ -173,18 +133,18 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
         // Register luck perms events!
         PlayerGroupChange(this.playerDataManager) { player -> player.updateBoardTags("rank") }
 
-        anvilWorldRegistry.getMarkerForType(worldName, "hub_jump_pad").forEach {
+        anvilWorldRegistry.getMarkerForType(worldNameOrNull, "hub_jump_pad").forEach {
             // Different ids so the region controller works properly.
             val jumpPadId = UUID.randomUUID().toString()
 
-            regionRegistry.register(jumpPadId, HubJumpPad(it, jumpPadId, hubWorld))
+            regionRegistry.register(jumpPadId, HubJumpPad(it, jumpPadId, world))
         }
 
-        anvilWorldRegistry.getMarkerForType(worldName, "musical_region").forEach {
+        anvilWorldRegistry.getMarkerForType(worldNameOrNull, "musical_region").forEach {
             // Different ids so the region controller works properly.
             val musicalRegionId = UUID.randomUUID().toString()
 
-            regionRegistry.register(musicalRegionId, MusicalRegion(it, musicalRegionId, hubWorld))
+            regionRegistry.register(musicalRegionId, MusicalRegion(it, musicalRegionId, world))
         }
 
         val lobbyMusic: LobbyMusic by inject()
@@ -215,7 +175,15 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
         commandHandler.unregisterAllCommands()
     }
 
-    public val hubWorld: World
-        get() = requireNotNull(Bukkit.getWorld(worldName)) { "Tried to use the main world before it was ready." }
+    override fun initializeProperties() {
+        super.initializeProperties()
 
+        playerPropertyManager.initialize("player_fish_bags", { PlayerFishData() }, PlayerFishData.serializer())
+        playerPropertyManager.initialize("player_fishing_rods", { PlayerFishingRods() }, PlayerFishingRods.serializer())
+        playerPropertyManager.initialize(
+            "player_npc_quests",
+            { NPCFindQuestProgress() },
+            NPCFindQuestProgress.serializer()
+        )
+    }
 }
