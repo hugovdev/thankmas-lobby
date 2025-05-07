@@ -5,7 +5,7 @@ import dev.kezz.miniphrase.audience.sendTranslated
 import me.hugo.thankmas.player.translate
 import org.bukkit.entity.Player
 
-context(MiniPhraseContext)
+context(_: MiniPhraseContext)
 public fun Player.isDonor(perk: String, verb: String? = null): Boolean {
     if (hasPermission("thankmas.donator")) return true
     else {
