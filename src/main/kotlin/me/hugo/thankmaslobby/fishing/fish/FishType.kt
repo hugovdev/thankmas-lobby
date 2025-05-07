@@ -111,7 +111,7 @@ public class FishType(
         if (interval > 1) return "${floor(interval).toInt()} months"
 
         interval = seconds / 86400
-        if (interval > 1) return "${floor(interval).toInt()} days";
+        if (interval > 1) return "${floor(interval).toInt()} days"
 
         interval = seconds / 3600
         if (interval > 1) return "${floor(interval).toInt()} hours"

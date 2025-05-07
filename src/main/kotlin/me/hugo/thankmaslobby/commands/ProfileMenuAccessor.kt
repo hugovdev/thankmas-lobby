@@ -92,7 +92,7 @@ public class ProfileMenuAccessor : TranslatedComponent {
             val playerData = instance.playerDataManager.getPlayerData(it.uniqueId)
 
             fishingItem.buildItem(it.locale()) {
-                parsed("fishes", playerData.unlockedFish.size)
+                parsed("fishes", playerData.fishSpeciesFound())
                 parsed("total_fishes", fishRegistry.size())
             }
         }, 0, 1, 2, 9, 10, 11, 18, 19, 20)
@@ -108,7 +108,7 @@ public class ProfileMenuAccessor : TranslatedComponent {
             val playerData = instance.playerDataManager.getPlayerData(player.uniqueId)
 
             profileItem.buildItem(player.locale()) {
-                parsed("fishes", playerData.unlockedFish.size)
+                parsed("fishes", playerData.fishSpeciesFound())
                 parsed("total_fishes", fishRegistry.size())
                 parsed("npcs", playerData.foundNPCs().size)
                 parsed(
@@ -169,7 +169,7 @@ public class ProfileMenuAccessor : TranslatedComponent {
                         return@Icon
                     }
 
-                    if (playerData.unlockedRods.contains(rod)) {
+                    if (rod in playerData) {
                         playerData.selectedRod.value = rod
                         clicker.sendTranslated("fishing.fishing_rods.you_selected") {
                             inserting("rod", clicker.translate(rod.name))
@@ -182,7 +182,7 @@ public class ProfileMenuAccessor : TranslatedComponent {
 
                     if (!context.clickType.isShiftClick) return@Icon
                     if (playerData.inTransaction) return@Icon
-                    if (playerData.unlockedRods.maxOf { it.tier } + 1 != rod.tier) return@Icon
+                    if (playerData.ownedRods.maxOf { it.tier } + 1 != rod.tier) return@Icon
 
                     if (playerData.currency >= rod.price) {
                         playerData.acquireRod(rod) {
@@ -212,11 +212,12 @@ public class ProfileMenuAccessor : TranslatedComponent {
                     clicker.updateInventory()
                 }) {
                     val playerData = instance.playerDataManager.getPlayerData(it.uniqueId)
-                    val bestPlayerRod = playerData.unlockedRods.maxBy { it.tier }
+                    val ownedRods = playerData.ownedRods
+                    val bestPlayerRod = ownedRods.maxBy { it.tier }
 
                     rod.buildIcon(
                         it,
-                        blocked = !playerData.unlockedRods.contains(rod),
+                        blocked = !ownedRods.contains(rod),
                         buyable = bestPlayerRod.tier + 1 == rod.tier,
                         selected = (playerData.selectedRod.value == rod)
                     )
@@ -227,7 +228,7 @@ public class ProfileMenuAccessor : TranslatedComponent {
                         val playerData = instance.playerDataManager.getPlayerData(it.uniqueId)
 
                         ItemStack(Material.PHANTOM_MEMBRANE)
-                            .model(if (!playerData.unlockedRods.contains(rod)) "misc/empty" else "icons/progress_green")
+                            .model(if (!playerData.ownedRods.contains(rod)) "misc/empty" else "icons/progress_green")
                             .apply {
                                 setData(DataComponentTypes.TOOLTIP_DISPLAY, TooltipDisplay.tooltipDisplay().hiddenComponents(dataTypes))
                             }

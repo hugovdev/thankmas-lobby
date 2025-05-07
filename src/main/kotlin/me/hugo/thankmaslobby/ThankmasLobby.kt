@@ -7,8 +7,6 @@ import me.hugo.thankmas.commands.NPCCommands
 import me.hugo.thankmas.commands.TranslationsCommands
 import me.hugo.thankmas.config.string
 import me.hugo.thankmas.cosmetics.CosmeticsRegistry
-import me.hugo.thankmas.database.CosmeticsOwned
-import me.hugo.thankmas.database.PlayerData
 import me.hugo.thankmas.entity.HologramMarkerRegistry
 import me.hugo.thankmas.entity.InteractionEntityRegistry
 import me.hugo.thankmas.entity.npc.PlayerNPCMarkerRegistry
@@ -23,20 +21,19 @@ import me.hugo.thankmas.region.types.MusicalRegion
 import me.hugo.thankmas.world.registry.AnvilWorldRegistry
 import me.hugo.thankmaslobby.commands.LobbyCommands
 import me.hugo.thankmaslobby.commands.ProfileMenuAccessor
-import me.hugo.thankmaslobby.database.FishUnlocked
-import me.hugo.thankmaslobby.database.Fishes
-import me.hugo.thankmaslobby.database.FoundNPCs
-import me.hugo.thankmaslobby.database.Rods
 import me.hugo.thankmaslobby.decoration.SummoningCircles
 import me.hugo.thankmaslobby.dependencyinjection.LobbyModules
 import me.hugo.thankmaslobby.fishing.fish.FishTypeRegistry
+import me.hugo.thankmaslobby.fishing.fish.PlayerFishData
 import me.hugo.thankmaslobby.fishing.pond.PondRegistry
 import me.hugo.thankmaslobby.fishing.rod.FishingRodRegistry
+import me.hugo.thankmaslobby.fishing.rod.PlayerFishingRods
 import me.hugo.thankmaslobby.game.GameRegistry
 import me.hugo.thankmaslobby.listener.PlayerLobbyAccess
 import me.hugo.thankmaslobby.listener.PlayerLobbyProtection
 import me.hugo.thankmaslobby.music.LobbyMusic
 import me.hugo.thankmaslobby.npchunt.HubNPCListener
+import me.hugo.thankmaslobby.npchunt.NPCFindQuestProgress
 import me.hugo.thankmaslobby.player.LobbyPlayer
 import me.hugo.thankmaslobby.scoreboard.LobbyScoreboardManager
 import org.bukkit.Bukkit
@@ -49,10 +46,7 @@ import revxrsal.commands.bukkit.BukkitCommandHandler
 import revxrsal.commands.ktx.SuspendFunctionsSupport
 import java.util.*
 
-public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
-    listOf("hub"),
-    sqlTables = arrayOf(PlayerData, CosmeticsOwned, FishUnlocked, Fishes, FoundNPCs, Rods)
-) {
+public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(listOf("hub")) {
 
     override val playerDataManager: PlayerDataManager<LobbyPlayer> = PlayerDataManager { LobbyPlayer(it, this) }
 
@@ -113,6 +107,14 @@ public class ThankmasLobby : ThankmasPlugin<LobbyPlayer>(
             Bukkit.getWorldContainer().resolve(worldName).also { it.mkdirs() })
 
         anvilWorldRegistry.loadMarkers(this.worldName)
+
+        playerPropertyManager.initialize("player_fish_bags", { PlayerFishData() }, PlayerFishData.serializer())
+        playerPropertyManager.initialize("player_fishing_rods", { PlayerFishingRods() }, PlayerFishingRods.serializer())
+        playerPropertyManager.initialize(
+            "player_npc_quests",
+            { NPCFindQuestProgress() },
+            NPCFindQuestProgress.serializer()
+        )
     }
 
     override fun onEnable() {

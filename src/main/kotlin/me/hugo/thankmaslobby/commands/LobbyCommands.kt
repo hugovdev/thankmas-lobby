@@ -24,7 +24,7 @@ public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComp
     }
 
     @Command("games")
-    private suspend fun openGameSelector(sender: Player) {
+    private fun openGameSelector(sender: Player) {
         val gameRegistry: GameRegistry by inject()
         gameRegistry.gameSelector.open(sender)
     }
@@ -40,27 +40,5 @@ public class LobbyCommands(private val instance: ThankmasLobby) : TranslatedComp
         playerData.currency += coins
 
         sender.sendMessage(Component.text("Given $coins to ${sender.name}"))
-    }
-
-    @Command("unlockrod")
-    @CommandPermission("thankmas.admin")
-    private fun unlockRod(
-        sender: Player,
-        fishingRod: FishingRod,
-        @Optional receiver: Player = sender
-    ) {
-        val playerData = instance.playerDataManager.getPlayerData(receiver.uniqueId)
-
-        if (playerData.unlockedRods.contains(fishingRod)) {
-            sender.sendMessage(Component.text("You already have this rod unlocked!", NamedTextColor.RED))
-            return
-        }
-
-        playerData.unlockedRods += fishingRod
-        sender.sendMessage(
-            Component.text("Unlocked ", NamedTextColor.GREEN)
-                .append(sender.translate(fishingRod.getItemName()))
-                .append(Component.text(" for ${receiver.name} temporarily!"))
-        )
     }
 }

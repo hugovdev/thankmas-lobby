@@ -59,7 +59,7 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
                     addIcon(Icon { player ->
                         val playerData = ThankmasLobby.instance().playerDataManager.getPlayerData(player.uniqueId)
                         fishType.getIcon(
-                            playerData.unlockedFish.firstOrNull { it.first == fishType }?.second,
+                            playerData.speciesFound[fishType.id]?.toEpochMilliseconds(),
                             player.locale()
                         )
                     })
@@ -75,13 +75,13 @@ public class FishTypeRegistry : MapBasedRegistry<String, FishType>(), Translated
 
         val playerData = ThankmasLobby.instance().playerDataManager.getPlayerData(player.uniqueId)
 
-        val caughtFish = playerData.caughtFishes.groupBy { it.fishType }
+        val caughtFish = playerData.caughtFishes.groupBy { get(it.fishTypeId) }
 
         caughtFish.toList().sortedBy { it.first.rarity.ordinal }.forEach { (fishType, fishes) ->
             sellMenu.addIcon(Icon({ context, _ ->
                 if (!context.clickType.isShiftClick) return@Icon
                 if (playerData.inTransaction) return@Icon
-                if (playerData.caughtFishes.none { it.fishType == fishType }) return@Icon
+                if (playerData.caughtFishes.none { it.fishTypeId == fishType.id }) return@Icon
 
                 val fishAmount = fishes.size
                 val coins = fishType.rarity.sellPrice * fishAmount
